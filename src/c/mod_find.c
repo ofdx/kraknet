@@ -1,0 +1,73 @@
+/*
+	mod_find
+	Written by Mike Perron (2012-2013)
+
+	Dumps out the script for a given module, provided as an argument of the
+	form mod:script [arguments list].
+*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "generic.h"
+
+int main(int argc,char **argv){
+	char *mod,*script,*args=NULL;
+	char *home_dir;
+
+	char *s,*str,**p;
+	size_t n=0;
+
+	FILE *pipe;
+	int c;
+
+	if(argc<2)
+		return -1;
+
+	if(!(home_dir=getenv("mod_root")))
+		return -1;
+
+	//Look for a colon between module and script
+	str=*(argv+1);
+	if(!(s=strstr(str,":")))
+		return -1;
+	*s=0;
+
+	mod=calloc(32,sizeof(char));
+	strcpy(mod,str);
+
+	script=calloc(64,sizeof(char));
+	strcpy(script,++s);
+
+	// Flatten arguments to a single string.
+	if(argc>2){
+		p=argv+2;
+		do{	n+=256;
+			args=realloc(args,n*sizeof(char));
+			if(n==256)
+				strcpy(args,*p); 
+			else {
+				strcat(args," ");
+				strcat(args,*p);
+			}
+		}	while(*(++p));
+	}
+
+	str=calloc(256+n,sizeof(char));
+	sprintf(str,"%s/%s/info.txt",home_dir,mod);
+
+	if(script=get_conf_line(str,script)){
+		unquote_str(script);
+		sprintf(str,"%s/%s/%s %s",home_dir,mod,script,args?args:"");
+		if(pipe=popen(str,"r")){
+			while(1){
+				c=getc(pipe);
+				if(feof(pipe))
+					break;
+				fputc(c,stdout);
+			}	pclose(pipe);
+		}
+	}
+
+	return 0;
+}

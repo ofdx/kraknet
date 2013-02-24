@@ -1,0 +1,60 @@
+#!/bin/sh
+# This script starts the web server and also handles configuration.
+# Feel free to edit the environment variables here to match your desired setup.
+#
+# Written by Mike Perron (2012-2013)
+
+# All the server's files are a sub directory of this location by default.
+server_home="/home/mike/src/ws"
+
+# The server will run on this port.
+port="9001"
+
+# End server of configuration.
+
+
+
+# WARNING! WARNING! WARNING!
+# WARNING! WARNING! WARNING!
+# Refrain from editing anything below here if you are not a BASH expert.
+
+# Directory for server binaries.
+bin_path="$server_home/bin"
+
+# Configuration (including MIME types and sites) is in this directory.
+export conf_dir="$server_home/conf"
+
+# Set the PATH so the server can find its utilities.
+export PATH="$PATH:$bin_path"
+exec_name="ws"
+
+pstart(){
+	echo "Starting server..."
+	$exec_name $port
+}
+pstop(){
+	echo "Stopping server..."
+	killall $exec_name
+}
+
+case "$1" in
+	start )
+		pstart
+	;;
+	stop )
+		pstop
+	;;
+	restart )
+		pstop
+		echo "Waiting..."
+		sleep 1
+		pstart
+	;;
+	status )
+		ps aux | grep ws | grep -v grep | grep -v $0
+		netstat -t | grep $port
+	;;
+	* )
+		echo "Usage: "$0" <start|stop|restart|status>"
+	;;
+esac

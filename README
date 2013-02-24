@@ -1,0 +1,44 @@
+Kraknet Site System
+
+A stand alone web server (httpd) designed to serve CGI in an intuitive and
+convenient way.
+
+init_ws:
+	This file is used to start and stop the server. It behaves like a System V
+	init script. If this were a permanent set up, this script would be in
+	/etc/init.d
+
+Directories in /home/ghandi and what they mean:
+	web/
+		This is the live web directory. Everything here is available on the
+		internet in exactly the way it's laid out.
+
+	mods/
+		Kraknet modules are stored here, with all of their scripts. Each module
+		should have an info.txt file telling Kraknet how to map a request for a
+		script to an actual file inside the module's directory.
+
+	conf/
+		Config files here.
+			mime: MIME type definitions. If a file isn't being served in the way
+			you would like, you can change it here.
+
+			serv: Server configuration. Changes made here are live immediately
+			without restarting the server. BE CAREFUL.
+
+	src/o/
+		Binary object files. These are useless, unless you need to link with
+		them to compile some core feature of the server or Kraknet into your
+		C application.
+
+	src/i/
+		Header files. Make sure you link with the relevant object code from o/
+
+	bin/
+		Binaries for the server. Anything here will be available in the path of
+		all CGI scripts. Be careful about what you put here.
+
+	db/
+		A suggested location for storing database files. The system's database
+		files (SQLite3) will be available here, including kraknet.db which has
+		user information.
