@@ -6,7 +6,7 @@
 
 # Server's domain name. (Does not need to be fully qualified)
 # This will be set to $SERVER_NAME
-server_name="mostlyharmless.dyndns.org"
+server_name="localhost"
 
 # The user the server will run as.
 # This change will be reflected the next time the server starts.
@@ -26,7 +26,7 @@ tmp_ws="/tmp/krakws"
 
 # If a path is requested, we'll search for each file in this semi-colon
 # deliniated list in that path until one is found.
-default_documents="index.html;index.cgi;ghandi.html"
+default_documents="index.html;index.cgi"
 
 # Web directory protection keeps files from outside of $web_root from being
 # served. If you want to symlink to files outside of $web_root you can disable
