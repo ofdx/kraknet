@@ -1,4 +1,6 @@
 Kraknet Site System
+Written by Mike Perron (krakissi)
+Copyright 2013. Not yet licensed for wide distribution.
 
 A stand alone web server (httpd) designed to serve CGI in an intuitive and
 convenient way.
