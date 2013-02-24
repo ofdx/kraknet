@@ -14,11 +14,11 @@ web_user_name="mike"
 
 # This is the live web root.
 # It will be set to $web_root and $DOCUMENT_ROOT for compatibility.
-web_root="/home/mike/src/ws/web"
+web_root="web"
 
 # Where Kraknet Modules are stored, each in their own directory.
 # This will be set to $mod_root.
-mod_root="/home/mike/src/ws/mods"
+mod_root="mods"
 
 # Temporary Data (used for CGI POST).
 # This will be set to $tmp_ws.

@@ -33,6 +33,7 @@
 
 char state=1;
 void error(const char *msg);
+void set_path(char *dest,char *src);
 int set_env_from_conf();
 
 
@@ -242,9 +243,36 @@ void error(const char *msg){
 	exit(-1);
 }
 
+void set_path(char *dest,char *src){
+	static char *root=NULL;
+	if(!dest){
+		root=src;
+		return;
+	}
+
+	if(*src!='/')
+		sprintf(dest,"%s/%s",root,src);
+	else strcpy(dest,src);
+}
+
 int set_env_from_conf(){
+	static char *str=NULL;
 	FILE *conf;
 	char *a;
+
+	// Static buffer to translate relative paths on.
+	if(!str)
+		str=calloc(1024,sizeof(char));
+
+	/*	All other directories are assumed to be derived from here if they don't
+		begin with a / */
+	if(!(a=getenv("server_home")))
+		return -1;
+	if(!(a=realpath(a,NULL))){
+		fprintf(stderr,"Server path is inaccessible. (%s)\n",getenv("server_home"));
+		return -1;
+	}
+	set_path(NULL,a);
 
 	if(!(conf=get_conf_stream("serv","r")))
 		return -1;
@@ -263,31 +291,34 @@ int set_env_from_conf(){
 		fprintf(stderr,"web_root not set.\n");
 		return -1;
 	}
+	set_path(str,a);
 
 	// Remove symlinks
-	if(!(a=realpath(a,NULL))){
+	if(!(str=realpath(str,NULL))){
 		fprintf(stderr,"web_root path inaccessible.\n");
 		return -1;
 	}
-	setenv("web_root",a,1);
-	setenv("DOCUMENT_ROOT",a,1);
+	setenv("web_root",str,1);
+	setenv("DOCUMENT_ROOT",str,1);
 
 	// mod_root
 	if(!(a=get_conf_line_s(conf,"mod_root",SEEK_RESET_OK))){
 		fprintf(stderr,"mod_root not set.\n");
 		return -1;
 	}
-	setenv("mod_root",a,1);
+	set_path(str,a);
+	setenv("mod_root",str,1);
 
 	// tmp_ws
 	if(!(a=get_conf_line_s(conf,"tmp_ws",SEEK_RESET_OK))){
 		fprintf(stderr,"tmp_ws not set.\n");
 		return -1;
 	}
-	setenv("tmp_ws",a,1);
+	set_path(str,a);
+	setenv("tmp_ws",str,1);
 
 	// Create temp directory.
-	mkdir(a,776);
+	mkdir(str,776);
 	switch(errno){
 		case 0: case EEXIST:
 			break;

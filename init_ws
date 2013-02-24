@@ -1,11 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 # This script starts the web server and also handles configuration.
 # Feel free to edit the environment variables here to match your desired setup.
 #
 # Written by Mike Perron (2012-2013)
 
 # All the server's files are a sub directory of this location by default.
-server_home="/home/mike/src/ws"
+server_home="."
 
 # The server will run on this port.
 port="9001"
@@ -17,6 +17,9 @@ port="9001"
 # WARNING! WARNING! WARNING!
 # WARNING! WARNING! WARNING!
 # Refrain from editing anything below here if you are not a BASH expert.
+pushd $server_home >/dev/null
+export server_home=`pwd -P`
+popd >/dev/null
 
 # Directory for server binaries.
 bin_path="$server_home/bin"
