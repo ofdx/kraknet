@@ -1,54 +1,54 @@
 # Kraknet Site System
 # Written by Mike Perron (2013)
-i=i
-c=c
-o=o
-bin=../bin
+I=i
+C=c
+O=o
+BIN=../bin
 
-all: $(i) $(o) $(bin) $(bin)/ws $(bin)/mod_find $(bin)/kraknet
+all: $(I) $(O) $(BIN) $(BIN)/ws $(BIN)/mod_find $(BIN)/kraknet
 
 # krakws
-$(bin)/ws: $(o)/serv.o $(o)/http11.o $(o)/generic.o $(o)/utc_date.o
-	cc -o $(bin)/ws -s $(o)/serv.o $(o)/http11.o $(o)/generic.o $(o)/utc_date.o -lrt -I$(i)
+$(BIN)/ws: $(O)/serv.o $(O)/http11.o $(O)/generic.o $(O)/utc_date.o
+	cc -o $(BIN)/ws -s $(O)/serv.o $(O)/http11.o $(O)/generic.o $(O)/utc_date.o -lrt -I$(I)
 
-$(o)/serv.o: $(c)/serv.c $(i)/http11.h $(i)/generic.h
-	cc -c $(c)/serv.c -o $(o)/serv.o -I$(i)
+$(O)/serv.o: $(C)/serv.c $(I)/http11.h $(I)/generic.h
+	cc -c $(C)/serv.c -o $(O)/serv.o -I$(I)
 
-$(o)/http11.o: $(c)/http11.c $(i)/http11.h $(i)/generic.h
-	cc -c $(c)/http11.c -o $(o)/http11.o -I$(i)
+$(O)/http11.o: $(C)/http11.c $(I)/http11.h $(I)/generic.h
+	cc -c $(C)/http11.c -o $(O)/http11.o -I$(I)
 
-$(o)/utc_date.o: $(c)/utc_date.c $(i)/utc_date.h
-	cc -c $(c)/utc_date.c -o $(o)/utc_date.o -I$(i)
+$(O)/utc_date.o: $(C)/utc_date.c $(I)/utc_date.h
+	cc -c $(C)/utc_date.c -o $(O)/utc_date.o -I$(I)
 
-$(o)/generic.o: $(c)/generic.c $(i)/generic.h
-	cc -c $(c)/generic.c -o $(o)/generic.o -I$(i)
+$(O)/generic.o: $(C)/generic.c $(I)/generic.h
+	cc -c $(C)/generic.c -o $(O)/generic.o -I$(I)
 
 
 # mod_find 
-$(o)/mod_find.o: $(c)/mod_find.c $(i)/generic.h
-	cc -c $(c)/mod_find.c -o $(o)/mod_find.o -I$(i)
+$(O)/mod_find.o: $(C)/mod_find.c $(I)/generic.h
+	cc -c $(C)/mod_find.c -o $(O)/mod_find.o -I$(I)
 
-$(bin)/mod_find: $(o)/mod_find.o $(o)/generic.o
-	cc -o $(bin)/mod_find -s $(o)/mod_find.o $(o)/generic.o -I$(i)
+$(BIN)/mod_find: $(O)/mod_find.o $(O)/generic.o
+	cc -o $(BIN)/mod_find -s $(O)/mod_find.o $(O)/generic.o -I$(I)
 
 
 # kraknet
-$(o)/kraknet.o: $(c)/kraknet.c $(i)/generic.h
-	cc -c $(c)/kraknet.c -o $(o)/kraknet.o -I$(i)
+$(O)/kraknet.o: $(C)/kraknet.c $(I)/generic.h
+	cc -c $(C)/kraknet.c -o $(O)/kraknet.o -I$(I)
 
-$(bin)/kraknet: $(o)/kraknet.o $(o)/generic.o
-	cc -o $(bin)/kraknet -s $(o)/kraknet.o $(o)/generic.o -I$(i)
+$(BIN)/kraknet: $(O)/kraknet.o $(O)/generic.o
+	cc -o $(BIN)/kraknet -s $(O)/kraknet.o $(O)/generic.o -I$(I)
 
 
 # misc
-$(i):
-	mkdir $(i)
+$(I):
+	mkdir $(I)
 
-$(o):
-	mkdir $(o)
+$(O):
+	mkdir $(O)
 
-$(bin):
-	mkdir $(bin)
+$(BIN):
+	mkdir $(BIN)
 
 clean:
-	rm $(o)/*.o $(bin)/ws $(bin)/kraknet $(bin)/mod_find
+	rm $(O)/*.o $(BIN)/ws $(BIN)/kraknet $(BIN)/mod_find
