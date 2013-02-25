@@ -1,5 +1,12 @@
 # Kraknet Site System
 # Written by Mike Perron (2013)
+
+# To build:
+# 	$ make
+
+# To clean (remove compiled binaries):
+# 	$ make clean
+
 I=i
 C=c
 O=o
