@@ -210,6 +210,7 @@ void http_request(FILE *stream, char *uri,int method){
 						strcpy(status,*a+8);
 						if(!*status)
 							return http_default_error(stream,500,"Status was ill-defined.");
+						**a=0;
 					}
 				}
 				fprintf(stream,"%s %s\r\n",getenv("SERVER_PROTOCOL"),status);
@@ -218,7 +219,8 @@ void http_request(FILE *stream, char *uri,int method){
 
 				// Print \r\n terminated header lines.
 				for(a=cgi_headers;*a;a++)
-					fprintf(stream,"%s\r\n",*a);
+					if(**a)
+						fprintf(stream,"%s\r\n",*a);
 				fprintf(stream,"Content-length: %ld\r\n",count);
 				fputs("\r\n",stream);
 
