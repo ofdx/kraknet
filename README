@@ -39,15 +39,15 @@ Directories and what they mean:
     src/c/
         C source files.
 
-    src/o/
-        Binary object files. These are useless, unless you need to link with
-        them to compile some core feature of the server or Kraknet into your
-        C application.
-
     src/i/
         Header files. Make sure you link with the relevant object code from o/
         if you are trying to include some of the code from the server in your
         module.
+
+    src/o/
+        Binary object files. These are useless, unless you need to link with
+        them to compile some core feature of the server or Kraknet into your
+        C application.
 
     web/
         This is the live web directory. Everything here is available on the
