@@ -15,10 +15,10 @@ BIN=../bin
 all: $(I) $(O) $(BIN) $(BIN)/ws $(BIN)/mod_find $(BIN)/kraknet
 
 # krakws
-$(BIN)/ws: $(O)/serv.o $(O)/http11.o $(O)/generic.o $(O)/utc_date.o
-	cc -o $(BIN)/ws -s $(O)/serv.o $(O)/http11.o $(O)/generic.o $(O)/utc_date.o -lrt -I$(I)
+$(BIN)/ws: $(O)/serv.o $(O)/http11.o $(O)/generic.o $(O)/utc_date.o $(O)/conf.o
+	cc -o $(BIN)/ws -s $(O)/serv.o $(O)/http11.o $(O)/generic.o $(O)/utc_date.o $(O)/conf.o -lrt -I$(I)
 
-$(O)/serv.o: $(C)/serv.c $(I)/http11.h $(I)/generic.h
+$(O)/serv.o: $(C)/serv.c $(I)/http11.h $(I)/generic.h $(I)/conf.h
 	cc -c $(C)/serv.c -o $(O)/serv.o -I$(I)
 
 $(O)/http11.o: $(C)/http11.c $(I)/http11.h $(I)/generic.h
@@ -29,6 +29,9 @@ $(O)/utc_date.o: $(C)/utc_date.c $(I)/utc_date.h
 
 $(O)/generic.o: $(C)/generic.c $(I)/generic.h
 	cc -c $(C)/generic.c -o $(O)/generic.o -I$(I)
+
+$(O)/conf.o: $(C)/conf.c $(I)/conf.h $(I)/generic.h
+	cc -c $(C)/conf.c -o $(O)/conf.o -I$(I)
 
 
 # mod_find 
