@@ -154,6 +154,7 @@ void http_request(FILE *stream, char *uri,int method){
 		mime_type=get_mime_type(uri);
 		s=NULL;
 		if(sbuf.st_mode&(S_IXUSR|S_IXGRP|S_IXOTH) || (s=strstr(mime_type,"text/html"))){
+			setenv("SCRIPT_NAME",uri+strlen(getenv("web_root")),1);
 			/**********************************************
 			    Output mode is CGI. Running the script.
 			**********************************************/
