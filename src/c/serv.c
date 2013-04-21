@@ -230,7 +230,7 @@ int main(int argc, char**argv){
 
 	// PID info returned when starting server.
 	if(pid>0)
-		printf("Server started [%d]\n",pid);
+		printf("Server started on port %d. [%d]\n",port,pid);
 	else printf("Failed\n");
 	return 0;
 }
