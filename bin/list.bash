@@ -5,7 +5,7 @@
 # Mike Perron (2013)
 
 # Find the present working directory.
-DIR=$(dirname $SCRIPT_NAME)
+DIR=$(dirname "$SCRIPT_NAME")
 WORKING=$web_root
 if [ "$DIR" == "/" ]; then
 	DIRF="$DIR"
@@ -43,17 +43,18 @@ if [ "$DIR" == "/" ];  then
 fi
 
 # Loop to generate each row.
-for FILE in $(ls -a $WORKING/$DIR); do
-SIZE=$(stat --printf="%s" $WORKING/$DIR/$FILE)
-MIME=$(file -b $WORKING/$DIR/$FILE)
+IFS=$'\n'
+for FILE in $(ls -a "$WORKING/$DIR"); do
+SIZE=$(stat --printf="%s" "$WORKING/$DIR/$FILE")
+MIME=$(file -b "$WORKING/$DIR/$FILE")
 if [ "$MIME" == "directory" ]; then
 	FILEF="$FILE/"
-	case $FILE in
+	case "$FILE" in
 		..)	SIZE=""
 			MIME="<b>Move Up</b>"
 		;;
 		.)	MIME="<b>Present Directory</b>"	;&
-		*)	SIZE="$(du -sh $WORKING/$DIR/$FILE/ | awk '{print $1}')" ;;
+		*)	SIZE="$(du -sh '$WORKING/$DIR/$FILE/' | awk '{print $1}')" ;;
 	esac 
 else
 	FILEF="$FILE"
