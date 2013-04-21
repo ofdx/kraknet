@@ -86,6 +86,9 @@ void http_request(FILE *stream, char *uri,int method){
 	FILE *content,*cgi_pipe,*conf;
 	struct stat sbuf;
 
+	// Gets set if we're going to do an auto directory listing.
+	char listing_mode=0;
+
 	// Clear the buffer of POST data
 	if(method==POST){
 		if(s=getenv("CONTENT_LENGTH"))
@@ -106,6 +109,13 @@ void http_request(FILE *stream, char *uri,int method){
 	else {
 		if(S_ISDIR(sbuf.st_mode)){
 			str=calloc(strlen(uri)+256,sizeof(char));
+
+			// Redirect if the trailing slash is missing.
+			if(*(uri+strlen(uri)-1)!='/'){
+				sprintf(str,"%s/",uri+strlen(getenv("web_root")));
+				return http_redirect(stream,301,str);
+			}
+
 			sprintf(str,"%s/serv",(s=getenv("conf_dir"))?s:".");
 
 			// Check conf/serv for a list of default documents.
@@ -128,13 +138,6 @@ void http_request(FILE *stream, char *uri,int method){
 			// No config for default docs, just try the Apache standard.
 			} else sprintf(str,"%s/index.html",uri);
 
-			if(stat(str,&sbuf)<0){
-				free(str);
-
-				// TODO: Auto directory indexing could be implemented here.
-				return http_default_error(stream,404,"No Index Found.");
-			}
-
 			// If the path isn't canonical redirect the user.
 			if((s=getenv("kws_pot_err")) && strstr(s,"dirnotdir")){
 				if(s=strstr(str,getenv("web_root")))
@@ -144,6 +147,9 @@ void http_request(FILE *stream, char *uri,int method){
 			}
 			unsetenv("kws_pot_err");
 
+			// Directory listing mode.
+			if(stat(str,&sbuf)<0)
+				listing_mode=1;
 
 			uri=realloc(uri,(strlen(str)+1)*sizeof(char));
 			strcpy(uri,str);
@@ -151,9 +157,12 @@ void http_request(FILE *stream, char *uri,int method){
 		}
 		
 		// Check for exec permissions or Kraknet.
-		mime_type=get_mime_type(uri);
+		if(listing_mode){
+			mime_type=calloc(32,sizeof(char));
+			strcpy(mime_type,"text/html; charset=UTF-8");
+		} else mime_type=get_mime_type(uri);
 		s=NULL;
-		if(sbuf.st_mode&(S_IXUSR|S_IXGRP|S_IXOTH) || (s=strstr(mime_type,"text/html"))){
+		if(listing_mode || sbuf.st_mode&(S_IXUSR|S_IXGRP|S_IXOTH) || (s=strstr(mime_type,"text/html"))){
 			setenv("SCRIPT_NAME",uri+strlen(getenv("web_root")),1);
 			/**********************************************
 			    Output mode is CGI. Running the script.
@@ -175,8 +184,8 @@ void http_request(FILE *stream, char *uri,int method){
 
 			// TODO: If POST, pipe the temp file into this command.
 			if(post_data_fname)
-				sprintf(str,"%s\"%s\" < %s",s?"kraknet ":"",uri,post_data_fname);
-			else sprintf(str,"%s\"%s\"",s?"kraknet ":"",uri);
+				sprintf(str,"%s\"%s\" < %s",s?"kraknet ":"",listing_mode?"list":uri,post_data_fname);
+			else sprintf(str,"%s\"%s\"",s?"kraknet ":"",listing_mode?"list":uri);
 
 			if(cgi_pipe=popen(str,"r")){
 				// Read CGI headers from script.
