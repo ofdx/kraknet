@@ -39,7 +39,8 @@ Config files here.
 MIME type definitions. If a file isn't being served in the way
 you would like, you can change it here.
 
-####serv: Server configuration. Changes made here are live immediately
+####serv:
+Server configuration. Changes made here are live immediately
 without restarting the server. BE CAREFUL.
 
 
