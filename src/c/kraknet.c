@@ -80,9 +80,9 @@ int main(int argc, char **argv){
 				if(!(pipe=popen(buf,"r")))
 					break;
 
-				while(getline(&str,&n,pipe)!=-1){
+				while(getline(&str,&n,pipe)!=-1)
 					fputs(str,stdout);
-				}	pclose(pipe);
+				pclose(pipe);
 
 				b=seek+1;
 			}
