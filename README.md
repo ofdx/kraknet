@@ -1,6 +1,11 @@
 #Kraknet Site System
 Written by Mike Perron (krakissi)
-Copyright 2013. Not yet licensed for wide distribution.
+Copyright 2013
+
+##License
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 ##Description
 A stand alone web server (httpd) designed to serve CGI in an intuitive and

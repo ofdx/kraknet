@@ -2,6 +2,10 @@
 	utc_date
 	Written by Mike Perron (2012)
 
+	This Source Code Form is subject to the terms of the Mozilla Public
+	License, v. 2.0. If a copy of the MPL was not distributed with this
+	file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 	Gets the time for Kraknet posts. The format is always four digit year, two
 	digit month, two digit day of the month, two digit hour, two digit minute,
 	two digit second, plus nine digits for nanoseconds. This replaces a pipe to

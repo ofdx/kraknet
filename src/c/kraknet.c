@@ -2,6 +2,10 @@
 	kraknet
 	Written by Mike Perron (2012-2013)
 
+	This Source Code Form is subject to the terms of the Mozilla Public
+	License, v. 2.0. If a copy of the MPL was not distributed with this
+	file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 	This is where the magic happens. kraknet parses HTML documents looking for
 	hint tags of the format <????module:script [args]>. When found, it looks for
 	an info.txt file at $mod_root/module/info.txt. In that file there will be a
