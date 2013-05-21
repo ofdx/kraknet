@@ -2,10 +2,13 @@
 # Simple build script, ideal for users who intend to build the server and run
 # it out of the box immediately. Always performs a full, clean build.
 
+# Error handling.
 error_level=0
 inc_error(){
 	error_level=$(expr $error_level + 1)
 }
+
+# Used to rebuild web/index.html, if it's not present.
 create_default_doc(){
 cat > "web/index.html" << EOF
 !# Welcome, traveler!
