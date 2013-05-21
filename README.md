@@ -13,6 +13,9 @@ convenient way.
 
 
 ##Getting Started
+If you're in a real hurry, build with ./build.bash in the root directory. This
+will check some tool dependencies and perform a full clean build. Otherwise...
+
 In order to get started using Kraknet, you should first compile the source code
 and generate binaries. This is accomplished by running make(1) in the src/
 directory. This will generate a directory bin/ in the root of the project

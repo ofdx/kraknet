@@ -1,0 +1,5 @@
+# Used by /build.sh to confirm required tools are available.
+# Do not modify unless you understand what that means.
+gcc
+make
+sqlite3
