@@ -10,6 +10,10 @@ server_home="."
 # The server will run on this port.
 port="9001"
 
+# Temp Data Dir
+# Used for POST.
+temp_data_dir="/tmp/krakws"
+
 # End server of configuration.
 
 
@@ -33,6 +37,8 @@ exec_name="ws"
 
 pstart(){
 	echo "Starting server..."
+	mkdir -p $temp_data_dir
+	chmod 777 $temp_data_dir
 	$exec_name $port
 }
 pstop(){
