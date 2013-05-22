@@ -4,6 +4,18 @@
 #
 # Written by Mike Perron (2012-2013)
 
+### BEGIN INIT INFO
+# Provides:   ws
+# Required-Start: $local_fs $remote_fs
+# Required-Stop:  $local_fs $remote_fs
+# Should-Start:   $network
+# Should-Stop:    $network
+# Default-Start:  2 3 4 5
+# Default-Stop:   0 1 6
+# Short-Description:	Krakws Web Server
+### END INIT INFO
+
+
 # All the server's files are a sub directory of this location by default.
 server_home="."
 
@@ -37,8 +49,10 @@ exec_name="ws"
 
 pstart(){
 	echo "Starting server..."
-	mkdir -p $temp_data_dir
-	chmod 777 $temp_data_dir
+	if [ "`whoami`" = "root" ]; then
+		mkdir -p $temp_data_dir
+		chmod 777 $temp_data_dir
+	fi
 	$exec_name $port
 }
 pstop(){
