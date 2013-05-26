@@ -67,4 +67,4 @@ $(LIB):
 	mkdir $(LIB)
 
 clean:
-	rm $(O)/*.o $(BIN)/ws $(BIN)/kraknet $(BIN)/mod_find $(LIB)/libkraknet.so
+	rm -f $(O)/*.o $(BIN)/ws $(BIN)/kraknet $(BIN)/mod_find $(LIB)/libkraknet.so
