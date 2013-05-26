@@ -17,10 +17,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-//TODO: Should be refactored to an enum.
-#define SEEK_FORWARD_ONLY 0
-#define SEEK_RESET_OK     1
-#define SEEK_POST_REWIND  2 // Do not use.
+enum SEEK_MODE {
+	SEEK_FORWARD_ONLY,
+	SEEK_RESET_OK,
+	SEEK_POST_REWIND // Do not use.
+};
 
 #define WORDS_DELIMINATOR " \t\r\n"
 
@@ -34,6 +35,6 @@ extern void unquote_str(char *str);
 // Config file parsing
 extern FILE *get_conf_stream(char *cname, const char *mode);
 extern char *get_conf_line(char *fname,char *value);
-extern char *get_conf_line_s(FILE *stream, char *value, char mode);
+extern char *get_conf_line_s(FILE *stream, char *value, enum SEEK_MODE mode);
 
 #endif

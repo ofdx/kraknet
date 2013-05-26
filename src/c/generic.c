@@ -104,7 +104,7 @@ char *get_conf_line(char *fname,char *value){
  *	of the file, reset the pointer to the beginning, and search from wherever it
  *	started. SEEK_RESET_OK is optimal for reading actual config files multiple
  *	times. Do not use on non-file streams. */
-char *get_conf_line_s(FILE *stream, char *value, char mode){
+char *get_conf_line_s(FILE *stream, char *value, enum SEEK_MODE mode){
 	static char *str=NULL;
 	static size_t n=256;
 
