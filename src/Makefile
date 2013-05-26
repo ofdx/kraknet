@@ -14,7 +14,7 @@ BIN=../bin
 LIB=../lib
 CC=gcc -L$(LIB) -I$(I)
 
-all: $(I) $(O) $(BIN) $(LIB) $(LIB)/libkraknet.so $(BIN)/ws $(BIN)/mod_find $(BIN)/kraknet 
+all: $(O) $(BIN) $(LIB) $(LIB)/libkraknet.so $(BIN)/ws $(BIN)/mod_find $(BIN)/kraknet 
 
 clean:
 	rm -f $(LIB)/kraknet.so $(O)/*.o $(BIN)/ws $(BIN)/kraknet $(BIN)/mod_find $(LIB)/libkraknet.so
@@ -59,9 +59,6 @@ $(O)/kraknet.o: $(C)/kraknet.c
 
 
 # directories
-$(I):
-	mkdir $(I)
-
 $(O):
 	mkdir $(O)
 
