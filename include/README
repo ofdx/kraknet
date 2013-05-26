@@ -1,0 +1,7 @@
+These headers are for functions included in libkraknet. If you want to
+use them, you should link with that library. Using gcc:
+	gcc myprogram.c -lkraknet
+
+Note that libkraknet.so (created when doing a build of Kraknet) is
+available in the Kraknet /lib/ directory, and should put linked in
+/usr/lib/ or some other sane location.
