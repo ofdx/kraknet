@@ -47,6 +47,9 @@ export conf_dir="$server_home/conf"
 export PATH="$PATH:$bin_path"
 exec_name="ws"
 
+# Set Library Path.
+export LD_LIBRARY_PATH="$server_home/lib;$LD_LIBRARY_PATH"
+
 pstart(){
 	echo "Starting server..."
 	if [ "`whoami`" = "root" ]; then

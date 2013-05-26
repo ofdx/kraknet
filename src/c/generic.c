@@ -29,7 +29,6 @@ char **chop_words(const char *src){
 	return v;
 }
 
-
 char x2c(char *what){
 	register char digit;
 	digit=(what[0]>='A'?((what[0]&0xdf)-'A')+10:(what[0]-'0'));

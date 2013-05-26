@@ -13,11 +13,11 @@
 #define KWS_GENERIC_F
 
 #define _GNU_SOURCE
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+//TODO: Should be refactored to an enum.
 #define SEEK_FORWARD_ONLY 0
 #define SEEK_RESET_OK     1
 #define SEEK_POST_REWIND  2 // Do not use.

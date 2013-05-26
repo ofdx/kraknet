@@ -45,6 +45,7 @@ fi
 # Loop to generate each row.
 IFS=$'\n'
 for FILE in $(ls -a "$WORKING/$DIR"); do
+FILEE=$FILE
 SIZE=$(stat --printf="%s" "$WORKING/$DIR/$FILE")
 MIME=$(file -b "$WORKING/$DIR/$FILE")
 if [ "$MIME" == "directory" ]; then
@@ -54,7 +55,7 @@ if [ "$MIME" == "directory" ]; then
 			MIME="<b>Move Up</b>"
 		;;
 		.)	MIME="<b>Present Directory</b>"	;&
-		*)	SIZE="$(du -sh '$WORKING/$DIR/$FILE/' | awk '{print $1}')" ;;
+		*)	SIZE="$(du -sh '$WORKING/$DIR/$FILEE/' | awk '{print $1}')" ;;
 	esac 
 else
 	FILEF="$FILE"
