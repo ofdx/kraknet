@@ -79,7 +79,7 @@ int set_env_from_conf(){
 	setenv("tmp_ws",str,1);
 
 	// Create temp directory.
-	mkdir(str,776);
+	mkdir(str,0777);
 	switch(errno){
 		case 0: case EEXIST:
 			break;
