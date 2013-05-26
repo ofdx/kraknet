@@ -153,3 +153,15 @@ char *get_conf_line_s(FILE *stream, char *value, enum SEEK_MODE mode){
 
 	return return_string;
 }
+
+int error_code(int code, const char *msg, ...){
+	va_list va;
+	
+	va_start(va, msg);
+	fprintf(stderr, "%s [kraknet]: ",post_time("%H:%M:%S.",1));
+	vfprintf(stderr, msg, va);
+	fputc('\n',stderr);
+	va_end(va);
+
+	return code;
+}

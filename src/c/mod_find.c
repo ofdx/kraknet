@@ -26,15 +26,15 @@ int main(int argc,char **argv){
 	int c;
 
 	if(argc<2)
-		return -1;
+		return error_code(-1, "Too few paremeters for %s.",*argv);
 
 	if(!(home_dir=getenv("mod_root")))
-		return -1;
+		return error_code(-1, "Missing environment variable $mod_root.");
 
 	//Look for a colon between module and script
 	str=*(argv+1);
 	if(!(s=strstr(str,":")))
-		return -1;
+		return error_code(-1, "Bad request format for %s.",*argv);
 	*s=0;
 
 	mod=calloc(32,sizeof(char));

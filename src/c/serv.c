@@ -37,7 +37,6 @@
 #define KWS_DEFAULT_PORT 9001
 
 char state=1;
-void error(const char *msg);
 
 int main(int argc, char**argv){
 	int sockfd,sockfd_client,client_length;
@@ -60,10 +59,8 @@ int main(int argc, char**argv){
 	size_t n;
 
 	// Reads server config file and sets environment variables.
-	if(set_env_from_conf()){
-		fprintf(stderr,"Configuration problem, bailing out.\n");
-		return -1;
-	}
+	if(set_env_from_conf())
+		return error_code(-1, "Configuration problem, bailing out.");
 
 	// Get a port number from argv if provided.
 	if(argc>1 && !(port=atoi(*(argv+1))))
@@ -79,7 +76,7 @@ int main(int argc, char**argv){
 	if(!(pid=fork())){
 		// Acquire INET socket.
 		if((sockfd=socket(AF_INET, SOCK_STREAM,0))==-1)
-			error("Socket not got.");
+			return error_code(1, "Socket not got.");
 
 		memset(&socket_addr,0,sizeof(socket_addr));
 		socket_addr.sin_family=AF_INET;
@@ -92,10 +89,10 @@ int main(int argc, char**argv){
 
 
 		if(bind(sockfd,(struct sockaddr*)&socket_addr,sizeof(socket_addr))==-1)
-			error("Couldn't bind.");
+			return error_code(1, "Couldn't bind.");
 
 		if(listen(sockfd,64)==-1)
-			error("Deaf.");
+			return error_code(1, "Deaf.");
 
 
 		/*	root privileges should be dropped after this point. The server has
@@ -134,7 +131,7 @@ int main(int argc, char**argv){
 
 				// Bind a file stream to the socket. This makes everything easy.
 				if(!(client_stream=fdopen(sockfd_client,"w+")))
-					error("Couldn't get a stream.");
+					return error_code(1, "Couldn't get a stream.");
 
 				// TODO: Parse header here (vectorized to $v);
 				getline(&str,&n,client_stream);
@@ -237,10 +234,4 @@ int main(int argc, char**argv){
 		printf("Server started on port %d. [%d]\n",port,pid);
 	else printf("Failed\n");
 	return 0;
-}
-
-
-void error(const char *msg){
-	fprintf(stderr,"ERROR: %s\n",msg);
-	exit(-1);
 }

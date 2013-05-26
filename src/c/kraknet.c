@@ -34,11 +34,11 @@ int main(int argc, char **argv){
 
 	if(!(home_dir=getenv("mod_root"))){
 		printf("\nBad configuration\n");
-		return -1;
+		return error_code(-1, "Missing environment variable $mod_root.");
 	}
 
 	if(!(r=fopen(argv[1],"r")))
-		return -1;
+		return error_code(-1, "Could not open file \"%s\"", argv[1]);
 
 	//Begin accounts magic
 	setenv("kraknet_user_auth","NO",1);

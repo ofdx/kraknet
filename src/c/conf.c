@@ -36,15 +36,15 @@ int set_env_from_conf(){
 	/*	All other directories are assumed to be derived from here if they don't
 		begin with a / */
 	if(!(a=getenv("server_home")))
-		return -1;
-	if(!(a=realpath(a,NULL))){
-		fprintf(stderr,"Server path is inaccessible. (%s)\n",getenv("server_home"));
-		return -1;
-	}
+		return error_code(-1, "server_home not set");
+	if(!(a=realpath(a,NULL)))
+		return error_code(-1, "Server path is inaccessible. (%s)",getenv("server_home"));
+
+	// Sets the root path for the server.
 	set_path(NULL,a);
 
 	if(!(conf=get_conf_stream("serv","r")))
-		return -1;
+		return error_code(-1, "Can't read serv config.");
 
 	// SERVER_NAME
 	if(!(a=get_conf_line_s(conf,"server_name",SEEK_RESET_OK)))
@@ -56,33 +56,25 @@ int set_env_from_conf(){
 		setenv("web_user_name",a,1);
 
 	// web_root and DOCUMENT_ROOT
-	if(!(a=get_conf_line_s(conf,"web_root",SEEK_RESET_OK))){
-		fprintf(stderr,"web_root not set.\n");
-		return -1;
-	}
+	if(!(a=get_conf_line_s(conf,"web_root",SEEK_RESET_OK)))
+		return error_code(-1, "web_root not set.");
 	set_path(str,a);
 
 	// Remove symlinks
-	if(!(str=realpath(str,NULL))){
-		fprintf(stderr,"web_root path inaccessible.\n");
-		return -1;
-	}
+	if(!(str=realpath(str,NULL)))
+		return error_code(-1, "web_root path inaccessible.");
 	setenv("web_root",str,1);
 	setenv("DOCUMENT_ROOT",str,1);
 
 	// mod_root
-	if(!(a=get_conf_line_s(conf,"mod_root",SEEK_RESET_OK))){
-		fprintf(stderr,"mod_root not set.\n");
-		return -1;
-	}
+	if(!(a=get_conf_line_s(conf,"mod_root",SEEK_RESET_OK)))
+		return error_code(-1, "mod_root not set.");
 	set_path(str,a);
 	setenv("mod_root",str,1);
 
 	// tmp_ws
-	if(!(a=get_conf_line_s(conf,"tmp_ws",SEEK_RESET_OK))){
-		fprintf(stderr,"tmp_ws not set.\n");
-		return -1;
-	}
+	if(!(a=get_conf_line_s(conf,"tmp_ws",SEEK_RESET_OK)))
+		return error_code(-1 ,"tmp_ws not set.");
 	set_path(str,a);
 	setenv("tmp_ws",str,1);
 
@@ -92,8 +84,7 @@ int set_env_from_conf(){
 		case 0: case EEXIST:
 			break;
 		default:
-			fprintf(stderr,"Could not create temp directory.\n");
-			return -1;
+			return error_code(-1, "Could not create temp directory.");
 	}
 
 	// use_web_dir_protection
@@ -102,5 +93,5 @@ int set_env_from_conf(){
 	else setenv("web_dir_protection",a,1);
 
 	fclose(conf);
-	return 0;
+	return error_code(0, "Conf OK.");
 }

@@ -13,9 +13,12 @@
 #define KWS_GENERIC_F
 
 #define _GNU_SOURCE
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "utc_date.h"
 
 enum SEEK_MODE {
 	SEEK_FORWARD_ONLY,
@@ -37,4 +40,6 @@ extern FILE *get_conf_stream(char *cname, const char *mode);
 extern char *get_conf_line(char *fname,char *value);
 extern char *get_conf_line_s(FILE *stream, char *value, enum SEEK_MODE mode);
 
+// Write an error to stderr.
+extern int error_code(int code, const char *msg, ...);
 #endif
