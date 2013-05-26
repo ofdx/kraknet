@@ -20,7 +20,7 @@ clean:
 	rm -f $(LIB)/kraknet.so $(O)/*.o $(BIN)/ws $(BIN)/kraknet $(BIN)/mod_find $(LIB)/libkraknet.so
 
 
-# libkraknet
+# libkraknet (shared library of common functions)
 $(LIB)/libkraknet.so: $(C)/generic.c $(C)/utc_date.c
 	$(CC) -c -fPIC -o $(O)/generic.o $(C)/generic.c
 	$(CC) -c -fPIC -o $(O)/utc_date.o $(C)/utc_date.c
@@ -28,7 +28,7 @@ $(LIB)/libkraknet.so: $(C)/generic.c $(C)/utc_date.c
 	chmod a-x $(LIB)/libkraknet.so
 
 
-# krakws
+# krakws (web server)
 $(BIN)/ws: $(O)/serv.o $(O)/http11.o $(O)/conf.o $(LIB)/libkraknet.so
 	$(CC) -o $(BIN)/ws -s $(O)/serv.o $(O)/http11.o $(O)/conf.o -lkraknet
 
@@ -42,20 +42,14 @@ $(O)/conf.o: $(C)/conf.c $(I)/conf.h $(I)/generic.h
 	$(CC) -c $(C)/conf.c -o $(O)/conf.o
 
 
-# mod_find 
-$(BIN)/mod_find: $(O)/mod_find.o $(LIB)/libkraknet.so
-	$(CC) -o $(BIN)/mod_find -s $(O)/mod_find.o -lkraknet
-
-$(O)/mod_find.o: $(C)/mod_find.c $(I)/generic.h
-	$(CC) -c $(C)/mod_find.c -o $(O)/mod_find.o
+# mod_find (module:script locator)
+$(BIN)/mod_find: $(C)/mod_find.c $(I)/generic.h $(LIB)/libkraknet.so
+	$(CC) -o $(BIN)/mod_find -s $(C)/mod_find.c -lkraknet
 
 
-# kraknet
-$(BIN)/kraknet: $(O)/kraknet.o $(LIB)/libkraknet.so
-	$(CC) -o $(BIN)/kraknet -s $(O)/kraknet.o -lkraknet
-
-$(O)/kraknet.o: $(C)/kraknet.c
-	$(CC) -c $(C)/kraknet.c -o $(O)/kraknet.o
+# kraknet (text parsing)
+$(BIN)/kraknet: $(C)/kraknet.c $(LIB)/libkraknet.so
+	$(CC) -o $(BIN)/kraknet -s $(C)/kraknet.c -lkraknet
 
 
 # directories
