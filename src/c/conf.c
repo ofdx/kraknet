@@ -93,5 +93,5 @@ int set_env_from_conf(){
 	else setenv("web_dir_protection",a,1);
 
 	fclose(conf);
-	return error_code(0, "Conf OK.");
+	return 0;
 }
