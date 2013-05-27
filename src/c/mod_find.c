@@ -60,8 +60,8 @@ int main(int argc,char **argv){
 	str=calloc(256+n,sizeof(char));
 	sprintf(str,"%s/%s/info.txt",home_dir,mod);
 
-	if(script=get_conf_line(str,script)){
-		unquote_str(script);
+	if(s=get_conf_line(str,script)){
+		unquote_str(script=s);
 		sprintf(str,"%s/%s/%s %s",home_dir,mod,script,args?args:"");
 		if(pipe=popen(str,"r")){
 			while(1){
@@ -71,7 +71,7 @@ int main(int argc,char **argv){
 				fputc(c,stdout);
 			}	pclose(pipe);
 		}
-	}
+	} else return error_code(1, "No script found. (%s:%s)", mod, script);
 
 	return 0;
 }
