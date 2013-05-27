@@ -7,6 +7,9 @@
 	file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 	General functions to patch things together for krakws.
+
+	unescape_url and x2c are borrowed from the NCSA HTTPD server example
+	CGI application.
 */
 #include "generic.h"
 
@@ -29,14 +32,15 @@ char **chop_words(const char *src){
 	return v;
 }
 
-char x2c(char *what){
+/* These two functions are borrowed directly from the NCSA HTTPD example CGI
+   application. */
+static char x2c(char *what){
 	register char digit;
 	digit=(what[0]>='A'?((what[0]&0xdf)-'A')+10:(what[0]-'0'));
 	digit*=16;
 	digit+=(what[1]>='A'?((what[1]&0xdf)-'A')+10:(what[1]-'0'));
 	return digit;
 }
-
 void unescape_url(char *url){
 	register int x,y;
 	for(x=0,y=0;url[y];++x,++y){
@@ -47,12 +51,11 @@ void unescape_url(char *url){
 	}
 	url[x]=0;
 }
+/* End NCSA code */
 
 void sanitize_str(char *str){
-	do if(*str=='\r'||*str=='\n')
-		break;
-	while(*(str++));
-	*str=0;
+	if(str=strpbrk(str,"\r\n"))
+		*str=0;
 }
 
 void unquote_str(char *str){
@@ -154,6 +157,8 @@ char *get_conf_line_s(FILE *stream, char *value, enum SEEK_MODE mode){
 	return return_string;
 }
 
+/*	Prints the message with a timestamp to stderr. Returns the code value
+	specified. */
 int error_code(int code, const char *msg, ...){
 	va_list va;
 	

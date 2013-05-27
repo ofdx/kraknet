@@ -31,7 +31,6 @@ enum SEEK_MODE {
 // String functions
 extern char **chop_words(const char *src);
 extern void unescape_url(char *url);
-extern char x2c(char *what);
 extern void sanitize_str(char *str);
 extern void unquote_str(char *str);
 
