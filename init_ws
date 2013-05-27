@@ -51,12 +51,6 @@ export LD_LIBRARY_PATH="$server_home/lib;$LD_LIBRARY_PATH"
 
 pstart(){
 	echo "Starting server..."
-#	if [ "`whoami`" = "root" ]; then
-#		mkdir -p $temp_data_dir
-#		chmod 777 $temp_data_dir
-#	else
-#		echo "You are not root, skipping $temp_data_dir configuration. (POST may be disabled.)"
-#	fi
 	$exec_name $port
 }
 pstop(){
