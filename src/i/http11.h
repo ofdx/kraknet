@@ -30,7 +30,7 @@
 
 extern void http_request(FILE *stream, char *uri, int method);
 extern void http_default_error(FILE *stream, int code, const char *optional_msg);
-extern void http_date(FILE *stream,int offset_sec);
+extern void http_date(FILE *stream, int offset_sec);
 extern void http_redirect(FILE *stream, int code, const char *uri_moved);
 
 #endif

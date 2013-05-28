@@ -18,16 +18,16 @@
 	only be used to free memory. The last pointer will be NULL, signifying the
 	end of the string. */
 char **chop_words(const char *src){
-	char **v=NULL,*str,*r;
+	char **v=NULL, *str, *r;
 	int count=2;
 
-	str=calloc(1+strlen(src),sizeof(char));
+	str=calloc(1+strlen(src), sizeof(char));
 	*(v=malloc(count*sizeof(char**)))=str;
-	strcpy(str,src);
+	strcpy(str, src);
 
-	*(v+count-1)=strtok_r(str,WORDS_DELIMINATOR,&r);
-	do v=realloc(v,++count*sizeof(char**));
-	while(*(v+count-1)=strtok_r(NULL,WORDS_DELIMINATOR,&r));
+	*(v+count-1)=strtok_r(str, WORDS_DELIMINATOR, &r);
+	do v=realloc(v, ++count*sizeof(char**));
+	while(*(v+count-1)=strtok_r(NULL, WORDS_DELIMINATOR, &r));
 
 	return v;
 }
@@ -42,8 +42,8 @@ static char x2c(char *what){
 	return digit;
 }
 void unescape_url(char *url){
-	register int x,y;
-	for(x=0,y=0;url[y];++x,++y){
+	register int x, y;
+	for(x=0, y=0;url[y];++x, ++y){
 		if((url[x]=url[y])=='%'){
 			url[x]=x2c(&url[y+1]);
 			y+=2;
@@ -54,7 +54,7 @@ void unescape_url(char *url){
 /* End NCSA code */
 
 void sanitize_str(char *str){
-	if(str=strpbrk(str,"\r\n"))
+	if(str=strpbrk(str, "\r\n"))
 		*str=0;
 }
 
@@ -62,22 +62,22 @@ void unquote_str(char *str){
 	size_t l=strlen(str);
 
 	if(*str=='\"')
-		memmove(str,str+1,l--);
+		memmove(str, str+1, l--);
 
 	if(*(str+(--l))=='\"')
 		*(str+l)=0;
 }
 
 /*	Opens a stream to $conf_dir/cname */
-FILE *get_conf_stream(char *cname,const char *mode){
+FILE *get_conf_stream(char *cname, const char *mode){
 	FILE *stream;
-	char *str,*a;
+	char *str, *a;
 
 	if(!(a=getenv("conf_dir")))
 		return NULL;
 
-	str=calloc(strlen(cname)+strlen(a)+2,sizeof(char));
-	sprintf(str,"%s/%s",a,cname);
+	str=calloc(strlen(cname)+strlen(a)+2, sizeof(char));
+	sprintf(str, "%s/%s", a, cname);
 
 	stream=fopen(str, mode);
 	free(str);
@@ -87,14 +87,14 @@ FILE *get_conf_stream(char *cname,const char *mode){
 
 /*	If you only need to read one value from a configuration file, this function
  *	is better than get_conf_line_s, because it handles the stream itself. */
-char *get_conf_line(char *fname,char *value){
+char *get_conf_line(char *fname, char *value){
 	char *return_string;
 	FILE *stream;
 
-	if(!(stream=fopen(fname,"r")))
+	if(!(stream=fopen(fname, "r")))
 		return NULL;
 
-	return_string=get_conf_line_s(stream,value,SEEK_FORWARD_ONLY);
+	return_string=get_conf_line_s(stream, value, SEEK_FORWARD_ONLY);
 
 	fclose(stream);
 	return return_string;
@@ -112,15 +112,15 @@ char *get_conf_line_s(FILE *stream, char *value, enum SEEK_MODE mode){
 	static size_t n=256;
 
 	char *return_string=NULL;
-	char *a,*s;
+	char *a, *s;
 	ssize_t r;
 
 	long initial_file_pos=ftell(stream);
 
 	if(!str)
-		str=calloc(n,sizeof(char));
+		str=calloc(n, sizeof(char));
 
-	do{	r=getline(&str,&n,stream);
+	do{	r=getline(&str, &n, stream);
 
 		// EOF handling and looping.
 		if(feof(stream) || r<0)
@@ -141,14 +141,14 @@ char *get_conf_line_s(FILE *stream, char *value, enum SEEK_MODE mode){
 		a=s;
 
 		// Match needle to the beginning of the line.
-		if(a==strcasestr(a,value)){
+		if(a==strcasestr(a, value)){
 			for(s=a;*s;s++)
 				if(*s=='=')
 					break;
 			a=(*s)?s+1:s;
 
 			return_string=str;
-			strcpy(str,a);
+			strcpy(str, a);
 		}
 	}	while(!return_string);
 
@@ -163,9 +163,9 @@ int error_code(int code, const char *msg, ...){
 	va_list va;
 	
 	va_start(va, msg);
-	fprintf(stderr, "%s [kraknet]: ",post_time("%H:%M:%S.",1));
+	fprintf(stderr, "%s [kraknet]: ", post_time("%H:%M:%S.", 1));
 	vfprintf(stderr, msg, va);
-	fputc('\n',stderr);
+	fputc('\n', stderr);
 	va_end(va);
 
 	return code;

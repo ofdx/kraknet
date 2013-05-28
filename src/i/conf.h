@@ -19,7 +19,7 @@
 
 #include "generic.h"
 
-extern void set_path(char *dest,char *src);
+extern void set_path(char *dest, char *src);
 extern int set_env_from_conf();
 
 #endif

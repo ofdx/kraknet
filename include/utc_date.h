@@ -24,6 +24,6 @@
 #define KRAKNET_POST "%Y%m%d%H%M%S"
 #define KRAKNET_TIMESTAMP "%l:%M:%S %P"
 
-extern char *post_time(const char *fmt,int nano);
+extern char *post_time(const char *fmt, int nano);
 
 #endif

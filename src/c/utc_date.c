@@ -16,7 +16,7 @@
 */
 #include "utc_date.h"
 
-char *post_time(const char *fmt,int nano){
+char *post_time(const char *fmt, int nano){
 	static char *str=NULL;
 	struct timespec ts;
 	time_t t;
@@ -25,14 +25,14 @@ char *post_time(const char *fmt,int nano){
 	int count, l;
 
 	if(!str)
-		str=calloc(32,sizeof(char));
+		str=calloc(32, sizeof(char));
 
 	clock_gettime(CLOCK_REALTIME, &ts);
 	t=ts.tv_sec;
 	tmp=localtime(&t);
-	strftime(str,32,fmt,tmp);
+	strftime(str, 32, fmt, tmp);
 	if(nano)
-		sprintf(str,"%s%09ld",str,ts.tv_nsec);
+		sprintf(str, "%s%09ld", str, ts.tv_nsec);
 	/* The infamous "double post" bug stemmed from this line of code.
 	 * Previously, it was only %ld instead of %09ld, meaning that prepending
 	 * zeroes were not added, and the string was truncated. For values of
