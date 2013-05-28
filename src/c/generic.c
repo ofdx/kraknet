@@ -21,6 +21,9 @@ char **chop_words(const char *src){
 	char **v=NULL, *str, *r;
 	int count=2;
 
+	if(!src)
+		return NULL;
+
 	str=calloc(1+strlen(src), sizeof(char));
 	*(v=malloc(count*sizeof(char**)))=str;
 	strcpy(str, src);
