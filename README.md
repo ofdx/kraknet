@@ -43,19 +43,25 @@ all CGI scripts. Be careful about what you put here.
 ###conf/
 Config files here.
 
-####mime:
-MIME type definitions. If a file isn't being served in the way
-you would like, you can change it here.
+&nbsp;&nbsp;&nbsp;&nbsp;####mime:
+&nbsp;&nbsp;&nbsp;&nbsp;MIME type definitions. If a file isn't being served in the way
+&nbsp;&nbsp;&nbsp;&nbsp;you would like, you can change it here.
 
-####serv:
-Server configuration. Changes made here are live immediately
-without restarting the server. BE CAREFUL.
-
+&nbsp;&nbsp;&nbsp;&nbsp;####serv:
+&nbsp;&nbsp;&nbsp;&nbsp;Server configuration. Changes made here are live immediately
+&nbsp;&nbsp;&nbsp;&nbsp;without restarting the server. BE CAREFUL.
 
 ###db/
 A suggested location for storing database files. The system's database
 files (SQLite3) will be available here, including kraknet.db which has
 user information.
+
+###include/
+Headers which are used to access features in libkraknet are placed here.
+
+###lib/
+Place to store shared libraries. libkraknet will be build and placed in this
+directory. This directory is created by the build process.
 
 ###mods/
 Kraknet modules are stored here, with all of their scripts. Each module
@@ -65,18 +71,18 @@ script to an actual file inside the module's directory.
 ###src/
 Source code for the server and tightly integrated components.
 
-###src/c/
-C source files.
+&nbsp;&nbsp;&nbsp;&nbsp;###src/c/
+&nbsp;&nbsp;&nbsp;&nbsp;C source files.
 
-###src/i/
-Header files. Make sure you link with the relevant object code from o/
-if you are trying to include some of the code from the server in your
-module.
+&nbsp;&nbsp;&nbsp;&nbsp;###src/i/
+&nbsp;&nbsp;&nbsp;&nbsp;Header files. Make sure you link with the relevant object code from o/
+&nbsp;&nbsp;&nbsp;&nbsp;if you are trying to include some of the code from the server in your
+&nbsp;&nbsp;&nbsp;&nbsp;module.
 
-###src/o/
-Binary object files. These are useless, unless you need to link with
-them to compile some core feature of the server or Kraknet into your
-C application.
+&nbsp;&nbsp;&nbsp;&nbsp;###src/o/
+&nbsp;&nbsp;&nbsp;&nbsp;Binary object files. These are useless, unless you need to link with
+&nbsp;&nbsp;&nbsp;&nbsp;them to compile some core feature of the server or Kraknet into your
+&nbsp;&nbsp;&nbsp;&nbsp;C application. This directory is created by the build process.
 
 ###web/
 This is the live web directory. Everything here is available on the
