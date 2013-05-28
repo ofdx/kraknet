@@ -59,7 +59,10 @@ void sanitize_str(char *str){
 }
 
 void unquote_str(char *str){
-	size_t l=strlen(str);
+	size_t l;
+
+	if(!str || (l=strlen(str))<2)
+		return;
 
 	if(*str=='\"')
 		memmove(str, str+1, l--);
@@ -123,11 +126,16 @@ char *get_conf_line_s(FILE *stream, char *value, enum SEEK_MODE mode){
 	do{	r=getline(&str, &n, stream);
 
 		// EOF handling and looping.
-		if(feof(stream) || r<0)
+		if(feof(stream) || r<0){
+			// initial_file_pos is false (0) if file started from the beginning.
+			// No need to rewind in that case.
 			if(mode==SEEK_RESET_OK && initial_file_pos){
 				rewind(stream);
 				mode=SEEK_POST_REWIND;
 			} else break;
+		}
+
+		// Break if we seek past the point we started.
 		if(mode==SEEK_POST_REWIND && ftell(stream)>=initial_file_pos)
 			break;
 
