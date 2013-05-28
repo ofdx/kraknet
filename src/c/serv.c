@@ -51,8 +51,8 @@ int main(int argc, char**argv){
 
 	int status, c, optval=2;
 
-	char *buf=calloc(256, sizeof(char));
 	char *web_root, *cmp_web_root, *date;
+	char *buf=calloc(256, sizeof(char));
 	char *method, *uri, *http_standard;
 	char *a, *b, *query=NULL;
 	char *str, *s, **v;

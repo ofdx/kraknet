@@ -19,9 +19,8 @@
 #include "generic.h"
 
 int main(int argc, char **argv){
-	char *buf=calloc(256, sizeof(char));
-	char *b_r=calloc(256, sizeof(char)), *b;
 	char *home_dir, *web_root;
+	char *buf, *b, *b_r;
 	char *mod, *script;
 
 	FILE *r, *lookup, *pipe;
@@ -40,6 +39,8 @@ int main(int argc, char **argv){
 	if(!(r=fopen(argv[1], "r")))
 		return error_code(-1, "Could not open file \"%s\"", argv[1]);
 
+	buf=calloc(256, sizeof(char));
+
 	//Begin accounts magic
 	setenv("kraknet_user_auth", "NO", 1);
 	if(pipe=popen("mod_find accounts:auth", "r")){
@@ -57,8 +58,7 @@ int main(int argc, char **argv){
 	}
 	//End accounts magic
 
-	str=calloc(n=256, sizeof(char));
-
+	b=b_r=calloc(b_size=256, sizeof(char));
 	while(getline(&b_r, &b_size, r)!=-1){
 		if(*b_r!='!')
 			break;
@@ -68,6 +68,7 @@ int main(int argc, char **argv){
 	}	
 	fputs("\r\n", stdout);
 
+	str=calloc(n=256, sizeof(char));
 	do{	b=b_r;
 		while(*b){
 			if(!(seek=strstr(b, "<????")))
