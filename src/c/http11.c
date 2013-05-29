@@ -15,6 +15,7 @@
 	fundamentally similar).
 */
 #include "http11.h"
+enum conn_mode { CLOSE, KEEP_ALIVE, UNSET };
 
 char *get_mime_type(char *filename){
 	char *str, *s, *a, *fname=NULL;
@@ -89,6 +90,12 @@ void http_request(FILE *stream, char *uri, int method){
 
 	FILE *content, *cgi_pipe, *conf;
 	struct stat sbuf;
+
+	enum conn_mode conn_mode=CLOSE;
+
+	// Whether we will persist the TCP connection.
+	if((s=getenv("CONNECTION_MODE")) && !strcasecmp(s, "keep-alive"))
+		conn_mode=KEEP_ALIVE;
 
 	// Gets set if we're going to do an auto directory listing.
 	char listing_mode=0;
@@ -226,12 +233,16 @@ void http_request(FILE *stream, char *uri, int method){
 							return http_default_error(stream, 500, "Status was ill-defined.");
 						**a=0;
 					}
+					else if(!strncasecmp(*a, "Connection: ", 12))
+						conn_mode=UNSET;
 				}
 				fprintf(stream, "%s %s\r\n", getenv("SERVER_PROTOCOL"), status);
 				fputs("Date: ", stream);
 				http_date(stream, 0);
 				fputs("\r\n", stream);
 				fprintf(stream, "Server: %s\r\n", KWS_SERVER_NAME);
+				if(conn_mode!=UNSET)
+					fprintf(stream, "Connection: %s\r\n", (conn_mode==KEEP_ALIVE)?"keep-alive":"close");
 
 				// Print \r\n terminated header lines.
 				for(a=cgi_headers;*a;a++)
@@ -264,9 +275,10 @@ void http_request(FILE *stream, char *uri, int method){
 
 				fprintf(stream,
 					"Server: "KWS_SERVER_NAME"\r\n"
-					"Connection: close\r\n"
+					"Connection: %s\r\n"
 					"Content-Type: %s\r\n"
 					"Content-Length: %ld\r\n\r\n",
+					(conn_mode==KEEP_ALIVE)?"keep-alive":"close",
 					mime_type, sbuf.st_size
 				);
 
@@ -288,6 +300,13 @@ void http_request(FILE *stream, char *uri, int method){
 }
 
 void http_default_error(FILE *stream, int code, const char *optional_msg){
+	enum conn_mode conn_mode=CLOSE;
+	char *s;
+
+	// Whether we will persist the TCP connection.
+	if((s=getenv("CONNECTION_MODE")) && !strcasecmp(s, "keep-alive"))
+		conn_mode=KEEP_ALIVE;
+
 	/*	If the optional_msg is NULL, use a default error code message. */	
 	fprintf(stream,
 		"HTTP/1.1 %d %s\r\n",
@@ -301,10 +320,11 @@ void http_default_error(FILE *stream, int code, const char *optional_msg){
 
 	fprintf(stream,
 		"Server: krakws\r\n"
-		"Connection: close\r\n"
+		"Connection: %s\r\n"
 		"Content-type: text/html; charset=UTF-8\r\n"
 		"Content-length: 5\r\n\r\n"
 		"%3d\r\n",
+		(conn_mode==KEEP_ALIVE)?"keep-alive":"close",
 		code
 	);
 }
@@ -330,6 +350,13 @@ void http_date(FILE *stream, int offset_sec){
 }
 
 void http_redirect(FILE *stream, int code, const char *uri_moved){
+	enum conn_mode conn_mode=CLOSE;
+	char *s;
+
+	// Whether we will persist the TCP connection.
+	if((s=getenv("CONNECTION_MODE")) && !strcasecmp(s, "keep-alive"))
+		conn_mode=KEEP_ALIVE;
+
 	fprintf(stream,
 		"HTTP/1.1 %d Moved Permanently\r\n",
 		code?:301
@@ -341,8 +368,9 @@ void http_redirect(FILE *stream, int code, const char *uri_moved){
 
 	fprintf(stream,
 		"Server: krakws\r\n"
-		"Connection: close\r\n"
+		"Connection: %s\r\n"
 		"Location: %s\r\n\r\n",
+		(conn_mode==KEEP_ALIVE)?"keep-alive":"close",
 		uri_moved
 	);
 }
