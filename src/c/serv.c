@@ -9,9 +9,6 @@
 	krakws is the actual web server portion of Kraknet. It manages HTTP and CGI
 	interactions and allows Kraknet to be run without bootstrapping into Apache
 	with a bash CGI script.
-
-	TODO: Data for POST should be cached to a timestamped file at $tmp_ws/ and
-	then passed with a pipe into the script.
 */
 #define _GNU_SOURCE
 
@@ -101,12 +98,12 @@ int main(int argc, char**argv){
 		if(str=getenv("web_user_name")){
 			if(gpasswd=getpwnam(str)){
 				if(setuid(gpasswd->pw_uid))
-					fprintf(stderr, "Warning: You don't have permission to setuid to %s.\n", gpasswd->pw_name);
-			} else fprintf(stderr, "Warning: No user named %s!\n", str);
+					error_code(0, "Warning: You don't have permission to setuid to %s.\n", gpasswd->pw_name);
+			} else error_code(0, "Warning: No user named %s!\n", str);
 			unsetenv("web_user_name");
 		} else {
 			gpasswd=getpwuid(getuid());
-			fprintf(stderr, "Warning: $web_user_name not set! Running as %s.\n", gpasswd->pw_name);
+			error_code(0, "Warning: $web_user_name not set! Running as %s.\n", gpasswd->pw_name);
 		}
 
 		// Let init handle the children.
@@ -118,10 +115,8 @@ int main(int argc, char**argv){
 			memset(&socket_addr_client, 0, client_length);
 			sockfd_client=accept(sockfd, (struct sockaddr*)&socket_addr_client, &client_length);
 
-			if(set_env_from_conf()){
-				fprintf(stderr, "General Configuration issue.\nServer stopping.\n");
-				exit(1);
-			}
+			if(set_env_from_conf())
+				return error_code(1, "General Configuration issue.\nServer stopping.\n");
 
 			// Fork if a client connection accepts successfully.
 			if(sockfd_client<0)
@@ -133,8 +128,11 @@ int main(int argc, char**argv){
 				if(!(client_stream=fdopen(sockfd_client, "w+")))
 					return error_code(1, "Couldn't get a stream.");
 
-				// TODO: Parse header here (vectorized to $v);
-				getline(&str, &n, client_stream);
+				// Parse header here (vectorized to $v).
+				do{	if(getline(&str, &n, client_stream)<=0)
+						return error_code(1, "Unexpected EOF.");
+					sanitize_str(str);
+				}	while(!*str);
 				v=chop_words(str);
 				method=*(v+1);
 				uri=*(v+2);
@@ -143,7 +141,7 @@ int main(int argc, char**argv){
 				if(!method||!uri||!http_standard)
 					http_default_error(client_stream, 400, "Bad Request");
 				else {
-					while(getline(&str, &n, client_stream)!=-1){
+					while(getline(&str, &n, client_stream)>0){
 						if(str==strcasestr(str, "Cookie: ")){
 							sanitize_str(str+8);
 							setenv("HTTP_COOKIE", str+8, 1);
@@ -159,6 +157,10 @@ int main(int argc, char**argv){
 						else if(str==strcasestr(str, "Content-type: ")){
 							sanitize_str(str+14);
 							setenv("CONTENT_TYPE", str+14, 1);
+						}
+						else if(str==strcasestr(str, "Connection: ")){
+							sanitize_str(str+12);
+							setenv("CONNECTION_MODE", str+12, 1);
 						}
 						else if(str==strstr(str, "\r\n"))break;
 					}
@@ -177,7 +179,9 @@ int main(int argc, char**argv){
 						setenv("kws_pot_err", "dirnotdir", 1);
 
 					// TODO: Improve security of this filter.
-					for(a=uri;*a;a++)if(*a==';'||*a=='`'||*a=='&'||*a=='|')*a=' ';
+					for(a=uri;*a;a++)
+						if(*a==';'||*a=='`'||*a=='&'||*a=='|')
+							*a=' ';
 
 					/*	Web directory protection stops the client from accessing
 					 *	files with a realpath outside of $web_root. This
