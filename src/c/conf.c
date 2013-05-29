@@ -23,6 +23,12 @@ void set_path(char *dest, char *src){
 	else strcpy(dest, src);
 }
 
+void server_startup_stamp(){
+	FILE *f=mod_debug_stream(GET, NULL);
+
+	fprintf(f,"\n\n -- krakws starting at %s --\n", post_time(KRAKNET_TIMESTAMP, 0));
+}
+
 /*	Read conf the main server configuration file and handle all the details. */
 int set_env_from_conf(){
 	static char *str=NULL;
@@ -87,11 +93,34 @@ int set_env_from_conf(){
 			return error_code(-1, "Could not create temp directory.");
 	}
 
+	// log_root
+	if(!(a=get_conf_line_s(conf, "log_root", SEEK_RESET_OK)))
+		error_code(0, "log_root not set in conf/serv, logging to stderr...");
+	else {
+		set_path(str, a);
+		setenv("log_root", str, 1);
+
+		mkdir (str, 0777);
+		switch(errno){
+			case 0: case EEXIST:
+				strcat(str,"/server.log");
+
+				// mod_debug_stream has a static pointer to hold this fopen.
+				mod_debug_stream(SET, fopen(str, "a"));
+				if(mod_debug_stream(GET, NULL)==stderr)
+					error_code(0, "Could not create log file, logging to stderr...");
+				break;
+			default:
+				error_code(0, "Could not create log directory, logging to stderr...");
+		}
+	}
+
 	// use_web_dir_protection
 	if(!(a=get_conf_line_s(conf, "web_dir_protection", SEEK_RESET_OK)))
 		setenv("web_dir_protection", "yes", 1);
 	else setenv("web_dir_protection", a, 1);
 
+	server_startup_stamp();
 	fclose(conf);
 	return 0;
 }

@@ -20,12 +20,6 @@
 
 #include "utc_date.h"
 
-enum SEEK_MODE {
-	SEEK_FORWARD_ONLY,
-	SEEK_RESET_OK,
-	SEEK_POST_REWIND // Do not use.
-};
-
 #define WORDS_DELIMINATOR " \t\r\n"
 
 // String functions
@@ -35,10 +29,17 @@ extern void sanitize_str(char *str);
 extern void unquote_str(char *str);
 
 // Config file parsing
+enum SEEK_MODE {
+	SEEK_FORWARD_ONLY,
+	SEEK_RESET_OK,
+	SEEK_POST_REWIND // Do not use.
+};
 extern FILE *get_conf_stream(char *cname, const char *mode);
 extern char *get_conf_line(char *fname, char *value);
 extern char *get_conf_line_s(FILE *stream, char *value, enum SEEK_MODE mode);
 
-// Write an error to stderr.
+// Write an error to a FILE stream.
+enum debug_stream_op { GET, SET };
+extern FILE *mod_debug_stream(enum debug_stream_op op, FILE *stream);
 extern int error_code(int code, const char *msg, ...);
 #endif

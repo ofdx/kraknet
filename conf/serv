@@ -12,6 +12,9 @@ server_name="localhost"
 # This change will be reflected the next time the server starts.
 web_user_name="mike"
 
+# Logs will be stored in this directory.
+log_root="logs"
+
 # This is the live web root.
 # It will be set to $web_root and $DOCUMENT_ROOT for compatibility.
 web_root="web"

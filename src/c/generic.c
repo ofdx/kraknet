@@ -168,15 +168,31 @@ char *get_conf_line_s(FILE *stream, char *value, enum SEEK_MODE mode){
 	return return_string;
 }
 
+/*	Configure debug output stream. */
+FILE *mod_debug_stream(enum debug_stream_op op, FILE *stream){
+	static FILE *dbg_stream=NULL;
+
+	switch(op){
+		case SET:
+			dbg_stream=stream;
+		case GET:
+		default:
+			if(!dbg_stream)
+				dbg_stream=stderr;
+			return dbg_stream;
+	}
+}
+
 /*	Prints the message with a timestamp to stderr. Returns the code value
 	specified. */
 int error_code(int code, const char *msg, ...){
+	FILE *stream=mod_debug_stream(GET,NULL);
 	va_list va;
-	
+
 	va_start(va, msg);
-	fprintf(stderr, "%s [kraknet]: ", post_time("%H:%M:%S.", 1));
-	vfprintf(stderr, msg, va);
-	fputc('\n', stderr);
+	fprintf(stream, "%s [kraknet]: ", post_time("%H:%M:%S.", 1));
+	vfprintf(stream, msg, va);
+	fputc('\n', stream);
 	va_end(va);
 
 	return code;
