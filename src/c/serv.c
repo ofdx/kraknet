@@ -34,6 +34,8 @@
 #define KWS_DEFAULT_PORT 9001
 
 char state=1;
+void request_timeout(int);
+FILE *request_stream=NULL;
 
 int main(int argc, char**argv){
 	int sockfd, sockfd_client, client_length;
@@ -130,6 +132,10 @@ int main(int argc, char**argv){
 				// Bind a file stream to the socket. This makes everything easy.
 				if(!(client_stream=fdopen(sockfd_client, "w+")))
 					return error_code(1, "Couldn't get a stream.");
+				request_stream=client_stream;
+
+				// Timeout handler
+				signal(SIGALRM, request_timeout);
 
 				do{ /* Loop to process multiple requests on the same TCP connection. */
 					unsetenv("HTTP_COOKIE");
@@ -137,6 +143,9 @@ int main(int argc, char**argv){
 					unsetenv("CONTENT_LENGTH");
 					unsetenv("CONTENT_TYPE");
 					unsetenv("CONNECTION_MODE");
+
+					// Hold the door open.
+					alarm(60);
 
 					// Parse header here (vectorized to $v).
 					do{	if(getline(&str, &n, client_stream)<=0)
@@ -147,6 +156,9 @@ int main(int argc, char**argv){
 					method=*(v+1);
 					uri=*(v+2);
 					http_standard=*(v+3);
+
+					// Clear timeout.
+					alarm(0);
 
 					if(!method||!uri||!http_standard)
 						http_default_error(client_stream, 400, "Bad Request");
@@ -168,8 +180,6 @@ int main(int argc, char**argv){
 								setenv("CONNECTION_MODE", str+12, 1);
 						}
 						if(!(pid=fork())){
-
-
 							// Break the QUERY_STRING off of the URI.
 							for(a=uri;*a;a++)
 								if(*a=='?'){
@@ -237,7 +247,7 @@ int main(int argc, char**argv){
 				}	while((s=getenv("CONNECTION_MODE")) && !strcasecmp(s, "keep-alive") && ++request_count);
 
 end_of_stream:
-				error_code(0, "Handled %d requests.", request_count);
+				error_code(0, "Handled %d requests for %s", request_count, (char*)inet_ntoa(socket_addr_client.sin_addr));
 
 				// End of child process
 				fclose(client_stream);
@@ -259,4 +269,11 @@ end_of_stream:
 		printf("Server started on port %d. [%d]\n", port, pid);
 	else printf("Failed\n");
 	return 0;
+}
+
+
+/*	If the user is taking too long to make another request, we'll time out
+	and kill the handler. */
+void request_timeout(int i){
+	fclose(request_stream);
 }

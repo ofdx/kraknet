@@ -23,12 +23,6 @@ void set_path(char *dest, char *src){
 	else strcpy(dest, src);
 }
 
-void server_startup_stamp(){
-	FILE *f=mod_debug_stream(GET, NULL);
-
-	fprintf(f,"\n\n -- krakws starting at %s --\n", post_time(KRAKNET_TIMESTAMP, 0));
-}
-
 /*	Read conf the main server configuration file and handle all the details. */
 int set_env_from_conf(){
 	static char *str=NULL;
@@ -120,7 +114,6 @@ int set_env_from_conf(){
 		setenv("web_dir_protection", "yes", 1);
 	else setenv("web_dir_protection", a, 1);
 
-	server_startup_stamp();
 	fclose(conf);
 	return 0;
 }
