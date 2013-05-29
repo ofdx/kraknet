@@ -160,6 +160,9 @@ int main(int argc, char**argv){
 					// Clear timeout.
 					alarm(0);
 
+					// Increment for each request handled.
+					request_count++;
+
 					if(!method||!uri||!http_standard)
 						http_default_error(client_stream, 400, "Bad Request");
 					else {
@@ -244,7 +247,7 @@ int main(int argc, char**argv){
 					waitpid(pid, NULL, 0);
 
 					// Handle another request if connection was keep-alive.
-				}	while((s=getenv("CONNECTION_MODE")) && !strcasecmp(s, "keep-alive") && ++request_count);
+				}	while((s=getenv("CONNECTION_MODE")) && !strcasecmp(s, "keep-alive"));
 
 end_of_stream:
 				error_code(0, "Handled %d requests for %s", request_count, (char*)inet_ntoa(socket_addr_client.sin_addr));
