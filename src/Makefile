@@ -29,11 +29,8 @@ $(LIB)/libkraknet.so: $(C)/generic.c $(C)/utc_date.c
 
 
 # krakws (web server)
-$(BIN)/ws: $(O)/serv.o $(O)/http11.o $(O)/conf.o $(LIB)/libkraknet.so
-	$(CC) -o $(BIN)/ws -s $(O)/serv.o $(O)/http11.o $(O)/conf.o -lkraknet
-
-$(O)/serv.o: $(C)/serv.c $(I)/http11.h $(I)/generic.h $(I)/conf.h
-	$(CC) -c $(C)/serv.c -o $(O)/serv.o
+$(BIN)/ws: $(C)/serv.c $(O)/http11.o $(O)/conf.o $(LIB)/libkraknet.so
+	$(CC) -o $(BIN)/ws -s $(C)/serv.c $(O)/http11.o $(O)/conf.o -lkraknet
 
 $(O)/http11.o: $(C)/http11.c $(I)/http11.h $(I)/generic.h
 	$(CC) -c $(C)/http11.c -o $(O)/http11.o
