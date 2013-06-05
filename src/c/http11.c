@@ -195,8 +195,8 @@ void http_request(FILE *stream, char *uri, int method){
 
 			// TODO: If POST, pipe the temp file into this command.
 			if(post_data_fname)
-				sprintf(str, "%s\"%s\" < %s", s?"kraknet ":"", listing_mode?"list":uri, post_data_fname);
-			else sprintf(str, "%s\"%s\"", s?"kraknet ":"", listing_mode?"list":uri);
+				sprintf(str, "%s\"%s\" < %s %s", s?"kraknet ":"", listing_mode?"list":uri, post_data_fname, (getenv("log_root"))?"2>>$log_root/cgi.log":"");
+			else sprintf(str, "%s\"%s\" %s", s?"kraknet ":"", listing_mode?"list":uri, (getenv("log_root"))?"2>>$log_root/cgi.log":"");
 
 			if(cgi_pipe=popen(str, "r")){
 				// Read CGI headers from script.
