@@ -13,22 +13,23 @@ convenient way.
 
 
 ##Getting Started
-Your first time building, you should run /build.sh. This will create the default
+Your first time building you should run /build.sh. This will create the default
 web directory with an index.html if you don't already have one, and do a
 complete clean build of the server. It will also check to see if you have the
 required tools for building, and alert you if you're missing anything.
 
-In order to get started using Kraknet, you should first compile the source code
-and generate binaries. This is accomplished by running make(1) in the src/
-directory. This will generate a directory bin/ in the root of the project
-containing necessary binaries. You will require the following packages for
-dependencies:
+Compiling the server is accomplished by running make(1) in the src/ directory.
+This will generate a directory bin/ in the root of the project containing
+necessary binaries, as well as a lib/ directory with the shared objects. You
+will require the following packages for dependencies:
 -	gcc
 -	make
 
 Once built, you can start the server with the included init script, called
 init_ws, located in the root of the project directory. You can configure which
-port the server will listen on by editing this script.
+port the server will listen on by editing this script. You should also edit the
+user which the server runs as by modifying conf/serv. This file is
+self-explanatory.
 
 
 #Included Files
