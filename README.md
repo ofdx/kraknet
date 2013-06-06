@@ -13,8 +13,10 @@ convenient way.
 
 
 ##Getting Started
-If you're in a real hurry, build with ./build.bash in the root directory. This
-will check some tool dependencies and perform a full clean build. Otherwise...
+Your first time building, you should run /build.sh. This will create the default
+web directory with an index.html if you don't already have one, and do a
+complete clean build of the server. It will also check to see if you have the
+required tools for building, and alert you if you're missing anything.
 
 In order to get started using Kraknet, you should first compile the source code
 and generate binaries. This is accomplished by running make(1) in the src/
