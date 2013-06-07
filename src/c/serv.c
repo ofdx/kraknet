@@ -182,6 +182,8 @@ int main(int argc, char**argv){
 							else if(str==strcasestr(str, "Connection: "))
 								setenv("CONNECTION_MODE", str+12, 1);
 						}
+
+						// Request handler child starts here.
 						if(!(pid=fork())){
 							// Break the QUERY_STRING off of the URI.
 							for(a=uri;*a;a++)
