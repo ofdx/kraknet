@@ -152,6 +152,7 @@ int main(int argc, char**argv){
 							goto end_of_stream;
 						sanitize_str(str);
 					}	while(!*str);
+					push_str(str);
 					v=chop_words(str);
 					method=*(v+1);
 					uri=*(v+2);
@@ -253,6 +254,10 @@ int main(int argc, char**argv){
 
 end_of_stream:
 				error_code(0, "Handled %d requests for %s", request_count, (char*)inet_ntoa(socket_addr_client.sin_addr));
+				while(s=pop_str()){
+					error_code(0, "--\t%s", s);
+					free(s);
+				}
 
 				// End of child process
 				fclose(client_stream);

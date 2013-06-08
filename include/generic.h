@@ -42,4 +42,11 @@ extern char *get_conf_line_s(FILE *stream, char *value, enum SEEK_MODE mode);
 enum debug_stream_op { GET, SET };
 extern FILE *mod_debug_stream(enum debug_stream_op op, FILE *stream);
 extern int error_code(int code, const char *msg, ...);
+
+// char* stack.
+enum stack_operation { PUSH, POP, GET_STACK, COUNT };
+extern void push_str(char *str);
+extern char *pop_str();
+extern char **get_str_stack();
+extern long get_stack_size();
 #endif

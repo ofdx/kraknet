@@ -197,3 +197,56 @@ int error_code(int code, const char *msg, ...){
 
 	return code;
 }
+
+/*	PUSH/POP a set of strings. Expands automatically. */
+static char *char_stack(enum stack_operation op, char *p){
+	static char **stack=NULL;
+	static size_t ss=0;
+	static long sp=0;
+
+	// Grow automatically.
+	if(sp>=ss-1 || !stack){
+		ss+=256;
+		stack=realloc(stack, ss*sizeof(void*));
+	}
+
+	switch(op){
+		case PUSH:
+			*(stack+sp)=calloc(1+strlen(p), sizeof(char));
+			strcpy(*(stack+sp), p);
+			sp++;
+			break;
+
+		// User should free this memory.
+		case POP:
+			if(sp==0)
+				return NULL;
+			return *(stack+--sp);
+
+		// Return a pointer to the bottom of the stack.
+		case GET_STACK:
+			return (char*)stack;
+
+		// Return the element count;
+		case COUNT:
+			return (char*)sp;
+	}
+
+	return NULL;
+}
+
+void push_str(char *str){
+	char_stack(PUSH, str);
+}
+
+char *pop_str(){
+	return char_stack(POP, NULL);
+}
+
+char **get_str_stack(){
+	return (char**)char_stack(GET_STACK, NULL);
+}
+
+long get_stack_size(){
+	return (long)char_stack(COUNT, NULL);
+}
