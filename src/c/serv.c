@@ -44,13 +44,11 @@ int main(int argc, char**argv){
 	int port=KWS_DEFAULT_PORT;
 
 	FILE *client_stream=NULL, *content;
-	struct passwd *gpasswd;
+	struct passwd *gpasswd=NULL;
 	struct stat sbuf;
 	pid_t pid;
 
 	int status, c, optval=2;
-	
-	// FIXME: Debug var.
 	int request_count=0;
 
 	char *web_root, *cmp_web_root, *date;
@@ -60,9 +58,14 @@ int main(int argc, char**argv){
 	char *str, *s, **v;
 	size_t n;
 
+
 	// Reads server config file and sets environment variables.
 	if(set_env_from_conf())
 		return error_code(-1, "Configuration problem, bailing out.");
+
+	// Log startup
+	error_code(0, "--");
+	error_code(0, "Server is starting up.");
 
 	// Get a port number from argv if provided.
 	if(argc>1 && !(port=atoi(*(argv+1))))
@@ -73,6 +76,18 @@ int main(int argc, char**argv){
 	setenv("GATEWAY_INTERFACE", "CGI/1.1", 1);
 	// SERVER_NAME is set by init_ws
 
+	// Figure out what user we should run as.
+	if((str=getenv("web_user_name"))&&(*str)){
+		if(!(gpasswd=getpwnam(str))){
+			error_code(0, "Warning: No user named %s!", str);
+			gpasswd=NULL;
+		}
+		unsetenv("web_user_name");
+	} else {
+		gpasswd=getpwuid(getuid());
+		error_code(0, "Warning: $web_user_name not set! Running as %s.", gpasswd->pw_name);
+		gpasswd=NULL;
+	}
 
 	// Fork the process and start the server.
 	if(!(pid=fork())){
@@ -100,16 +115,10 @@ int main(int argc, char**argv){
 		/*	root privileges should be dropped after this point. The server has
 		 *	been initialized and bound its socket, and will now run as whatever
 		 *	$web_user_name is set as in the init_ws config file. */
-		if(str=getenv("web_user_name")){
-			if(gpasswd=getpwnam(str)){
-				if(setuid(gpasswd->pw_uid))
-					error_code(0, "Warning: You don't have permission to setuid to %s.\n", gpasswd->pw_name);
-			} else error_code(0, "Warning: No user named %s!\n", str);
-			unsetenv("web_user_name");
-		} else {
-			gpasswd=getpwuid(getuid());
-			error_code(0, "Warning: $web_user_name not set! Running as %s.\n", gpasswd->pw_name);
-		}
+		if(gpasswd)
+			if(setuid(gpasswd->pw_uid))
+				error_code(0, "Warning: You don't have permission to setuid to %s.", gpasswd->pw_name);
+
 
 		// Let init handle the children.
 		signal(SIGCHLD, SIG_IGN);
@@ -121,7 +130,7 @@ int main(int argc, char**argv){
 			sockfd_client=accept(sockfd, (struct sockaddr*)&socket_addr_client, &client_length);
 
 			if(set_env_from_conf())
-				return error_code(1, "General Configuration issue.\nServer stopping.\n");
+				return error_code(1, "General Configuration issue. ** Server stopping. **");
 
 			// Fork if a client connection accepts successfully.
 			if(sockfd_client<0)
@@ -252,6 +261,8 @@ int main(int argc, char**argv){
 					// Handle another request if connection was keep-alive.
 				}	while((s=getenv("CONNECTION_MODE")) && !strcasecmp(s, "keep-alive"));
 
+				fclose(client_stream);
+
 end_of_stream:
 				error_code(0, "Handled %d requests for %s", request_count, (char*)inet_ntoa(socket_addr_client.sin_addr));
 				while(s=pop_str()){
@@ -260,7 +271,6 @@ end_of_stream:
 				}
 
 				// End of child process
-				fclose(client_stream);
 				close(sockfd_client);
 				exit(0);
 			}

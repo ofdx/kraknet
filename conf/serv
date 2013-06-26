@@ -10,7 +10,7 @@ server_name="localhost"
 
 # The user the server will run as.
 # This change will be reflected the next time the server starts.
-web_user_name="mike"
+#web_user_name="kraknet"
 
 # Logs will be stored in this directory.
 log_root="logs"

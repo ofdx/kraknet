@@ -190,11 +190,17 @@ int error_code(int code, const char *msg, ...){
 	va_list va;
 
 	va_start(va, msg);
-	fprintf(stream, "%s [kraknet]: ", post_time("%H:%M:%S.", 1));
-	vfprintf(stream, msg, va);
+	if(msg==strstr(msg, "--")){
+		fprintf(stream, "\t\t");
+		vfprintf(stream, msg+2, va);
+	} else {
+		fprintf(stream, "%s [kraknet]: ", post_time("%Y/%m/%d %H:%M:%S.", 1));
+		vfprintf(stream, msg, va);
+	}
 	fputc('\n', stream);
 	va_end(va);
 
+	fflush(stream);
 	return code;
 }
 
