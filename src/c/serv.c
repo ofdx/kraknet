@@ -156,19 +156,22 @@ int main(int argc, char**argv){
 					// Hold the door open.
 					alarm(60);
 
-					// Parse header here (vectorized to $v).
+					// Receive HTTP header.
+					fflush(client_stream);
 					do{	if(getline(&str, &n, client_stream)<=0)
 							goto end_of_stream;
 						sanitize_str(str);
 					}	while(!*str);
+
+					// Clear timeout.
+					alarm(0);
+					
+					// Parse Header.
 					push_str(str);
 					v=chop_words(str);
 					method=*(v+1);
 					uri=*(v+2);
 					http_standard=*(v+3);
-
-					// Clear timeout.
-					alarm(0);
 
 					// Increment for each request handled.
 					request_count++;

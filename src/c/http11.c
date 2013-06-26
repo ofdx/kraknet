@@ -369,7 +369,8 @@ void http_redirect(FILE *stream, int code, const char *uri_moved){
 	fprintf(stream,
 		"Server: krakws\r\n"
 		"Connection: %s\r\n"
-		"Location: %s\r\n\r\n",
+		"Location: %s\r\n"
+		"Content-Length: 0\r\n\r\n",
 		(conn_mode==KEEP_ALIVE)?"keep-alive":"close",
 		uri_moved
 	);
