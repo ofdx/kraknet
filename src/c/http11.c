@@ -319,7 +319,7 @@ void http_default_error(FILE *stream, int code, const char *optional_msg){
 	fputs("\r\n", stream);
 
 	fprintf(stream,
-		"Server: krakws\r\n"
+		"Server: "KWS_SERVER_NAME"\r\n"
 		"Connection: %s\r\n"
 		"Content-type: text/html; charset=UTF-8\r\n"
 		"Content-length: 5\r\n\r\n"
@@ -367,7 +367,7 @@ void http_redirect(FILE *stream, int code, const char *uri_moved){
 	fputs("\r\n", stream);
 
 	fprintf(stream,
-		"Server: krakws\r\n"
+		"Server: "KWS_SERVER_NAME"\r\n"
 		"Connection: %s\r\n"
 		"Location: %s\r\n"
 		"Content-Length: 0\r\n\r\n",
