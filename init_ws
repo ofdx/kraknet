@@ -16,10 +16,10 @@
 ### END INIT INFO
 
 # All the server's files are a sub directory of this location by default.
-server_home="."
+server_home="/home/kraknet"
 
 # The server will run on this port.
-port="9001"
+port="80"
 
 # End server of configuration.
 

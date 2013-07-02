@@ -194,6 +194,8 @@ int main(int argc, char**argv){
 								setenv("CONTENT_TYPE", str+14, 1);
 							else if(str==strcasestr(str, "Connection: "))
 								setenv("CONNECTION_MODE", str+12, 1);
+							else if(str==strcasestr(str, "Host: "))
+								setenv("REQUEST_HOST", str+6, 1);
 						}
 
 						// Request handler child starts here.

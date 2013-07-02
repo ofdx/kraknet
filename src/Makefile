@@ -7,8 +7,8 @@
 # To clean (remove compiled binaries):
 # 	$ make clean
 
-I=i
-C=c
+I=.
+C=.
 O=o
 BIN=../bin
 LIB=../lib
