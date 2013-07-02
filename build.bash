@@ -53,26 +53,8 @@ fi
 
 cd $opwd
 
-# Build web/index.html if it doesn't exist.
-if ! stat "web/index.html" > /dev/null 2>&1; then
-	echo "-- No web/index.html, adding default."
-	mkdir -p web
-	cp .default/index.html web/
-fi
-
-# conf/serv
-if ! stat "conf/serv" > /dev/null 2>&1; then
-	echo "-- No conf/serv, adding default."
-	mkdir -p conf
-	cp .default/serv conf/
-fi
-
-# init_ws
-if ! stat "init_ws" > /dev/null 2>&1; then
-	echo "-- No init_ws, adding default."
-	mkdir -p conf
-	cp .default/init_ws ./
-fi
+# Copy default documents
+cp -rn .default/* ./
 
 # Error report.
 cat << EOF
