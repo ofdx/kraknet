@@ -8,26 +8,6 @@ inc_error(){
 	error_level=$(expr $error_level + 1)
 }
 
-# Used to rebuild web/index.html, if it's not present.
-create_default_doc(){
-cat > "web/index.html" << EOF
-!# Welcome, traveler!
-!# HTTP headers can be sent to clients here.
-!# Leave comments by starting with a #.
-!Cache-Control: no-cache
-<!DOCTYPE html>
-<html><head>
-	<meta charset=UTF-8>
-	<title>Welcome to Kraknet!</title>
-</head><body>
-	<h2>It works!</h2>
-	<p>The server is running, but no content is available yet. The current time is <????time:time>.</p>
-	<p><i>Kraknet Site System &copy;2012-<????time:year></i></p>
-	<textarea><????sys:env></textarea>
-</body></html>
-EOF
-}
-
 cat << EOF
 This script will rebuild the entire site system. If you want to do something
 else, you should look at the Makefile in /src/
@@ -77,7 +57,21 @@ cd $opwd
 if ! stat "web/index.html" > /dev/null 2>&1; then
 	echo "-- No web/index.html, adding default."
 	mkdir -p web
-	create_default_doc
+	cp .default/index.html web/
+fi
+
+# conf/serv
+if ! stat "conf/serv" > /dev/null 2>&1; then
+	echo "-- No conf/serv, adding default."
+	mkdir -p conf
+	cp .default/serv conf/
+fi
+
+# init_ws
+if ! stat "init_ws" > /dev/null 2>&1; then
+	echo "-- No init_ws, adding default."
+	mkdir -p conf
+	cp .default/init_ws ./
 fi
 
 # Error report.
