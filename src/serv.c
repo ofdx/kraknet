@@ -271,7 +271,7 @@ int main(int argc, char**argv){
 				fclose(client_stream);
 
 end_of_stream:
-				error_code(0, "Handled %d requests for %s", request_count, (char*)inet_ntoa(socket_addr_client.sin_addr));
+				error_code(0, "Handled %d request%s for %s", request_count, (request_count==1)?"":"s", (char*)inet_ntoa(socket_addr_client.sin_addr));
 				while(s=pop_str()){
 					error_code(0, "--\t%s", s);
 					free(s);
