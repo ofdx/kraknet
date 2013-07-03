@@ -26,14 +26,14 @@ int mod_time_check(time_t mod){
 
 	//strftime(str, 1024*sizeof(char), "%a, %d %b %Y %H:%M:%S %Z", gmtime(&now));
 	if(!strptime(a, "%a,%n%d%n%b%n%Y%n%H:%M:%S%n%Z", &tm))
-		return error_code(0, "Failed to parse time.");
+		return 0;
 
 	// 200
 	if(mod>mktime(&tm))
 		return 0;
 
 	// 304
-	return error_code(1, "304 Not Modified.");
+	return 1;
 }
 
 char *get_mime_type(char *filename){
