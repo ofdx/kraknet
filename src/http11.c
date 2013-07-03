@@ -330,22 +330,14 @@ void http_default_error(FILE *stream, int code, const char *optional_msg){
 }
 
 
-/*	This function could and probably should be changed to use UTC/GMT time
- *	rather than the server's local time, but it shouldn't matter to any modern
- *	web browser. */
+/*	GMT time stamp to make the browser feel all warm and fuzzy. */
 void http_date(FILE *stream, int offset_sec){
-	char *str=NULL, *s;
-	FILE *pipe;
+	char *str=calloc(256,sizeof(char));
 
-	if(!(pipe=popen("date \"+\%a, \%d \%b \%Y \%T \%Z\"", "r")))
-		return;
-
-	str=calloc(256, sizeof(char));
-	fgets(str, 256, pipe);
-	sanitize_str(str);
-
-	pclose(pipe);
+	time_t now=time(0);
+	strftime(str, 256, "%a, %d %b %Y %H:%M:%S %Z", gmtime(&now));
 	fputs(str, stream);
+
 	free(str);
 }
 
