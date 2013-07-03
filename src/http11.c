@@ -17,6 +17,25 @@
 #include "http11.h"
 enum conn_mode { CLOSE, KEEP_ALIVE, UNSET };
 
+int mod_time_check(time_t mod){
+	struct tm tm;
+	char *a;
+
+	if(!(a=getenv("IF_MODIFIED_SINCE")))
+		return 0;
+
+	//strftime(str, 1024*sizeof(char), "%a, %d %b %Y %H:%M:%S %Z", gmtime(&now));
+	if(!strptime(a, "%a,%n%d%n%b%n%Y%n%H:%M:%S%n%Z", &tm))
+		return error_code(0, "Failed to parse time.");
+
+	// 200
+	if(mod>mktime(&tm))
+		return 0;
+
+	// 304
+	return error_code(1, "304 Not Modified.");
+}
+
 char *get_mime_type(char *filename){
 	char *str, *s, *a, *fname=NULL;
 	FILE *mime;
@@ -237,9 +256,7 @@ void http_request(FILE *stream, char *uri, int method){
 						conn_mode=UNSET;
 				}
 				fprintf(stream, "%s %s\r\n", getenv("SERVER_PROTOCOL"), status);
-				fputs("Date: ", stream);
-				http_date(stream, 0);
-				fputs("\r\n", stream);
+				fprintf(stream, "Date: %s\r\n", http_date(0));
 				fprintf(stream, "Server: %s\r\n", KWS_SERVER_NAME);
 				if(conn_mode!=UNSET)
 					fprintf(stream, "Connection: %s\r\n", (conn_mode==KEEP_ALIVE)?"keep-alive":"close");
@@ -267,32 +284,45 @@ void http_request(FILE *stream, char *uri, int method){
 			if(!mime_type)
 				return http_default_error(stream, 500, "MIME Type Not Found.");
 			else {
-				fprintf(stream, "HTTP/1.1 200 OK\r\n");
+				if(mod_time_check(sbuf.st_mtime)){
+					fprintf(stream, "HTTP/1.1 304 Not Modified\r\n");
+					fprintf(stream, "Last-Modified: %s\r\n", http_date(sbuf.st_mtime-time(0)));
+					fprintf(stream,
+						"Date: %s\r\n"
+						"Server: "KWS_SERVER_NAME"\r\n"
+						"Connection: %s\r\n"
+						"Content-Type: %s\r\n"
+						"Content-Length: %ld\r\n\r\n",
+						http_date(0),
+						(conn_mode==KEEP_ALIVE)?"keep-alive":"close",
+						mime_type, sbuf.st_size
+					);
+				} else {
+					fprintf(stream, "HTTP/1.1 200 OK\r\n");
+					fprintf(stream, "Last-Modified: %s\r\n", http_date(sbuf.st_mtime-time(0)));
+					fprintf(stream,
+						"Date: %s\r\n"
+						"Server: "KWS_SERVER_NAME"\r\n"
+						"Connection: %s\r\n"
+						"Content-Type: %s\r\n"
+						"Content-Length: %ld\r\n\r\n",
+						http_date(0),
+						(conn_mode==KEEP_ALIVE)?"keep-alive":"close",
+						mime_type, sbuf.st_size
+					);
 
-				fputs("Date: ", stream);
-				http_date(stream, 0);
-				fputs("\r\n", stream);
-
-				fprintf(stream,
-					"Server: "KWS_SERVER_NAME"\r\n"
-					"Connection: %s\r\n"
-					"Content-Type: %s\r\n"
-					"Content-Length: %ld\r\n\r\n",
-					(conn_mode==KEEP_ALIVE)?"keep-alive":"close",
-					mime_type, sbuf.st_size
-				);
-
-				if(method!=HEAD){
-					// Dump file contents.
-					content=fopen(uri, "r");
-					while(1){
-						c=getc(content);
-						if(feof(content))
-							break;
-						fputc(c, stream);
-					}	fclose(content);
+					if(method!=HEAD){
+						// Dump file contents.
+						content=fopen(uri, "r");
+						while(1){
+							c=getc(content);
+							if(feof(content))
+								break;
+							fputc(c, stream);
+						}	fclose(content);
+					}
+					free(mime_type);
 				}
-				free(mime_type);
 			}
 		}
 	}
@@ -313,17 +343,14 @@ void http_default_error(FILE *stream, int code, const char *optional_msg){
 		code,
 		(optional_msg)?optional_msg:"OK"
 	);
-
-	fputs("Date: ", stream);
-	http_date(stream, 0);
-	fputs("\r\n", stream);
-
 	fprintf(stream,
+		"Date: %s\r\n"
 		"Server: "KWS_SERVER_NAME"\r\n"
 		"Connection: %s\r\n"
 		"Content-type: text/html; charset=UTF-8\r\n"
 		"Content-length: 5\r\n\r\n"
 		"%3d\r\n",
+		http_date(0),
 		(conn_mode==KEEP_ALIVE)?"keep-alive":"close",
 		code
 	);
@@ -331,14 +358,16 @@ void http_default_error(FILE *stream, int code, const char *optional_msg){
 
 
 /*	GMT time stamp to make the browser feel all warm and fuzzy. */
-void http_date(FILE *stream, int offset_sec){
-	char *str=calloc(256,sizeof(char));
+char *http_date(time_t offset_sec){
+	static char *str=NULL;
 
-	time_t now=time(0);
-	strftime(str, 256, "%a, %d %b %Y %H:%M:%S %Z", gmtime(&now));
-	fputs(str, stream);
+	if(!str)
+		str=calloc(1024,sizeof(char));
 
-	free(str);
+	time_t now=time(0)+offset_sec;
+	strftime(str, 1024*sizeof(char), "%a, %d %b %Y %H:%M:%S %Z", gmtime(&now));
+
+	return str;
 }
 
 void http_redirect(FILE *stream, int code, const char *uri_moved){
@@ -353,11 +382,7 @@ void http_redirect(FILE *stream, int code, const char *uri_moved){
 		"HTTP/1.1 %d Moved Permanently\r\n",
 		code?:301
 	);
-
-	fputs("Date: ", stream);
-	http_date(stream, 0);
-	fputs("\r\n", stream);
-
+	fprintf(stream, "Date: %s\r\n", http_date(0));
 	fprintf(stream,
 		"Server: "KWS_SERVER_NAME"\r\n"
 		"Connection: %s\r\n"
