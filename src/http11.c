@@ -68,7 +68,8 @@ char *get_mime_type(char *filename){
 			continue;
 
 		for(s=str;*s;s++)
-			if(*s==' '||*s=='\t')break;
+			if(*s==' '||*s=='\t')
+				break;
 		*(s++)=0;
 
 		if(!strcmp(a, str)){

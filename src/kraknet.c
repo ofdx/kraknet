@@ -17,6 +17,7 @@
 #include <string.h>
 
 #include "generic.h"
+#include "http11.h"
 
 int main(int argc, char **argv){
 	char *home_dir, *web_root;
@@ -29,7 +30,10 @@ int main(int argc, char **argv){
 
 	char headers_closed=0;
 
-	printf("Content-Type: text/html\r\n");
+	// Find server's HTML MIME type. (conf/mime)
+	str=get_mime_type("index.html");
+	printf("Content-Type: %s\r\n", str);
+	free(str);
 
 	if(!(home_dir=getenv("mod_root"))){
 		printf("\nBad configuration\n");

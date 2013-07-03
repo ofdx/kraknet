@@ -29,6 +29,7 @@
 #define HEAD	2
 #define KWS_SERVER_NAME "krakws (dev)"
 
+extern char *get_mime_type(char *filename);
 extern void http_request(FILE *stream, char *uri, int method);
 extern void http_default_error(FILE *stream, int code, const char *optional_msg);
 extern char *http_date(time_t offset_sec);

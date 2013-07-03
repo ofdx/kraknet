@@ -21,19 +21,17 @@ clean:
 
 
 # libkraknet (shared library of common functions)
-$(LIB)/libkraknet.so: $(C)/generic.c $(C)/utc_date.c
+$(LIB)/libkraknet.so: $(C)/generic.c $(C)/utc_date.c $(C)/http11.c
 	$(CC) -c -fPIC -o $(O)/generic.o $(C)/generic.c
 	$(CC) -c -fPIC -o $(O)/utc_date.o $(C)/utc_date.c
-	$(CC) -shared -o $(LIB)/libkraknet.so $(O)/generic.o $(O)/utc_date.o -lrt
+	$(CC) -c -fPIC -o $(O)/http11.o $(C)/http11.c
+	$(CC) -shared -o $(LIB)/libkraknet.so $(O)/generic.o $(O)/utc_date.o $(O)/http11.o -lrt
 	chmod a-x $(LIB)/libkraknet.so
 
 
 # krakws (web server)
-$(BIN)/ws: $(C)/serv.c $(O)/http11.o $(O)/conf.o $(LIB)/libkraknet.so
-	$(CC) -o $(BIN)/ws -s $(C)/serv.c $(O)/http11.o $(O)/conf.o -lkraknet
-
-$(O)/http11.o: $(C)/http11.c $(I)/http11.h $(I)/generic.h
-	$(CC) -c $(C)/http11.c -o $(O)/http11.o
+$(BIN)/ws: $(C)/serv.c $(O)/conf.o $(LIB)/libkraknet.so
+	$(CC) -o $(BIN)/ws -s $(C)/serv.c $(O)/conf.o -lkraknet
 
 $(O)/conf.o: $(C)/conf.c $(I)/conf.h $(I)/generic.h
 	$(CC) -c $(C)/conf.c -o $(O)/conf.o
