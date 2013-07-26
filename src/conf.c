@@ -94,7 +94,7 @@ int set_env_from_conf(){
 		set_path(str, a);
 		setenv("log_root", str, 1);
 
-		mkdir (str, 0777);
+		mkdir(str, 0777);
 		switch(errno){
 			case 0: case EEXIST:
 				strcat(str,"/server.log");
@@ -116,4 +116,43 @@ int set_env_from_conf(){
 
 	fclose(conf);
 	return 0;
+}
+
+/*	Take ownership of log files if possible. */
+int change_log_owner(uid_t uid, gid_t gid){
+	struct dirent *d;
+	struct stat s;
+	FILE *conf;
+	DIR *dir;
+
+	int e=0;
+	char *a, *b;
+
+	// Find out where logs are supposed to be.
+	if(!(conf=get_conf_stream("serv", "r")))
+		return error_code(1, "Could not open conf/serv.");
+	if(!(a=get_conf_line_s(conf, "log_root", SEEK_RESET_OK)))
+		return error_code(0, "No logging directory set.");
+	fclose(conf);
+
+	// Log directory must exist to change its owner.
+	if(stat(a, &s))
+		return 0;
+	if(chown(a, uid, gid))
+		return error_code(2, "Could not change owner of \"%s\".", a);
+	if(!(dir=opendir(a)))
+		return error_code(0, "Warning: Could not access directory structure for \"%s\".", a);
+
+	// Own each file in the logs directory.
+	b=calloc(256+strlen(a), sizeof(char));
+	while(d=readdir(dir)){
+		if(!strcmp(d->d_name, ".") || !strcmp(d->d_name, ".."))
+			continue;
+		sprintf(b, "%s/%s", a, d->d_name);
+		e+=chown(b, uid, gid);
+	}
+	free(b);
+	closedir(dir);	
+
+	return e?error_code(0, "Warning: %d files could not be chowned.", e):0;
 }

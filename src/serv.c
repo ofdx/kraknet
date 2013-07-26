@@ -115,9 +115,15 @@ int main(int argc, char**argv){
 		/*	root privileges should be dropped after this point. The server has
 		 *	been initialized and bound its socket, and will now run as whatever
 		 *	$web_user_name is set as in the init_ws config file. */
-		if(gpasswd)
+		if(gpasswd){
+			// Fix log file ownership.
+			if(change_log_owner(gpasswd->pw_uid, gpasswd->pw_gid))
+				error_code(0, "Warning: Could not take ownership of log files.");
+
+			// Change users.
 			if(setuid(gpasswd->pw_uid))
 				error_code(0, "Warning: You don't have permission to setuid to %s.", gpasswd->pw_name);
+		}
 
 
 		// Let init handle the children.
