@@ -37,15 +37,16 @@ Content-Type: Text/html
 	<h2>Files located in $dirf</h2>
 	<table>
 		<tr>
-			<th>Name</th><th>Size (Bytes)</th><th>Description</th>
+			<th>Name</th>
+			<th>Size (Bytes)</th>
+			<th>Last Modified</th>
+			<th>Description</th>
 		</tr>
 EOF
 
 # If the directory is the root dir, just clear it.
 # No other directory looks like /\/$/
-if($dir eq "/"){
-	$dir="";
-}
+$dir="" if($dir eq "/");
 
 # Loop to generate each row.
 $dirname="$working/$dir";
@@ -59,6 +60,11 @@ foreach (@file){
 	$size=$sb->size;
 	$mime=`file -b "$working/$dir/$_"`;
 	chomp $mime;
+
+	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime($sb->mtime);
+	$year+=1900;
+	$modified="$year/$mday/$mon $hour:$min:$sec";
+
 
 	if($mime eq "directory"){
 		$filef="$_/";
@@ -75,6 +81,7 @@ print <<EOF;
 		<tr>
 			<td><a href="$dir/$_">$filef</a></td>
 			<td class=size>$size</td>
+			<td>$modified</td>
 			<td>$mime</td>
 		</tr>
 EOF
