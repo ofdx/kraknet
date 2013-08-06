@@ -63,7 +63,7 @@ foreach (@file){
 
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime($sb->mtime);
 	$year+=1900;
-	$modified="$year/$mday/$mon $hour:$min:$sec";
+	$modified="$year/$mon/$mday $hour:$min:$sec";
 
 
 	if($mime eq "directory"){
