@@ -190,7 +190,7 @@ int main(int argc, char**argv){
 						while(getline(&str, &n, client_stream)>0){
 							sanitize_str(str);
 
-							// These should be unset before each request.
+							// These need to be unset for each request.
 							if(!*str)
 								break;
 							else if(str==strcasestr(str, "Cookie: "))
