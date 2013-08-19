@@ -158,6 +158,8 @@ int main(int argc, char**argv){
 					unsetenv("CONTENT_LENGTH");
 					unsetenv("CONTENT_TYPE");
 					unsetenv("CONNECTION_MODE");
+					unsetenv("REQUEST_HOST");
+					unsetenv("IF_MODIFIED_SINCE");
 
 					// Hold the door open.
 					alarm(60);
@@ -188,6 +190,7 @@ int main(int argc, char**argv){
 						while(getline(&str, &n, client_stream)>0){
 							sanitize_str(str);
 
+							// These should be unset before each request.
 							if(!*str)
 								break;
 							else if(str==strcasestr(str, "Cookie: "))
