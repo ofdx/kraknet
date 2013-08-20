@@ -58,6 +58,9 @@ int main(int argc, char**argv){
 	char *str, *s, **v;
 	size_t n;
 
+	// MT POST band-aid
+	size_t post_length;
+	char *post_raw_data;
 
 	// Reads server config file and sets environment variables.
 	if(set_env_from_conf())
@@ -274,10 +277,7 @@ int main(int argc, char**argv){
 					}
 					waitpid(pid, NULL, 0);
 
-					// TODO: Clean this up, too
 					// Clean up POST data.
-					size_t post_length;
-					char *post_raw_data;
 					if(!strcasecmp(method, "POST")){
 						if(s=getenv("CONTENT_LENGTH"))
 							post_length=atoi(s);
@@ -294,6 +294,7 @@ int main(int argc, char**argv){
 
 				fclose(client_stream);
 
+				// Dump a list of handled requests to the log file.
 end_of_stream:
 				error_code(0, "Handled %d request%s for %s", request_count, (request_count==1)?"":"s", (char*)inet_ntoa(socket_addr_client.sin_addr));
 				while(s=pop_str()){
@@ -302,7 +303,6 @@ end_of_stream:
 				}
 
 				// End of child process
-				//close(sockfd_client);
 				exit(0);
 			}
 
