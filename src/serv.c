@@ -58,6 +58,9 @@ int main(int argc, char**argv){
 	char *str, *s, **v;
 	size_t n;
 
+	// MT POST band-aid
+	size_t post_length;
+	char *post_raw_data;
 
 	// Reads server config file and sets environment variables.
 	if(set_env_from_conf())
@@ -274,11 +277,24 @@ int main(int argc, char**argv){
 					}
 					waitpid(pid, NULL, 0);
 
+					// Clean up POST data.
+					if(!strcasecmp(method, "POST")){
+						if(s=getenv("CONTENT_LENGTH"))
+							post_length=atoi(s);
+						if(post_length>0){
+							post_raw_data=calloc(post_length+1, sizeof(char));
+							*(post_raw_data+post_length)=0;
+							fread(post_raw_data, sizeof(char), post_length, client_stream);
+						}
+					}
+					free(post_raw_data);
+
 					// Handle another request if connection was keep-alive.
 				}	while((s=getenv("CONNECTION_MODE")) && !strcasecmp(s, "keep-alive"));
 
 				fclose(client_stream);
 
+				// Dump a list of handled requests to the log file.
 end_of_stream:
 				error_code(0, "Handled %d request%s for %s", request_count, (request_count==1)?"":"s", (char*)inet_ntoa(socket_addr_client.sin_addr));
 				while(s=pop_str()){
@@ -287,7 +303,6 @@ end_of_stream:
 				}
 
 				// End of child process
-				close(sockfd_client);
 				exit(0);
 			}
 
