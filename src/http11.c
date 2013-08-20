@@ -94,7 +94,7 @@ char *get_mime_type(char *filename){
 }
 
 // GET and POST is handled here.
-void http_request(FILE *stream, char *uri, int method){
+void http_request(FILE *stream, char *uri, int method, char *post_raw_data){
 	char **a, *mime_type, *index, *cgi_content=NULL;
 	char *s, *str, *b, **cgi_headers=NULL;
 	char *status;
@@ -105,7 +105,6 @@ void http_request(FILE *stream, char *uri, int method){
 
 	FILE *post_data_file=NULL;
 	char *post_data_fname=NULL;
-	char *post_raw_data=NULL;
 	size_t post_length=0;
 
 	FILE *content, *cgi_pipe, *conf;
@@ -120,16 +119,9 @@ void http_request(FILE *stream, char *uri, int method){
 	// Gets set if we're going to do an auto directory listing.
 	char listing_mode=0;
 
-	// Clear the buffer of POST data
-	if(method==POST){
-		if(s=getenv("CONTENT_LENGTH"))
-			post_length=atoi(s);
-		if(post_length>0){
-			post_raw_data=calloc(post_length+1, sizeof(char));
-			*(post_raw_data+post_length)=0;
-			fread(post_raw_data, sizeof(char), post_length, stream);
-		}
-	}
+	// Set POST Content-Length, if appropriate.
+	if((method==POST) && (s=getenv("CONTENT_LENGTH")))
+		post_length=atoi(s);
 
 	if(strstr(uri, "/../"))
 		return http_default_error(stream, 401, "Permission Denied.");
