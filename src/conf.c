@@ -82,6 +82,7 @@ int set_env_from_conf(){
 	mkdir(str, 0777);
 	switch(errno){
 		case 0: case EEXIST:
+			chmod(str, 0777);
 			break;
 		default:
 			return error_code(-1, "Could not create temp directory.");

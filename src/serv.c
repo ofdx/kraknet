@@ -274,6 +274,21 @@ int main(int argc, char**argv){
 					}
 					waitpid(pid, NULL, 0);
 
+					// TODO: Clean this up, too
+					// Clean up POST data.
+					size_t post_length;
+					char *post_raw_data;
+					if(!strcasecmp(method, "POST")){
+						if(s=getenv("CONTENT_LENGTH"))
+							post_length=atoi(s);
+						if(post_length>0){
+							post_raw_data=calloc(post_length+1, sizeof(char));
+							*(post_raw_data+post_length)=0;
+							fread(post_raw_data, sizeof(char), post_length, client_stream);
+						}
+					}
+					free(post_raw_data);
+
 					// Handle another request if connection was keep-alive.
 				}	while((s=getenv("CONNECTION_MODE")) && !strcasecmp(s, "keep-alive"));
 
@@ -287,7 +302,7 @@ end_of_stream:
 				}
 
 				// End of child process
-				close(sockfd_client);
+				//close(sockfd_client);
 				exit(0);
 			}
 
