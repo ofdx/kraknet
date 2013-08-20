@@ -154,6 +154,7 @@ int main(int argc, char**argv){
 
 				// Timeout handler
 				signal(SIGALRM, request_timeout);
+				signal(SIGUSR1, request_timeout);
 
 				do{ /* Loop to process multiple requests on the same TCP connection. */
 					unsetenv("HTTP_COOKIE");
@@ -212,6 +213,17 @@ int main(int argc, char**argv){
 								setenv("IF_MODIFIED_SINCE", str+19, 1);
 						}
 
+						// Clean up POST data.
+						if(!strcasecmp(method, "POST")){
+							if(s=getenv("CONTENT_LENGTH"))
+								post_length=atoi(s);
+							if(post_length>0){
+								post_raw_data=calloc(post_length+1, sizeof(char));
+								*(post_raw_data+post_length)=0;
+								fread(post_raw_data, sizeof(char), post_length, client_stream);
+							}
+						}
+
 						// Request handler child starts here.
 						if(!(pid=fork())){
 							// Break the QUERY_STRING off of the URI.
@@ -257,41 +269,28 @@ int main(int argc, char**argv){
 								// Skipping CONTENT_TYPE and CONTENT_LENGTH
 
 								if(!strcasecmp(method, "HEAD"))
-									http_request(client_stream, str, HEAD);
+									http_request(client_stream, str, HEAD, NULL);
 								else if(!strcasecmp(method, "GET"))
-									http_request(client_stream, str, GET);
+									http_request(client_stream, str, GET, NULL);
 								else if(!strcasecmp(method, "POST"))
-									http_request(client_stream, str, POST);
+									http_request(client_stream, str, POST, post_raw_data);
 								else http_default_error(client_stream, 501, "Method Not Implemented.");
 
 							} else http_default_error(client_stream, 401, "Permission denied.");
 						
-							free(*v);
 							fclose(client_stream);
 							close(sockfd_client);
 
 							// End of handler process.
 							exit(0);
 						}
-
+						free(post_raw_data);
+						waitpid(pid, NULL, 0);
 					}
-					waitpid(pid, NULL, 0);
-
-					// Clean up POST data.
-					if(!strcasecmp(method, "POST")){
-						if(s=getenv("CONTENT_LENGTH"))
-							post_length=atoi(s);
-						if(post_length>0){
-							post_raw_data=calloc(post_length+1, sizeof(char));
-							*(post_raw_data+post_length)=0;
-							fread(post_raw_data, sizeof(char), post_length, client_stream);
-						}
-					}
-					free(post_raw_data);
+					free(*v);
 
 					// Handle another request if connection was keep-alive.
 				}	while((s=getenv("CONNECTION_MODE")) && !strcasecmp(s, "keep-alive"));
-
 				fclose(client_stream);
 
 				// Dump a list of handled requests to the log file.
@@ -303,6 +302,7 @@ end_of_stream:
 				}
 
 				// End of child process
+				close(sockfd_client);
 				exit(0);
 			}
 
