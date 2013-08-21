@@ -284,7 +284,6 @@ int main(int argc, char**argv){
 							// End of handler process.
 							exit(0);
 						}
-						free(post_raw_data);
 						waitpid(pid, NULL, 0);
 					}
 					free(*v);
