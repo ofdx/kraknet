@@ -37,6 +37,7 @@ web_root path to the absolute path of your krakws installation, and set
 web_user_name in conf/serv before running as root. If you want to start the
 server at system startup time, you should create a symlink to the init_ws script
 in /etc/init.d/, and then run update-rc.d.
+
     # cd /etc/init.d/
 	# ln -s -T /home/me/kraknet/init_ws krakws
 	# update-rc.d krakws defaults
