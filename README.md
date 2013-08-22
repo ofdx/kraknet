@@ -31,6 +31,15 @@ port the server will listen on by editing this script. You should also edit the
 user which the server runs as by modifying conf/serv. This file is
 self-explanatory.
 
+IMPORTANT: If you choose to run on a port less than 1024 (e.g.: 80), you must
+run the init_ws script as root. It is strongly recommended that you set the
+web_root path to the absolute path of your krakws installation, and set
+web_user_name in conf/serv before running as root. If you want to start the
+server at system startup time, you should create a symlink to the init_ws script
+in /etc/init.d/, and then run update-rc.d.
+    # cd /etc/init.d/
+	# ln -s -T /home/me/kraknet/init_ws krakws
+	# update-rc.d krakws defaults
 
 #Included Files
 ###init_ws:
@@ -73,19 +82,6 @@ script to an actual file inside the module's directory.
 
 ###src/
 Source code for the server and tightly integrated components.
-
-###&nbsp;&nbsp;&nbsp;&nbsp;src/c/
-&nbsp;&nbsp;&nbsp;&nbsp;C source files.
-
-###&nbsp;&nbsp;&nbsp;&nbsp;src/i/
-&nbsp;&nbsp;&nbsp;&nbsp;Header files. Make sure you link with the relevant object code from o/
-if you are trying to include some of the code from the server in your
-module.
-
-###&nbsp;&nbsp;&nbsp;&nbsp;src/o/
-&nbsp;&nbsp;&nbsp;&nbsp;Binary object files. These are useless, unless you need to link with
-them to compile some core feature of the server or Kraknet into your
-C application. This directory is created by the build process.
 
 ###web/
 This is the live web directory. Everything here is available on the
