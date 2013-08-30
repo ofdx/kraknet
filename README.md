@@ -42,6 +42,8 @@ in /etc/init.d/, and then run update-rc.d.
 	# ln -s -T /home/me/kraknet/init_ws krakws
 	# update-rc.d krakws defaults
 
+[**Read the Wiki for More Information**](https://github.com/krakissi/kraknet/wiki)
+
 #Included Files
 ###init_ws:
 This file is used to start and stop the server. It behaves like a System V
