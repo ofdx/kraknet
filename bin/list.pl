@@ -29,9 +29,10 @@ Content-Type: Text/html
 	<style type=text/css>
 		body { font-family: sans-serif; }
 		table { border-spacing: 0px; }
-		th { text-align: left; }
-		td { padding-right: 5px; }
+		th { text-align: left; border-bottom: solid 1px black; padding: 0 1em; }
+		td { padding-right: 1em; }
 		.size { text-align: right; font-family: monospace; }
+		.date { font-family: monospace; }
 		tr:nth-child(even) { background-color:#e0e0f0; }
 		tr:hover td { background-color: #d0d0e0; }
 	</style>
@@ -65,7 +66,8 @@ foreach (@file){
 
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime($sb->mtime);
 	$year+=1900;
-	$modified="$year/$mon/$mday $hour:$min:$sec";
+	$modified="$mon/$mday/$year $hour:$min:$sec";
+	$modified=sprintf("%02d/%02d/%04d %d:%02d:%02d",$mon,$mday,$year,$hour,$min,$sec);
 
 
 	if($mime eq "directory"){
@@ -83,7 +85,7 @@ print <<EOF;
 		<tr>
 			<td><a href="$dir/$_">$filef</a></td>
 			<td class=size>$size</td>
-			<td>$modified</td>
+			<td class=date>$modified</td>
 			<td>$mime</td>
 		</tr>
 EOF
