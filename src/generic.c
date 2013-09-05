@@ -256,3 +256,36 @@ char **get_str_stack(){
 long get_stack_size(){
 	return (long)char_stack(COUNT, NULL);
 }
+
+
+// Find a module, run it, and push the result text to stdout.
+int mod_find(char *mod, char *script, char *args){
+	char *home_dir;
+	char *str, *s;
+	size_t n=256;
+	FILE *pipe;
+	int c;
+
+	if(!(home_dir=getenv("mod_root")))
+		return error_code(-1, "Missing environment variable $mod_root.");
+
+	// Set the PWD to the mod's directory.
+	str=calloc(256+n, sizeof(char));
+	sprintf(str, "%s/%s", home_dir, mod);
+	if(chdir(str))
+		return error_code(1, "Module missing. (%s)", mod);
+	sprintf(str, "./info.txt");
+
+	if(s=get_conf_line(str, script)){
+		unquote_str(script=s);
+		sprintf(str, "./%s %s", script, args?args:"");
+		if(pipe=popen(str, "r")){
+			while((c=getc(pipe))!=EOF)
+				fputc(c, stdout);
+			pclose(pipe);
+		}
+	} else return error_code(1, "No script found. (%s:%s)", mod, script);
+
+	return 0;
+}
+

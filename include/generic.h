@@ -49,4 +49,8 @@ extern void push_str(char *str);
 extern char *pop_str();
 extern char **get_str_stack();
 extern long get_stack_size();
+
+// Kraknet Stuff.
+extern int mod_find(char *mod, char *script, char *args);
+
 #endif

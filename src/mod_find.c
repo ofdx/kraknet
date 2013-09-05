@@ -18,19 +18,11 @@
 
 int main(int argc, char **argv){
 	char *mod, *script, *args=NULL;
-	char *home_dir;
-
 	char *s, *str, **p;
 	size_t n=0;
 
-	FILE *pipe;
-	int c;
-
 	if(argc<2)
 		return error_code(-1, "Too few paremeters for %s.", *argv);
-
-	if(!(home_dir=getenv("mod_root")))
-		return error_code(-1, "Missing environment variable $mod_root.");
 
 	//Look for a colon between module and script
 	str=*(argv+1);
@@ -58,25 +50,5 @@ int main(int argc, char **argv){
 		}	while(*(++p));
 	}
 
-	// Set the PWD to the mod's directory.
-	str=calloc(256+n, sizeof(char));
-	sprintf(str, "%s/%s", home_dir, mod);
-	if(chdir(str))
-		return error_code(1, "Module missing. (%s)", mod);
-	sprintf(str, "./info.txt");
-
-	if(s=get_conf_line(str, script)){
-		unquote_str(script=s);
-		sprintf(str, "./%s %s", script, args?args:"");
-		if(pipe=popen(str, "r")){
-			while(1){
-				c=getc(pipe);
-				if(feof(pipe))
-					break;
-				fputc(c, stdout);
-			}	pclose(pipe);
-		}
-	} else return error_code(1, "No script found. (%s:%s)", mod, script);
-
-	return 0;
+	return mod_find(mod, script, args);
 }
