@@ -28,10 +28,12 @@ Content-Type: Text/html
 	<title>Index of $dirf</title>
 	<style type=text/css>
 		body { font-family: sans-serif; }
-		td { padding-right: 5px; }
+		table { border-spacing: 0px; }
 		th { text-align: left; }
+		td { padding-right: 5px; }
 		.size { text-align: right; font-family: monospace; }
-		tr:nth-child(even) { background-color:#e0e0e0; }
+		tr:nth-child(even) { background-color:#e0e0f0; }
+		tr:hover td { background-color: #d0d0e0; }
 	</style>
 </head><body>
 	<h2>Files located in $dirf</h2>
