@@ -66,7 +66,6 @@ foreach (@file){
 
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime($sb->mtime);
 	$year+=1900;
-	$modified="$mon/$mday/$year $hour:$min:$sec";
 	$modified=sprintf("%02d/%02d/%04d %d:%02d:%02d",$mon,$mday,$year,$hour,$min,$sec);
 
 
