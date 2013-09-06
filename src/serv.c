@@ -43,18 +43,17 @@ int main(int argc, char**argv){
 	struct sockaddr_in socket_addr;
 	int port=KWS_DEFAULT_PORT;
 
-	FILE *client_stream=NULL, *content;
 	struct passwd *gpasswd=NULL;
-	struct stat sbuf;
+	FILE *client_stream=NULL;
 	pid_t pid;
 
-	int status, c, optval=2;
+	int optval=2;
 	int request_count=0;
 
-	char *web_root, *cmp_web_root, *date;
+	char *web_root, *cmp_web_root;
 	char *buf=calloc(256, sizeof(char));
 	char *method, *uri, *http_standard;
-	char *a, *b, *query=NULL;
+	char *a, *query=NULL;
 	char *str, *s, **v;
 	size_t n;
 

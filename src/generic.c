@@ -259,12 +259,12 @@ long get_stack_size(){
 
 
 // Find a module, run it, and push the result text to stdout.
-int mod_find(char *mod, char *script, char *args){
+int mod_find_p(char *mod, char *script, char *args, char **ret){
 	char *home_dir;
 	char *str, *s;
 	size_t n=256;
 	FILE *pipe;
-	int c;
+	int c,p=0;
 
 	if(!(home_dir=getenv("mod_root")))
 		return error_code(-1, "Missing environment variable $mod_root.");
@@ -280,12 +280,45 @@ int mod_find(char *mod, char *script, char *args){
 		unquote_str(script=s);
 		sprintf(str, "./%s %s", script, args?args:"");
 		if(pipe=popen(str, "r")){
-			while((c=getc(pipe))!=EOF)
-				fputc(c, stdout);
+			while((c=getc(pipe))!=EOF){
+				if(ret){
+					if(p>n){
+						n+=256;
+						str=realloc(str, n*sizeof(char));
+					}
+					*(str+p++)=c;
+				} else fputc(c, stdout);
+			}
+			*(str+p)=0;
 			pclose(pipe);
 		}
+		if(!ret)
+			free(str);
+		else *ret=str;
 	} else return error_code(1, "No script found. (%s:%s)", mod, script);
 
 	return 0;
 }
+int mod_find(char *mod, char *script, char *args){
+	return mod_find_p(mod, script, args, NULL);
+}
+int mod_find_ps(char *mod_script, char *args, char **ret){
+	char *mod, *script;
+	char *s, *str;
 
+	str=mod_script;
+	if(!(s=strstr(str, ":")))
+		return error_code(-1, "Bad request format for %s.", str);
+	*s=0;
+
+	mod=calloc(1+strlen(str), sizeof(char));
+	strcpy(mod, str);
+
+	script=calloc(1+strlen(++s), sizeof(char));
+	strcpy(script, s);
+
+	// Fix original data.
+	*(s-1)=':';
+
+	return mod_find_p(mod, script, args, ret);
+}

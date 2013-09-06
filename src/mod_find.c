@@ -17,7 +17,7 @@
 #include "generic.h"
 
 int main(int argc, char **argv){
-	char *mod, *script, *args=NULL;
+	char *args=NULL;
 	char *s, *str, **p;
 	size_t n=0;
 
@@ -25,16 +25,8 @@ int main(int argc, char **argv){
 		return error_code(-1, "Too few paremeters for %s.", *argv);
 
 	//Look for a colon between module and script
-	str=*(argv+1);
-	if(!(s=strstr(str, ":")))
+	if(!(s=strstr(str=*(argv+1), ":")))
 		return error_code(-1, "Bad request format for %s.", *argv);
-	*s=0;
-
-	mod=calloc(32, sizeof(char));
-	strcpy(mod, str);
-
-	script=calloc(64, sizeof(char));
-	strcpy(script, ++s);
 
 	// Flatten arguments to a single string.
 	if(argc>2){
@@ -50,5 +42,5 @@ int main(int argc, char **argv){
 		}	while(*(++p));
 	}
 
-	return mod_find(mod, script, args);
+	return mod_find_ps(str, args, NULL);
 }

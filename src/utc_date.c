@@ -21,8 +21,6 @@ char *post_time(const char *fmt, int nano){
 	struct timespec ts;
 	time_t t;
 	struct tm *tmp;
-	long int li;
-	int count, l;
 
 	if(!str)
 		str=calloc(32, sizeof(char));

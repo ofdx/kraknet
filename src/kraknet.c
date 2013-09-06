@@ -20,15 +20,12 @@
 #include "http11.h"
 
 int main(int argc, char **argv){
-	char *home_dir, *web_root;
-	char *buf, *b, *b_r;
-	char *mod, *script;
-
-	FILE *r, *lookup, *pipe;
-	char *seek, *root, *str;
+	char *buf, *b, *b_r, *s;
+	char *seek, *str;
+	char *home_dir;
 	size_t b_size=256, n;
+	FILE *r;
 
-	char headers_closed=0;
 
 	// Find server's HTML MIME type. (conf/mime)
 	str=get_mime_type("index.html");
@@ -43,25 +40,21 @@ int main(int argc, char **argv){
 	if(!(r=fopen(argv[1], "r")))
 		return error_code(-1, "Could not open file \"%s\"", argv[1]);
 
-	buf=calloc(256, sizeof(char));
 
 	//Begin accounts magic
 	setenv("kraknet_user_auth", "NO", 1);
-	if(pipe=popen("mod_find accounts:auth", "r")){
-		fgets(buf, 256, pipe);
+	if(!mod_find_p("accounts", "auth", NULL, &buf)){
 		sanitize_str(buf);
-
 		if(!strncmp(buf, "OK", 2)){
 			setenv("kraknet_user", buf+3, 1);
 			setenv("kraknet_user_ip", getenv("REMOTE_ADDR"), 1);
 			setenv("kraknet_user_auth", "OK", 1);
-		} else printf(
-			"Set-Cookie: sid=deleted; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Path=/\r\n"
-		);
-		pclose(pipe);
+		} else printf("Set-Cookie: sid=deleted; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Path=/\r\n");
 	}
+	free(buf);
 	//End accounts magic
 
+	buf=calloc(256, sizeof(char));
 	b=b_r=calloc(b_size=256, sizeof(char));
 	while(getline(&b_r, &b_size, r)!=-1){
 		if(*b_r!='!')
@@ -84,14 +77,11 @@ int main(int argc, char **argv){
 				if(!(seek=strstr(b, ">")))
 					break;
 				*seek=0;
-				sprintf(buf, "mod_find %s", b);
 
-				if(!(pipe=popen(buf, "r")))
-					break;
-
-				while(getline(&str, &n, pipe)!=-1)
-					fputs(str, stdout);
-				pclose(pipe);
+				// Find and execute script.
+				if(s=strchr(b, ' '))
+					*(s++)=0;
+				mod_find_ps(b, s, NULL);
 
 				b=seek+1;
 			}

@@ -95,7 +95,7 @@ char *get_mime_type(char *filename){
 
 // GET and POST is handled here.
 void http_request(FILE *stream, char *uri, int method, char *post_raw_data){
-	char **a, *mime_type, *index, *cgi_content=NULL;
+	char **a, *mime_type, *cgi_content=NULL;
 	char *s, *str, *b, **cgi_headers=NULL;
 	char *status;
 
@@ -107,7 +107,7 @@ void http_request(FILE *stream, char *uri, int method, char *post_raw_data){
 	char *post_data_fname=NULL;
 	size_t post_length=0;
 
-	FILE *content, *cgi_pipe, *conf;
+	FILE *content, *cgi_pipe;
 	struct stat sbuf;
 
 	enum conn_mode conn_mode=CLOSE;
