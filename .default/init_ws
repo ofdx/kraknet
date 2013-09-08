@@ -1,19 +1,17 @@
 #!/bin/bash
+### BEGIN INIT INFO
+# Provides:          ws
+# Required-Start:    $local_fs $remote_fs $network $syslog $named
+# Required-Stop:     $local_fs $remote_fs $network $syslog $named
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Krakws Web Server
+### END INIT INFO
+
 # This script starts the web server and also handles configuration.
 # Feel free to edit the environment variables here to match your desired setup.
 #
 # Written by Mike Perron (2012-2013)
-
-### BEGIN INIT INFO
-# Provides:   ws
-# Required-Start: $local_fs $remote_fs
-# Required-Stop:  $local_fs $remote_fs
-# Should-Start:   $network
-# Should-Stop:    $network
-# Default-Start:  2 3 4 5
-# Default-Stop:   0 1 6
-# Short-Description:	Krakws Web Server
-### END INIT INFO
 
 # All the server's files are a sub directory of this location by default.
 server_home="."
@@ -28,6 +26,8 @@ port="9001"
 # WARNING! WARNING! WARNING!
 # WARNING! WARNING! WARNING!
 # Refrain from editing anything below here if you are not a BASH expert.
+set -e
+
 pushd $server_home >/dev/null
 export server_home=`pwd -P`
 popd >/dev/null
