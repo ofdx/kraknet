@@ -123,10 +123,6 @@ int main(int argc, char**argv){
 			if(change_log_owner(gpasswd->pw_uid, gpasswd->pw_gid))
 				error_code(0, "Warning: Could not take ownership of log files.");
 
-			// Change groups.
-			if(setgid(gpasswd->pw_gid))
-				error_code(0, "Warning: You don't have permission to setgid to %d.", gpasswd->pw_gid);
-
 			// Change users.
 			if(setuid(gpasswd->pw_uid))
 				error_code(0, "Warning: You don't have permission to setuid to %s.", gpasswd->pw_name);

@@ -26,8 +26,6 @@ port="9001"
 # WARNING! WARNING! WARNING!
 # WARNING! WARNING! WARNING!
 # Refrain from editing anything below here if you are not a BASH expert.
-set -e
-
 pushd $server_home >/dev/null
 export server_home=`pwd -P`
 popd >/dev/null
@@ -46,12 +44,13 @@ exec_name="ws"
 export LD_LIBRARY_PATH="$server_home/lib;$LD_LIBRARY_PATH"
 
 pstart(){
-	echo "Starting server..."
-	$exec_name $port
+	echo "Starting krakws server (httpd)..."
+	("$exec_name" "$port" >/tmp/krakws_boot.log 2>&1) &
+	sleep 1
 }
 pstop(){
 	echo "Stopping server..."
-	killall $exec_name
+	killall "$exec_name"
 }
 
 case "$1" in
@@ -68,10 +67,12 @@ case "$1" in
 		pstart
 	;;
 	status )
-		ps aux | grep ws | grep -v grep | grep -v $0
-		netstat -t | grep $port
+		ps aux | grep ws | grep -v grep | grep -v "$0"
+		netstat -t | grep "$port"
 	;;
 	* )
-		echo "Usage: "$0" <start|stop|restart|status>"
+		echo "Usage: $0 <start|stop|restart|status>"
 	;;
 esac
+
+exit 0
