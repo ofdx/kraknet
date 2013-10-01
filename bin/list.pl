@@ -5,7 +5,6 @@
 # Mike Perron (2013)
 
 use File::stat;
-use Switch;
 
 $working=$ENV{'web_root'};
 
@@ -72,9 +71,10 @@ foreach (@file){
 	if($mime eq "directory"){
 		$filef="$_/";
 		$size="";
-		switch($_){
-			case ".." { $mime="<b>Move Up</b>"; }
-			case "." { $mime="<b>Present Directory</b>"; }
+		if($_ eq ".."){
+			$mime="<b>Move Up</b>";
+		} elsif($_ eq "."){
+			$mime="<b>Present Directory</b>";
 		}
 	} else {
 		$filef="$_";

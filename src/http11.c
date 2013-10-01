@@ -139,9 +139,8 @@ void http_request(FILE *stream, char *uri, int method, char *post_raw_data){
 				return http_redirect(stream, 301, str);
 			}
 
-			sprintf(str, "%s/serv", (s=getenv("conf_dir"))?s:".");
-
 			// Check conf/serv for a list of default documents.
+			sprintf(str, "%s/serv", (s=getenv("conf_dir"))?s:".");
 			if(s=get_conf_line(str, "default_documents")){
 				unquote_str(s);
 
@@ -158,7 +157,7 @@ void http_request(FILE *stream, char *uri, int method, char *post_raw_data){
 					else break;
 				}
 
-			// No config for default docs, just try the Apache standard.
+			// No config for default docs, just try the de facto standard.
 			} else sprintf(str, "%s/index.html", uri);
 
 			// If the path isn't canonical redirect the user.
