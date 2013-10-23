@@ -12,12 +12,7 @@ $working=$ENV{'web_root'};
 # Find the present working directory.
 $dir=`dirname "$ENV{'SCRIPT_NAME'}"`;
 chomp $dir;
-
-if($dir eq "/"){
-	$dirf="$dir";
-} else {
-	$dirf="$dir/";
-}
+$dirf=($dir eq "/")?"$dir":"$dir/";
 
 print<<EOF;
 Content-Type: Text/html
@@ -55,13 +50,13 @@ $dir="" if($dir eq "/");
 $dirname="$working/$dir";
 opendir my($dh), $dirname or die "Couldn't read directory. ($dirname): $!";
 my @file=readdir $dh;
-closedir $dh;
 @file=sort @file;
+closedir $dh;
 
 foreach (@file){
+	$mime=`file -b "$working/$dir/$_"`;
 	$sb=stat("$working/$dir/$_");
 	$size=$sb->size;
-	$mime=`file -b "$working/$dir/$_"`;
 	chomp $mime;
 
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime($sb->mtime);
@@ -73,8 +68,8 @@ foreach (@file){
 		$filef="$_/";
 		$size="";
 		switch($_){
-			case ".." { $mime="<b>Move Up</b>"; }
-			case "." { $mime="<b>Present Directory</b>"; }
+			case ".." { $mime="<b>Move Up</b>" }
+			case "." { $mime="<b>Present Directory</b>" }
 		}
 	} else {
 		$filef="$_";
@@ -94,3 +89,5 @@ print <<EOF;
 	</table>
 </body></html>
 EOF
+
+exit 0
