@@ -1,0 +1,29 @@
+#!/bin/bash
+# Create a clean accounts database.
+
+cat << EOF
+WARNING! This will destroy the database file.
+
+Press [Ctrl-C] to cancel or [ENTER] to continue.
+EOF
+read meow
+
+database="accounts.db"
+schema="CREATE TABLE users (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	name VARCHAR,
+	hash VARCHAR,
+	pretty VARCHAR,
+	created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);"
+
+if [ -e "$database" ]; then
+	rm -vf "$database"
+fi
+
+if sqlite3 "$database" <<< "$schema"; then
+	echo "Database created."
+else
+	echo "WARNING: Error encountered."
+	exit 1
+fi
