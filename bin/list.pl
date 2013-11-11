@@ -54,7 +54,7 @@ closedir $dh;
 
 foreach (@file){
 	$mime=`file -b "$working/$dir/$_"`;
-	$sb=stat("$working/$dir/$_");
+	$sb=stat("$working/$dir/$_") or next;
 	$size=$sb->size;
 	chomp $mime;
 
