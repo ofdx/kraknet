@@ -45,7 +45,7 @@ export LD_LIBRARY_PATH="$server_home/lib;$LD_LIBRARY_PATH"
 
 pstart(){
 	echo "Starting krakws server (httpd)..."
-	("$exec_name" "$port" >/tmp/krakws_boot.log 2>&1) &
+	("$exec_name" "$port" >/tmp/krakws_${port}_boot.log 2>&1) &
 	sleep 1
 }
 pstop(){

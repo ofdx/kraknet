@@ -14,7 +14,7 @@ BIN=../bin
 LIB=../lib
 CC=gcc -L$(LIB) -I$(I)
 
-all: $(O) $(BIN) $(LIB) $(LIB)/libkraknet.so $(BIN)/ws $(BIN)/mod_find $(BIN)/kraknet 
+all: $(O) $(BIN) $(LIB) $(LIB)/libkraknet.so $(BIN)/ws $(BIN)/mod_find $(BIN)/mod_home $(BIN)/kraknet
 
 clean:
 	rm -f $(LIB)/kraknet.so $(O)/*.o $(BIN)/ws $(BIN)/kraknet $(BIN)/mod_find $(LIB)/libkraknet.so
@@ -40,6 +40,10 @@ $(O)/conf.o: $(C)/conf.c $(I)/conf.h $(I)/generic.h
 # mod_find (module:script locator)
 $(BIN)/mod_find: $(C)/mod_find.c $(I)/generic.h $(LIB)/libkraknet.so
 	$(CC) -o $(BIN)/mod_find -s $(C)/mod_find.c -lkraknet
+
+# mod_home
+$(BIN)/mod_home: $(C)/mod_home.c $(I)/generic.h $(LIB)/libkraknet.so
+	$(CC) -o $(BIN)/mod_home -s $(C)/mod_home.c -lkraknet
 
 
 # kraknet (text parsing)

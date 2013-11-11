@@ -1,0 +1,85 @@
+#!/usr/bin/perl
+# register
+# Mike Perron (2013)
+#
+# Create a new entry in the accounts database.
+
+use strict;
+
+my $homepath=`mod_home accounts`;
+my $database="accounts.db";
+my $postdata=<STDIN>;
+my %postvalues;
+my $reg_okay;
+my %okay;
+my $pwhash;
+my $output;
+my $sql;
+
+chomp($homepath);
+chdir($homepath) or die "Can't get home.";
+
+printf<<EOF;
+Content-Type: text/html; charset=utf-8
+
+<!DOCTYPE html>
+<html><head>
+	<title>Registration Info</title>
+	<meta charset=utf-8>
+</head><body>
+	<ul>
+EOF
+
+# Split POST data into values in a hash map, unescape URI encoding.
+if(length($postdata)>0){
+	my @pairs=split(/[;&]/, $postdata);
+	foreach my $pair (@pairs){
+		my ($name, $value) = split(/=/, $pair);
+		$value =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
+		$postvalues{$name} = $value; 
+		chomp($postvalues{$name});
+	}
+}
+
+if($postvalues{"name"}=~/^[a-z\d]{4,}+$/){
+	$okay{"name"}=1;
+} else {
+	printf "<li>Username is no good.</li>";
+}
+
+if(($postvalues{"pass"} eq $postvalues{"repass"}) and ($postvalues{"pass"}=~/^.{6,}+$/)){
+	$okay{"pass"}=1;
+	chomp($pwhash=`openssl passwd -1 -salt '$postvalues{"name"}' '$postvalues{"pass"}'`);
+	$pwhash=~s/^\$[^\$]*\$[^\$]*\$(.*)$/\1/;
+	printf "<li>Password hashed: ($?) $pwhash </li>";
+} else {
+	printf "<li>Password issue (mismatch or too short).</li>";
+}
+
+if($okay{"name"}==1 and $okay{"pass"}==1){
+	$reg_okay="OK";
+
+	$sql = qq{SELECT name FROM users WHERE name='$postvalues{"name"}';};
+	chomp($output = `sqlite3 "$database" "$sql"`);
+	printf "<li>Select returned: ($?) $output</li>";
+
+	if($output eq ""){
+		$sql = qq{INSERT INTO users(name, hash, pretty) values('$postvalues{"name"}','$pwhash', '$postvalues{"name"}');};
+		chomp($output = `sqlite3 "$database" "$sql"`);
+		printf "<li>Insert returned: ($?) $output</li>";
+	} else {
+		printf "<li>Name already taken.</li>";
+		$reg_okay="NO";
+	}
+}
+
+printf<<EOF;
+		<li>Home: $homepath</li>
+	</ul>
+	<p>
+		Registration: $reg_okay
+	</p>
+</body></html>
+EOF
+
+exit 0
