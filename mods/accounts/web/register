@@ -58,22 +58,26 @@ if(($postvalues{"pass"} eq $postvalues{"repass"}) and ($postvalues{"pass"}=~/^.{
 
 if($okay{"name"}==1 and $okay{"pass"}==1){
 	$reg_okay="OK";
+
+	$sql = qq{SELECT name FROM users WHERE name='$postvalues{"name"}';};
+	chomp($output = `sqlite3 "$database" "$sql"`);
+	printf "<li>Select returned: ($?) $output</li>";
+
+	if($output eq ""){
+		$sql = qq{INSERT INTO users(name, hash, pretty) values('$postvalues{"name"}','$pwhash', '$postvalues{"name"}');};
+		chomp($output = `sqlite3 "$database" "$sql"`);
+		printf "<li>Insert returned: ($?) $output</li>";
+	} else {
+		printf "<li>Name already taken.</li>";
+		$reg_okay="NO";
+	}
 }
-
-$sql = qq{SELECT name FROM users WHERE name='$postvalues{"name"}';};
-$output = `pwd; sqlite3 "$database" "$sql"`;
-printf "<li>Select returned: ($?) $output</li>";
-chomp($output);
-
-$sql = qq{INSERT INTO users(name, hash, pretty) values('$postvalues{"name"}','$pwhash', '$postvalues{"name"}');};
-$output = `sqlite3 "$database" "$sql"`;
-printf "<li>Insert returned: ($?) $output</li>";
 
 printf<<EOF;
 		<li>Home: $homepath</li>
 	</ul>
 	<p>
-		Registration status: $reg_okay
+		Registration: $reg_okay
 	</p>
 </body></html>
 EOF
