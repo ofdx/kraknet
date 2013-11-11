@@ -10,7 +10,7 @@ my $homepath=`mod_home accounts`;
 my $database="accounts.db";
 my $postdata=<STDIN>;
 my %postvalues;
-my $reg_okay;
+my $reg_okay=0;
 my %okay;
 my $pwhash;
 my $output;
@@ -18,17 +18,6 @@ my $sql;
 
 chomp($homepath);
 chdir($homepath) or die "Can't get home.";
-
-printf<<EOF;
-Content-Type: text/html; charset=utf-8
-
-<!DOCTYPE html>
-<html><head>
-	<title>Registration Info</title>
-	<meta charset=utf-8>
-</head><body>
-	<ul>
-EOF
 
 # Split POST data into values in a hash map, unescape URI encoding.
 if(length($postdata)>0){
@@ -44,42 +33,53 @@ if(length($postdata)>0){
 if($postvalues{"name"}=~/^[a-z\d]{4,}+$/){
 	$okay{"name"}=1;
 } else {
-	printf "<li>Username is no good.</li>";
+	#printf "<li>Username is no good.</li>";
 }
 
 if(($postvalues{"pass"} eq $postvalues{"repass"}) and ($postvalues{"pass"}=~/^.{6,}+$/)){
 	$okay{"pass"}=1;
 	chomp($pwhash=`openssl passwd -1 -salt '$postvalues{"name"}' '$postvalues{"pass"}'`);
 	$pwhash=~s/^\$[^\$]*\$[^\$]*\$(.*)$/\1/;
-	printf "<li>Password hashed: ($?) $pwhash </li>";
+	#printf "<li>Password hashed: ($?) $pwhash </li>";
 } else {
-	printf "<li>Password issue (mismatch or too short).</li>";
+	#printf "<li>Password issue (mismatch or too short).</li>";
 }
 
 if($okay{"name"}==1 and $okay{"pass"}==1){
-	$reg_okay="OK";
+	$reg_okay=1;
 
 	$sql = qq{SELECT name FROM users WHERE name='$postvalues{"name"}';};
 	chomp($output = `sqlite3 "$database" "$sql"`);
-	printf "<li>Select returned: ($?) $output</li>";
+	#printf "<li>Select returned: ($?) $output</li>";
 
 	if($output eq ""){
 		$sql = qq{INSERT INTO users(name, hash, pretty) values('$postvalues{"name"}','$pwhash', '$postvalues{"name"}');};
 		chomp($output = `sqlite3 "$database" "$sql"`);
-		printf "<li>Insert returned: ($?) $output</li>";
+		#printf "<li>Insert returned: ($?) $output</li>";
 	} else {
-		printf "<li>Name already taken.</li>";
-		$reg_okay="NO";
+		#printf "<li>Name already taken.</li>";
+		$reg_okay=0;
 	}
 }
 
-printf<<EOF;
-		<li>Home: $homepath</li>
-	</ul>
-	<p>
-		Registration: $reg_okay
-	</p>
-</body></html>
-EOF
+my $redir;
+if($reg_okay == 1){
+	printf "Status: 302 Registration OK\n";
+	$redir=$postvalues{"onsuccess"};
+	if($redir eq ""){
+		$redir="/";
+	}
+	printf "Location: $redir\n\n";
+} else {
+	printf "Status: 302 Registration Failed\n";
+	$redir=$postvalues{"onfailure"};
+	if($redir eq ""){
+		$redir=$ENV{"HTTP_REFERER"};
+		if ($redir eq ""){
+			$redir="/";
+		}
+	}
+	printf "Location: $redir\n\n";
+}
 
 exit 0
