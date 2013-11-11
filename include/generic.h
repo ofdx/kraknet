@@ -52,6 +52,7 @@ extern char **get_str_stack();
 extern long get_stack_size();
 
 // Kraknet Stuff.
+extern char *mod_home(char *mod);
 extern int mod_find(char *mod, char *script, char *args);
 extern int mod_find_p(char *mod, char *script, char *args, char **ret);
 extern int mod_find_ps(char *mod_script, char *args, char **ret);

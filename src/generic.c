@@ -257,6 +257,17 @@ long get_stack_size(){
 	return (long)char_stack(COUNT, NULL);
 }
 
+// Return path to module's home.
+char *mod_home(char *mod){
+	static char p[1024];
+	char *home_dir;
+
+	if(!(home_dir=getenv("mod_root")))
+		return error_code(0, "Missing environment variable $mod_root."), NULL;
+	sprintf(p, "%s/%s", home_dir, mod);
+	return p;
+}
+
 
 // Find a module, run it, and push the result text to stdout.
 int mod_find_p(char *mod, char *script, char *args, char **ret){
