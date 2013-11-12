@@ -30,13 +30,8 @@ if(length($postdata)>0){
 	}
 }
 
-printf<<EOF;
-Content-Type: text/plain; charset=utf-8
-
-EOF
-
 if($postvalues{"name"}=~/^[a-z\d]{4,}+$/){
-	printf "Name fits rules.\n";
+#printf "Name fits rules.\n";
 	$sql=qq{SELECT hash FROM users WHERE name='$postvalues{"name"}';};
 	chomp($pwhash=`openssl passwd -1 -salt '$postvalues{"name"}' '$postvalues{"pass"}'`);
 	chomp($buffer=qx{sqlite3 "$database" "$sql"});
@@ -74,6 +69,13 @@ if($okay==1){
 }
 
 printf "Status: 302 $error\n";
-printf "Location: $redir\n\n";
+printf "Location: $redir\n";
+if($okay==1){
+	my $sid;
+	chomp($sid=qx{create_session "$postvalues{"name"}"});
+	if($?==0 and length($sid)>0){
+		printf "Set-Cookie: sid=$sid\n";
+	}
+}
 
 exit 0
