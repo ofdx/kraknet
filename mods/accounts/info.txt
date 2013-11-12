@@ -1,2 +1,1 @@
-# Fake accounts module to satisfy Kraknet
-auth=bogus_auth.sh
+auth=auth.pl

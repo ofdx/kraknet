@@ -18,7 +18,7 @@ while :; do
 	sid=$(tr -dc "[:alpha:]" < /dev/urandom | head -c 64)
 	sql="SELECT users.name FROM users LEFT JOIN sids ON users.id_user = sids.id_user WHERE sids.id_session='$sid';"
 
-	if [ -z "$(sqlite "$database" "$sql")" ]; then 
+	if [ -z "$(sqlite3 "$database" "$sql")" ]; then 
 		sql="INSERT INTO sids(id_session, id_user) values('$sid', '$uid');"
 		if ! sqlite3 "$database" "$sql"; then exit 1; fi
 		printf "$sid"

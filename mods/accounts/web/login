@@ -67,12 +67,12 @@ if($okay==1){
 		}
 	}
 }
+#printf "Content-Type: text/plain\n\n";
 
 printf "Status: 302 $error\n";
 printf "Location: $redir\n";
 if($okay==1){
-	my $sid;
-	chomp($sid=qx{create_session "$postvalues{"name"}"});
+	chomp(my $sid=qx{create_session "$postvalues{"name"}"});
 	if($?==0 and length($sid)>0){
 		printf "Set-Cookie: sid=$sid; Path=/\n";
 	}
