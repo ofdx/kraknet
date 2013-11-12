@@ -74,7 +74,7 @@ printf "Location: $redir\n";
 if($okay==1){
 	chomp(my $sid=qx{create_session "$postvalues{"name"}"});
 	if($?==0 and length($sid)>0){
-		printf "Set-Cookie: sid=$sid; Path=/\n";
+		printf "Set-Cookie: knetsid=$sid; Path=/\n";
 	}
 }
 

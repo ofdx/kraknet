@@ -25,7 +25,7 @@ if(length($buffer)>0){
 	}
 }
 
-my $sid=$cookies{"sid"};
+my $sid=$cookies{"knetsid"};
 if(length($sid)>0){
 	my $sql="SELECT users.name FROM users LEFT JOIN sids ON users.id_user = sids.id_user WHERE sids.id_session='$sid';";
 	my $name=qx{sqlite3 "$database" "$sql"};
