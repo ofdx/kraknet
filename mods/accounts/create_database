@@ -10,12 +10,18 @@ read meow
 
 database="accounts.db"
 schema="CREATE TABLE users (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	id_user INTEGER PRIMARY KEY AUTOINCREMENT,
 	name VARCHAR,
 	hash VARCHAR,
 	pretty VARCHAR,
 	created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);"
+);
+CREATE TABLE sids (
+	id_session VARCHAR,
+	id_user INTEGER,
+	created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+"
 
 if [ -e "$database" ]; then
 	rm -vf "$database"
