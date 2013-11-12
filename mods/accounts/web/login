@@ -74,8 +74,11 @@ if($okay==1){
 	my $sid;
 	chomp($sid=qx{create_session "$postvalues{"name"}"});
 	if($?==0 and length($sid)>0){
-		printf "Set-Cookie: sid=$sid\n";
+		printf "Set-Cookie: sid=$sid; Path=/\n";
 	}
 }
+
+# Probably superfluous
+printf "\n";
 
 exit 0
