@@ -47,9 +47,9 @@ int main(int argc, char **argv){
 		sanitize_str(buf);
 		if(!strncmp(buf, "OK", 2)){
 			setenv("kraknet_user", buf+3, 1);
-			setenv("kraknet_user_ip", getenv("REMOTE_ADDR"), 1);
+			setenv("kraknet_user_ip", (s=getenv("HTTP_X_FORWARDED_FOR"))?s:getenv("REMOTE_ADDR"), 1);
 			setenv("kraknet_user_auth", "OK", 1);
-		} else printf("Set-Cookie: sid=deleted; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Path=/\r\n");
+		} //else printf("Set-Cookie: sid=deleted; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Path=/\r\n");
 	}
 	free(buf);
 	//End accounts magic

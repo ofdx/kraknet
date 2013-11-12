@@ -11,7 +11,8 @@ sub fail {
 	exit 0
 }
 
-chdir($homepath) or &fail("error");
+chomp($homepath);
+chdir($homepath) or &fail("Error");
 
 my $buffer=$ENV{"HTTP_COOKIE"};
 my %cookies;
@@ -20,8 +21,7 @@ if(length($buffer)>0){
 	foreach my $pair (@pairs){
 		my ($name, $value) = split(/=/, $pair);
 		$value =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
-		$cookies{$name} = $value; 
-		chomp($cookies{$name});
+		chomp($cookies{$name} = $value);
 	}
 }
 
