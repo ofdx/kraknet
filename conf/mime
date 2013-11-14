@@ -15,6 +15,10 @@ txt  text/plain; charset=UTF-8
 text text/plain; charset=UTF-8
 c    text/plain; charset=UTF-8
 h    text/plain; charset=UTF-8
+cc   text/plain; charset=UTF-8
+cpp  text/plain; charset=UTF-8
+hpp  text/plain; charset=UTF-8
+
 
 # images
 jpg  image/jpeg
