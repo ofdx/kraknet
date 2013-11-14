@@ -70,7 +70,7 @@ if($reg_okay == 1){
 		$redir="/";
 	}
 	# Registration worked, so there's no reason create_session should fail...right?
-	printf "Set-Cookie: knetsid=".qx{create_session "$postvalues{"name"}"}."; Path=/\n";
+	printf "Set-Cookie: knetsid=".qx{create_session "$postvalues{"name"}"}."; Path=/; Max-Age=5184000\n";
 	printf "Location: $redir\n\n";
 } else {
 	printf "Status: 302 Registration Failed\n";
