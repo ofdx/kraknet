@@ -13,6 +13,19 @@ $dir=`dirname "$ENV{'SCRIPT_NAME'}"`;
 chomp $dir;
 $dirf=($dir eq "/")?"$dir":"$dir/";
 
+# If the directory is the root dir, just clear it.
+# No other directory looks like /\/$/
+$dir="" if($dir eq "/");
+
+# Loop to generate each row.
+$dirname="$working/$dir";
+opendir my($dh), $dirname or die "Couldn't read directory. ($dirname): $!";
+my @file=readdir $dh;
+@file=sort @file;
+closedir $dh;
+
+my $filecount=@file;
+
 print<<EOF;
 Content-Type: Text/html
 
@@ -31,7 +44,7 @@ Content-Type: Text/html
 		tr:hover td { background-color: #d0d0e0; }
 	</style>
 </head><body>
-	<h2>Files located in $dirf</h2>
+	<h2>$filecount files located in $dirf</h2>
 	<table>
 		<tr>
 			<th>Name</th>
@@ -40,17 +53,6 @@ Content-Type: Text/html
 			<th>Description</th>
 		</tr>
 EOF
-
-# If the directory is the root dir, just clear it.
-# No other directory looks like /\/$/
-$dir="" if($dir eq "/");
-
-# Loop to generate each row.
-$dirname="$working/$dir";
-opendir my($dh), $dirname or die "Couldn't read directory. ($dirname): $!";
-my @file=readdir $dh;
-@file=sort @file;
-closedir $dh;
 
 foreach (@file){
 	$mime=`file -b "$working/$dir/$_"`;
