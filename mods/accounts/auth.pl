@@ -20,6 +20,7 @@ if(length($buffer)>0){
 	my @pairs=split(/[;&]/, $buffer);
 	foreach my $pair (@pairs){
 		my ($name, $value) = split(/=/, $pair);
+		$name =~ s/^\s+//;
 		$value =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
 		chomp($cookies{$name} = $value);
 	}
