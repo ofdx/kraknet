@@ -19,40 +19,10 @@
 #include "generic.h"
 #include "http11.h"
 
-int main(int argc, char **argv){
-	char *buf, *b, *b_r, *s;
-	char *seek, *str;
-	char *home_dir;
-	size_t b_size=256, n;
-	FILE *r;
-
-
-	// Find server's HTML MIME type. (conf/mime)
-	str=get_mime_type("index.html");
-	printf("Content-Type: %s\r\n", str);
-	free(str);
-
-	if(!(home_dir=getenv("mod_root"))){
-		printf("\nBad configuration\n");
-		return error_code(-1, "Missing environment variable $mod_root.");
-	}
-
-	if(!(r=fopen(argv[1], "r")))
-		return error_code(-1, "Could not open file \"%s\"", argv[1]);
-
-
-	//Begin accounts magic
-	setenv("kraknet_user_auth", "NO", 1);
-	if(!mod_find_p("accounts", "auth", NULL, &buf)){
-		sanitize_str(buf);
-		if(!strncmp(buf, "OK", 2)){
-			setenv("kraknet_user", buf+3, 1);
-			setenv("kraknet_user_ip", (s=getenv("HTTP_X_FORWARDED_FOR"))?s:getenv("REMOTE_ADDR"), 1);
-			setenv("kraknet_user_auth", "OK", 1);
-		} //else printf("Set-Cookie: sid=deleted; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Path=/\r\n");
-	}
-	free(buf);
-	//End accounts magic
+void serve(FILE *r){
+	char *str, *s, *seek;
+	char *buf, *b, *b_r;
+	size_t b_size, n;
 
 	buf=calloc(256, sizeof(char));
 	b=b_r=calloc(b_size=256, sizeof(char));
@@ -88,6 +58,59 @@ int main(int argc, char **argv){
 		}
 		fputs(b, stdout);
 	}	while(getline(&b_r, &b_size, r)!=-1);
+}
+
+int main(int argc, char **argv){
+	char *buf, *b, *b_r, *s;
+	char *seek, *str;
+	char *home_dir;
+	size_t b_size=256, n;
+	FILE *r;
+
+
+	// Find server's HTML MIME type. (conf/mime)
+	str=get_mime_type("index.html");
+	printf("Content-Type: %s\r\n", str);
+	free(str);
+
+	if(!(home_dir=getenv("mod_root"))){
+		printf("\nBad configuration\n");
+		return error_code(-1, "Missing environment variable $mod_root.");
+	}
+
+	if(!(r=fopen(argv[1], "r")))
+		return error_code(-1, "Could not open file \"%s\"", argv[1]);
+
+
+	//Begin accounts magic
+	setenv("kraknet_user_auth", "NO", 1);
+	if(!mod_find_p("accounts", "auth", NULL, &buf)){
+		sanitize_str(buf);
+		if(!strncmp(buf, "OK", 2)){
+			setenv("kraknet_user", buf+3, 1);
+			setenv("kraknet_user_ip", (s=getenv("HTTP_X_FORWARDED_FOR"))?s:getenv("REMOTE_ADDR"), 1);
+			setenv("kraknet_user_auth", "OK", 1);
+		} //else printf("Set-Cookie: sid=deleted; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Path=/\r\n");
+	}
+	free(buf);
+	//End accounts magic
+
+
+	// Serve the first file listed.
+	serve(r);
 	fclose(r);
+
+
+	// Serve additional files
+	while(argc>2){
+		argc--;
+		argv++;
+
+		if(!(r=fopen(argv[1], "r")))
+			return error_code(-1, "Could not open file \"%s\"", argv[1]);
+		serve(r);
+		fclose(r);
+	}
+
 	return 0;
 }
