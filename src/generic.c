@@ -290,7 +290,7 @@ int mod_find_p(char *mod, char *script, char *args, char **ret){
 		getcwd(pwd, sizeof(pwd));
 		sprintf(str, "%s/%s", home_dir, mod);
 		if(chdir(str))
-			exit(error_code(1, "Module missing. (%s)", mod));
+			return error_code(1, "Module missing. (%s)", mod);
 
 		// Run script.
 		sprintf(str, "%s %s", script, args?args:"");
