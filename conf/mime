@@ -19,6 +19,8 @@ cc   text/plain; charset=UTF-8
 cpp  text/plain; charset=UTF-8
 hpp  text/plain; charset=UTF-8
 
+# audio
+mp3  audio/mpeg
 
 # images
 jpg  image/jpeg
