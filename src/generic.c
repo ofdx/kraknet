@@ -273,6 +273,7 @@ char *mod_home(char *mod){
 int mod_find_p(char *mod, char *script, char *args, char **ret){
 	char *home_dir;
 	char *str, *s;
+	char pwd[2048];
 	size_t n=256;
 	FILE *pipe;
 	int c,p=0;
@@ -284,7 +285,15 @@ int mod_find_p(char *mod, char *script, char *args, char **ret){
 	sprintf(str, "%s/%s/info.txt", home_dir, mod);
 	if(s=get_conf_line(str, script)){
 		unquote_str(script=s);
-		sprintf(str, "%s/%s/%s %s", home_dir, mod, script, args?args:"");
+
+		// Set working directory for the module.
+		getcwd(pwd, sizeof(pwd));
+		sprintf(str, "%s/%s", home_dir, mod);
+		if(chdir(str))
+			exit(error_code(1, "Module missing. (%s)", mod));
+
+		// Run script.
+		sprintf(str, "%s %s", script, args?args:"");
 		if(pipe=popen(str, "r")){
 			while((c=getc(pipe))!=EOF){
 				if(ret){
@@ -298,6 +307,10 @@ int mod_find_p(char *mod, char *script, char *args, char **ret){
 			*(str+p)=0;
 			pclose(pipe);
 		}
+
+		// Restore previous working directory.
+		chdir(pwd);
+
 		if(!ret)
 			free(str);
 		else *ret=str;
