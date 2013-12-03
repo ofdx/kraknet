@@ -293,7 +293,7 @@ int mod_find_p(char *mod, char *script, char *args, char **ret){
 			return error_code(1, "Module missing. (%s)", mod);
 
 		// Run script.
-		sprintf(str, "%s %s", script, args?args:"");
+		sprintf(str, "./%s %s", script, args?args:"");
 		if(pipe=popen(str, "r")){
 			while((c=getc(pipe))!=EOF){
 				if(ret){
