@@ -14,7 +14,7 @@ BIN=../bin
 LIB=../lib
 CC=gcc -L$(LIB) -I$(I)
 
-all: $(O) $(BIN) $(LIB) $(LIB)/libkraknet.so $(BIN)/ws $(BIN)/mod_find $(BIN)/mod_home $(BIN)/kraknet
+all: $(O) $(BIN) $(LIB) $(LIB)/libkraknet.so $(BIN)/ws $(BIN)/mod_find $(BIN)/mod_home $(BIN)/kraknet $(BIN)/decode
 
 clean:
 	rm -f $(LIB)/kraknet.so $(O)/*.o $(BIN)/ws $(BIN)/kraknet $(BIN)/mod_find $(LIB)/libkraknet.so
@@ -49,6 +49,10 @@ $(BIN)/mod_home: $(C)/mod_home.c $(I)/generic.h $(LIB)/libkraknet.so
 # kraknet (text parsing)
 $(BIN)/kraknet: $(C)/kraknet.c $(LIB)/libkraknet.so
 	$(CC) -o $(BIN)/kraknet -s $(C)/kraknet.c -lkraknet
+
+# decode (URI Unescape)
+$(BIN)/decode: $(C)/decode.c
+	$(CC) -o $(BIN)/decode -s $(C)/decode.c
 
 
 # directories
