@@ -18,6 +18,7 @@ h    text/plain; charset=UTF-8
 cc   text/plain; charset=UTF-8
 cpp  text/plain; charset=UTF-8
 hpp  text/plain; charset=UTF-8
+s    text/plain; charset=UTF-8
 
 # audio
 mp3  audio/mpeg

@@ -307,6 +307,15 @@ end_of_stream:
 
 			// Close handle to the child's socket in parent.
 			close(sockfd_client);
+
+			switch(fork()){
+				case -1:
+					error_code(0, "Warning: Could not fork main server process.");
+				case 0:
+					break;
+				default:
+					exit(0);
+			}
 		}
 
 		// End of server process
