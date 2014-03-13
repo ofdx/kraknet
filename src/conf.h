@@ -29,5 +29,6 @@ extern void set_path(char *dest, char *src);
 extern int set_env_from_conf();
 
 extern int change_log_owner(uid_t uid, gid_t gid);
+extern void calibrate_path();
 
 #endif

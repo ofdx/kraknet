@@ -157,3 +157,21 @@ int change_log_owner(uid_t uid, gid_t gid){
 
 	return e?error_code(0, "Warning: %d files could not be chowned.", e):0;
 }
+
+void calibrate_path(){
+	char *host, *server, *path;
+	struct stat s;
+
+	server = getenv("server_home");
+	host = getenv("REQUEST_HOST");
+
+	if(host && server && *host){
+		path = calloc(strlen(server) + strlen(host) + 32, sizeof(char));
+		sprintf(path, "%s/domains/%s", server, host);
+
+		if(!stat(path, &s))
+			setenv("web_root", path, 1);
+
+		free(path);
+	}
+}

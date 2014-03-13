@@ -213,6 +213,9 @@ int main(int argc, char**argv){
 								setenv("IF_MODIFIED_SINCE", str+19, 1);
 						}
 
+						// Calibrate path to account for domain-based sites.
+						calibrate_path();
+
 						// Clean up POST data.
 						if(!strcasecmp(method, "POST")){
 							if(s=getenv("CONTENT_LENGTH"))
