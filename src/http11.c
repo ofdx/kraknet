@@ -40,7 +40,6 @@ char *get_mime_type(char *filename){
 	char *str, *s, *a, *fname=NULL;
 	FILE *mime;
 	size_t n;
-	char c=0;
 
 	// Find the file part of the name.
 	a=filename+strlen(filename);
@@ -52,7 +51,7 @@ char *get_mime_type(char *filename){
 		a--;
 	}
 	if(a==filename)
-		a=&c;
+		a="";
 
 	// Get a handle to the mime list.
 	if(!(s=getenv("conf_dir")))
@@ -72,7 +71,7 @@ char *get_mime_type(char *filename){
 				break;
 		*(s++)=0;
 
-		if(!strcmp(a, str)){
+		if(!strcasecmp(a, str)){
 			for(a=s;*s==' '||*s=='\t';s++);
 			for(a=s;*s;s++)if(*s=='\r'||*s=='\n')
 				break;
