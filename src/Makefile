@@ -31,13 +31,13 @@ $(LIB)/libkraknet.so: $(C)/generic.c $(C)/utc_date.c $(C)/http11.c
 
 # krakws (web server)
 $(BIN)/ws: $(C)/krakws.c $(O)/conf.o $(O)/handler.o $(LIB)/libkraknet.so
-	$(CC) -o $(BIN)/ws -s $(C)/krakws.c $(O)/conf.o $(O)/handler.o -lkraknet
+	$(CC) -Wall -o $(BIN)/ws -s $(C)/krakws.c $(O)/conf.o $(O)/handler.o -lkraknet
 
 $(O)/conf.o: $(C)/conf.c $(I)/conf.h $(I)/generic.h
 	$(CC) -c $(C)/conf.c -o $(O)/conf.o
 
 $(O)/handler.o: $(C)/handler.c $(I)/handler.h $(I)/generic.h $(I)/conf.h $(I)/http11.h
-	$(CC) -c $(C)/handler.c -o $(O)/handler.o
+	$(CC) -Wall -c $(C)/handler.c -o $(O)/handler.o
 
 # mod_find (module:script locator)
 $(BIN)/mod_find: $(C)/mod_find.c $(I)/generic.h $(LIB)/libkraknet.so

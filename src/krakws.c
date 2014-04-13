@@ -28,9 +28,10 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 
-#include "http11.h"
-#include "generic.h"
 #include "conf.h"
+#include "generic.h"
+#include "http11.h"
+#include "handler.h"
 
 #define KWS_DEFAULT_PORT 9001
 
@@ -44,22 +45,10 @@ int main(int argc, char**argv){
 	int port = KWS_DEFAULT_PORT;
 
 	struct passwd *gpasswd = NULL;
-	FILE *client_stream = NULL;
 	pid_t pid;
 
 	int optval = 2;
-	int request_count = 0;
-
-	char *web_root, *cmp_web_root;
-	char *buf = calloc(256, sizeof(char));
-	char *method, *uri, *http_standard;
-	char *a, *query = NULL;
-	char *str, *s, **v;
-	size_t n;
-
-	// MT POST band-aid
-	size_t post_length;
-	char *post_raw_data;
+	char *str;
 
 	// Reads server config file and sets environment variables.
 	if(set_env_from_conf())
@@ -136,7 +125,7 @@ int main(int argc, char**argv){
 		while(1){
 			client_length = sizeof(socket_addr_client);
 			memset(&socket_addr_client, 0, client_length);
-			sockfd_client = accept(sockfd, (struct sockaddr*)&socket_addr_client, &client_length);
+			sockfd_client = accept(sockfd, (struct sockaddr*)&socket_addr_client, (socklen_t*)&client_length);
 
 			if(set_env_from_conf())
 				return error_code(1, "General Configuration issue. ** Server stopping. **");
