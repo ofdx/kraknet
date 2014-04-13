@@ -98,7 +98,7 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 
 		// Clean up POST data.
 		if(!strcasecmp(method, "POST")){
-			if(s = getenv("CONTENT_LENGTH"))
+			if((s = getenv("CONTENT_LENGTH")))
 				post_length = atoi(s);
 			if(post_length > 0){
 				post_raw_data = calloc(post_length + 1, sizeof(char));
