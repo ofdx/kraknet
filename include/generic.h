@@ -57,4 +57,7 @@ extern int mod_find(char *mod, char *script, char *args);
 extern int mod_find_p(char *mod, char *script, char *args, char **ret);
 extern int mod_find_ps(char *mod_script, char *args, char **ret);
 
+// Misc.
+extern int kws_fclose(FILE **stream);
+
 #endif

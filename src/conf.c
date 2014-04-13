@@ -26,7 +26,7 @@ void set_path(char *dest, char *src){
 /*	Read conf the main server configuration file and handle all the details. */
 int set_env_from_conf(){
 	static char *str=NULL;
-	FILE *conf;
+	FILE *conf, *stream;
 	char *a;
 
 	// Static buffer to translate relative paths on.
@@ -101,8 +101,10 @@ int set_env_from_conf(){
 				strcat(str,"/server.log");
 
 				// mod_debug_stream has a static pointer to hold this fopen.
-				mod_debug_stream(SET, fopen(str, "a"));
-				if(mod_debug_stream(GET, NULL)==stderr)
+				stream = mod_debug_stream(GET, NULL);
+				if(!stream || (stream == stderr))
+					mod_debug_stream(SET, fopen(str, "a"));
+				if(mod_debug_stream(GET, NULL) == stderr)
 					error_code(0, "Could not create log file, logging to stderr...");
 				break;
 			default:

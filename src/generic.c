@@ -191,7 +191,6 @@ int error_code(int code, const char *msg, ...){
 
 	va_start(va, msg);
 	if(msg==strstr(msg, "--")){
-		fprintf(stream, "\t\t");
 		vfprintf(stream, msg+2, va);
 	} else {
 		fprintf(stream, "%s [kraknet]: ", post_time("%Y/%m/%d %H:%M:%S.", 1));
@@ -340,4 +339,11 @@ int mod_find_ps(char *mod_script, char *args, char **ret){
 	*(s-1)=':';
 
 	return mod_find_p(mod, script, args, ret);
+}
+
+int kws_fclose(FILE **stream){
+	FILE *f = *stream;
+
+	*stream = NULL;
+	return (f)?fclose(f):0;
 }
