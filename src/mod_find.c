@@ -17,23 +17,23 @@
 #include "generic.h"
 
 int main(int argc, char **argv){
-	char *args=NULL;
+	char *args = NULL;
 	char *s, *str, **p;
-	size_t n=0;
+	size_t n = 0;
 
-	if(argc<2)
+	if(argc < 2)
 		return error_code(-1, "Too few paremeters for %s.", *argv);
 
 	//Look for a colon between module and script
-	if(!(s=strstr(str=*(argv+1), ":")))
+	if(!(s = strstr(str = argv[1], ":")))
 		return error_code(-1, "Bad request format for %s.", *argv);
 
 	// Flatten arguments to a single string.
-	if(argc>2){
-		p=argv+2;
-		do{	n+=256;
-			args=realloc(args, n*sizeof(char));
-			if(n==256)
+	if(argc > 2){
+		p = argv + 2;
+		do{	n += 256;
+			args = realloc(args, n * sizeof(char));
+			if(n == 256)
 				strcpy(args, *p); 
 			else {
 				strcat(args, " ");

@@ -24,61 +24,61 @@ void serve(FILE *r){
 	char *buf, *b, *b_r;
 	size_t b_size, n;
 
-	buf=calloc(256, sizeof(char));
-	b=b_r=calloc(b_size=256, sizeof(char));
-	while(getline(&b_r, &b_size, r)!=-1){
-		if(*b_r!='!')
+	buf = calloc(256, sizeof(char));
+	b = b_r = calloc(b_size = 256, sizeof(char));
+	while(getline(&b_r, &b_size, r) != -1){
+		if(*b_r != '!')
 			break;
-		if(*(b_r+1)=='#')
+		if(b_r[1] == '#')
 			continue;
-		fputs(b_r+1, stdout);
+		fputs(b_r + 1, stdout);
 	}	
 	fputs("\r\n", stdout);
 
-	str=calloc(n=256, sizeof(char));
-	do{	b=b_r;
+	str = calloc(n = 256, sizeof(char));
+	do{	b = b_r;
 		while(*b){
-			if(!(seek=strstr(b, "<????")))
+			if(!(seek = strstr(b, "<????")))
 				break;
 			else {
-				*seek=0;
+				*seek = 0;
 				fputs(b, stdout);
-				b=seek+5;
-				if(!(seek=strstr(b, ">")))
+				b = seek + 5;
+				if(!(seek = strstr(b, ">")))
 					break;
-				*seek=0;
+				*seek = 0;
 
 				// Find and execute script.
-				if(s=strchr(b, ' '))
-					*(s++)=0;
+				if((s = strchr(b, ' ')))
+					*(s++) = 0;
 				mod_find_ps(b, s, NULL);
 
-				b=seek+1;
+				b = seek + 1;
 			}
 		}
 		fputs(b, stdout);
-	}	while(getline(&b_r, &b_size, r)!=-1);
+	}	while(getline(&b_r, &b_size, r) != -1);
 }
 
 int main(int argc, char **argv){
 	char *buf, *b, *b_r, *s;
 	char *seek, *str;
 	char *home_dir;
-	size_t b_size=256, n;
+	size_t b_size = 256, n;
 	FILE *r;
 
 
 	// Find server's HTML MIME type. (conf/mime)
-	str=get_mime_type("index.html");
+	str = get_mime_type("index.html");
 	printf("Content-Type: %s\r\n", str);
 	free(str);
 
-	if(!(home_dir=getenv("mod_root"))){
+	if(!(home_dir = getenv("mod_root"))){
 		printf("\nBad configuration\n");
 		return error_code(-1, "Missing environment variable $mod_root.");
 	}
 
-	if(!(r=fopen(argv[1], "r")))
+	if(!(r = fopen(argv[1], "r")))
 		return error_code(-1, "Could not open file \"%s\"", argv[1]);
 
 
@@ -87,26 +87,24 @@ int main(int argc, char **argv){
 	if(!mod_find_p("accounts", "auth", NULL, &buf)){
 		sanitize_str(buf);
 		if(!strncmp(buf, "OK", 2)){
-			setenv("kraknet_user", buf+3, 1);
-			setenv("kraknet_user_ip", (s=getenv("HTTP_X_FORWARDED_FOR"))?s:getenv("REMOTE_ADDR"), 1);
+			setenv("kraknet_user", buf + 3, 1);
+			setenv("kraknet_user_ip", (s = getenv("HTTP_X_FORWARDED_FOR"))?s:getenv("REMOTE_ADDR"), 1);
 			setenv("kraknet_user_auth", "OK", 1);
 		} //else printf("Set-Cookie: sid=deleted; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Path=/\r\n");
 	}
 	free(buf);
 	//End accounts magic
 
-
 	// Serve the first file listed.
 	serve(r);
 	fclose(r);
 
-
 	// Serve additional files
-	while(argc>2){
+	while(argc > 2){
 		argc--;
 		argv++;
 
-		if(!(r=fopen(argv[1], "r")))
+		if(!(r = fopen(argv[1], "r")))
 			return error_code(-1, "Could not open file \"%s\"", argv[1]);
 		serve(r);
 		fclose(r);

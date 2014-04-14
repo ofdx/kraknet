@@ -17,17 +17,17 @@
 #include "utc_date.h"
 
 char *post_time(const char *fmt, int nano){
-	static char *str=NULL;
+	static char *str = NULL;
 	struct timespec ts;
 	time_t t;
 	struct tm *tmp;
 
 	if(!str)
-		str=calloc(32, sizeof(char));
+		str = calloc(32, sizeof(char));
 
 	clock_gettime(CLOCK_REALTIME, &ts);
-	t=ts.tv_sec;
-	tmp=localtime(&t);
+	t = ts.tv_sec;
+	tmp = localtime(&t);
 	strftime(str, 32, fmt, tmp);
 	if(nano)
 		sprintf(str, "%s%09ld", str, ts.tv_nsec);
