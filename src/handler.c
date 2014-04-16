@@ -71,7 +71,7 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 	if(!method || !uri || !http_standard)
 		http_default_error(request_stream, 400, "Bad Request");
 	else {
-		while(getline(&str, &n, request_stream)>0){
+		while(getline(&str, &n, request_stream) > 0){
 			sanitize_str(str);
 
 			// These need to be unset for each request.

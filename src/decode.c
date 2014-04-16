@@ -27,20 +27,20 @@ void unescape_url(char *url){
 }
 
 int main(int argc, char **argv){
-	char *str=NULL, *s;
+	char *str = NULL, *s;
 	size_t n;
 
 	if(argc<2)
 		getline(&str, &n, stdin);
 	else {
-		str=calloc(1+strlen(*(argv+1)), sizeof(char));
-		strcpy(str, *(argv+1));
+		str = calloc(1 + strlen(argv[1]), sizeof(char));
+		strcpy(str, argv[1]);
 	}
 
-	if(s=strpbrk(str, "\r\n"))
-		*s=0;
-	while(s=strchr(str, '+'))
-		*s=' ';
+	if((s = strpbrk(str, "\r\n")))
+		*s = 0;
+	while((s = strchr(str, '+')))
+		*s = ' ';
 	unescape_url(str);
 	fputs(str, stdout);
 	return 0;

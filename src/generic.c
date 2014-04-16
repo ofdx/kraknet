@@ -18,19 +18,19 @@
 	only be used to free memory. The last pointer will be NULL, signifying the
 	end of the string. */
 char **chop_words(const char *src){
-	char **v=NULL, *str, *r;
-	int count=2;
+	char **v = NULL, *str, *r;
+	int count = 2;
 
 	if(!src)
 		return NULL;
 
-	str=calloc(1+strlen(src), sizeof(char));
-	*(v=malloc(count*sizeof(char**)))=str;
+	str = calloc(1 + strlen(src), sizeof(char));
+	*(v = malloc(count * sizeof(char**)))=str;
 	strcpy(str, src);
 
-	*(v+count-1)=strtok_r(str, WORDS_DELIMINATOR, &r);
-	do v=realloc(v, ++count*sizeof(char**));
-	while(*(v+count-1)=strtok_r(NULL, WORDS_DELIMINATOR, &r));
+	*(v + count - 1) = strtok_r(str, WORDS_DELIMINATOR, &r);
+	do v = realloc(v, ++count * sizeof(char**));
+	while(*(v + count - 1)=strtok_r(NULL, WORDS_DELIMINATOR, &r));
 
 	return v;
 }
@@ -57,21 +57,21 @@ void unescape_url(char *url){
 /* End NCSA code */
 
 void sanitize_str(char *str){
-	if(str=strpbrk(str, "\r\n"))
-		*str=0;
+	if((str = strpbrk(str, "\r\n")))
+		*str = 0;
 }
 
 void unquote_str(char *str){
 	size_t l;
 
-	if(!str || (l=strlen(str))<2)
+	if(!str || ((l = strlen(str)) < 2))
 		return;
 
-	if(*str=='\"')
-		memmove(str, str+1, l--);
+	if(*str == '\"')
+		memmove(str, str + 1, l--);
 
-	if(*(str+(--l))=='\"')
-		*(str+l)=0;
+	if(str[--l] == '\"')
+		str[l] = 0;
 }
 
 /*	Opens a stream to $conf_dir/cname */
@@ -82,10 +82,10 @@ FILE *get_conf_stream(char *cname, const char *mode){
 	if(!(a=getenv("conf_dir")))
 		return NULL;
 
-	str=calloc(strlen(cname)+strlen(a)+2, sizeof(char));
+	str = calloc(strlen(cname) + strlen(a) + 2, sizeof(char));
 	sprintf(str, "%s/%s", a, cname);
 
-	stream=fopen(str, mode);
+	stream = fopen(str, mode);
 	free(str);
 
 	return stream;
@@ -97,10 +97,10 @@ char *get_conf_line(char *fname, char *value){
 	char *return_string;
 	FILE *stream;
 
-	if(!(stream=fopen(fname, "r")))
+	if(!(stream = fopen(fname, "r")))
 		return NULL;
 
-	return_string=get_conf_line_s(stream, value, SEEK_FORWARD_ONLY);
+	return_string = get_conf_line_s(stream, value, SEEK_FORWARD_ONLY);
 
 	fclose(stream);
 	return return_string;
@@ -114,51 +114,49 @@ char *get_conf_line(char *fname, char *value){
  *	started. SEEK_RESET_OK is optimal for reading actual config files multiple
  *	times. Do not use on non-file streams. */
 char *get_conf_line_s(FILE *stream, char *value, enum SEEK_MODE mode){
-	static char *str=NULL;
-	static size_t n=256;
+	static char *str = NULL;
+	static size_t n;
 
-	char *return_string=NULL;
+	char *return_string = NULL;
 	char *a, *s;
 	ssize_t r;
 
-	long initial_file_pos=ftell(stream);
+	long initial_file_pos = ftell(stream);
 
-	if(!str)
-		str=calloc(n, sizeof(char));
-
-	do{	r=getline(&str, &n, stream);
+	do {
+		r = getline(&str, &n, stream);
 
 		// EOF handling and looping.
-		if(feof(stream) || r<0){
+		if(feof(stream) || (r < 0)){
 			// initial_file_pos is false (0) if file started from the beginning.
 			// No need to rewind in that case.
-			if(mode==SEEK_RESET_OK && initial_file_pos){
+			if((mode == SEEK_RESET_OK) && initial_file_pos){
 				rewind(stream);
-				mode=SEEK_POST_REWIND;
+				mode = SEEK_POST_REWIND;
 			} else break;
 		}
 
 		// Break if we seek past the point we started.
-		if(mode==SEEK_POST_REWIND && ftell(stream)>=initial_file_pos)
+		if((mode == SEEK_POST_REWIND) && (ftell(stream) >= initial_file_pos))
 			break;
 
 		// Skip comments
-		if(*str=='#')
+		if(*str == '#')
 			continue;
 		sanitize_str(str);
 
 		// Skip indentation
-		for(s=str;*s==' '||*s=='\t';s++);
-		a=s;
+		for(s = str;(*s == ' ') || (*s == '\t'); s++);
+		a = s;
 
 		// Match needle to the beginning of the line.
-		if(a==strcasestr(a, value)){
-			for(s=a;*s;s++)
-				if(*s=='=')
+		if(a == strcasestr(a, value)){
+			for(s = a; *s; s++)
+				if(*s == '=')
 					break;
-			a=(*s)?s+1:s;
+			a = (*s)?s+1:s;
 
-			return_string=str;
+			return_string = str;
 			strcpy(str, a);
 		}
 	}	while(!return_string);
@@ -170,15 +168,15 @@ char *get_conf_line_s(FILE *stream, char *value, enum SEEK_MODE mode){
 
 /*	Configure debug output stream. */
 FILE *mod_debug_stream(enum debug_stream_op op, FILE *stream){
-	static FILE *dbg_stream=NULL;
+	static FILE *dbg_stream = NULL;
 
 	switch(op){
 		case SET:
-			dbg_stream=stream;
+			dbg_stream = stream;
 		case GET:
 		default:
 			if(!dbg_stream)
-				dbg_stream=stderr;
+				dbg_stream = stderr;
 			return dbg_stream;
 	}
 }
@@ -186,12 +184,12 @@ FILE *mod_debug_stream(enum debug_stream_op op, FILE *stream){
 /*	Prints the message with a timestamp to stderr. Returns the code value
 	specified. */
 int error_code(int code, const char *msg, ...){
-	FILE *stream=mod_debug_stream(GET,NULL);
+	FILE *stream = mod_debug_stream(GET,NULL);
 	va_list va;
 
 	va_start(va, msg);
-	if(msg==strstr(msg, "--")){
-		vfprintf(stream, msg+2, va);
+	if(msg == strstr(msg, "--")){
+		vfprintf(stream, msg + 2, va);
 	} else {
 		fprintf(stream, "%s [kraknet]: ", post_time("%Y/%m/%d %H:%M:%S.", 1));
 		vfprintf(stream, msg, va);
@@ -203,65 +201,13 @@ int error_code(int code, const char *msg, ...){
 	return code;
 }
 
-/*	PUSH/POP a set of strings. Expands automatically. */
-static char *char_stack(enum stack_operation op, char *p){
-	static char **stack=NULL;
-	static size_t ss=0;
-	static long sp=0;
-
-	// Grow automatically.
-	if(sp>=ss-1 || !stack){
-		ss+=256;
-		stack=realloc(stack, ss*sizeof(void*));
-	}
-
-	switch(op){
-		case PUSH:
-			*(stack+sp)=calloc(1+strlen(p), sizeof(char));
-			strcpy(*(stack+sp), p);
-			sp++;
-			break;
-
-		// User should free this memory.
-		case POP:
-			if(sp==0)
-				return NULL;
-			return *(stack+--sp);
-
-		// Return a pointer to the bottom of the stack.
-		case GET_STACK:
-			return (char*)stack;
-
-		// Return the element count;
-		case COUNT:
-			return (char*)sp;
-	}
-
-	return NULL;
-}
-
-void push_str(char *str){
-	char_stack(PUSH, str);
-}
-
-char *pop_str(){
-	return char_stack(POP, NULL);
-}
-
-char **get_str_stack(){
-	return (char**)char_stack(GET_STACK, NULL);
-}
-
-long get_stack_size(){
-	return (long)char_stack(COUNT, NULL);
-}
 
 // Return path to module's home.
 char *mod_home(char *mod){
 	static char p[1024];
 	char *home_dir;
 
-	if(!(home_dir=getenv("mod_root")))
+	if(!(home_dir = getenv("mod_root")))
 		return error_code(0, "Missing environment variable $mod_root."), NULL;
 	sprintf(p, "%s/%s", home_dir, mod);
 	return p;
@@ -273,17 +219,17 @@ int mod_find_p(char *mod, char *script, char *args, char **ret){
 	char *home_dir;
 	char *str, *s;
 	char pwd[2048];
-	size_t n=256;
+	size_t n = 256;
 	FILE *pipe;
 	int c,p=0;
 
-	if(!(home_dir=getenv("mod_root")))
+	if(!(home_dir = getenv("mod_root")))
 		return error_code(-1, "Missing environment variable $mod_root.");
 
-	str=calloc(256+n, sizeof(char));
+	str = calloc(256 + n, sizeof(char));
 	sprintf(str, "%s/%s/info.txt", home_dir, mod);
-	if(s=get_conf_line(str, script)){
-		unquote_str(script=s);
+	if((s = get_conf_line(str, script))){
+		unquote_str(script = s);
 
 		// Set working directory for the module.
 		getcwd(pwd, sizeof(pwd));
@@ -293,17 +239,17 @@ int mod_find_p(char *mod, char *script, char *args, char **ret){
 
 		// Run script.
 		sprintf(str, "./%s %s", script, args?args:"");
-		if(pipe=popen(str, "r")){
-			while((c=getc(pipe))!=EOF){
+		if((pipe = popen(str, "r"))){
+			while((c = getc(pipe)) != EOF){
 				if(ret){
-					if(p>n){
-						n+=256;
-						str=realloc(str, n*sizeof(char));
+					if(p > n){
+						n += 256;
+						str = realloc(str, n * sizeof(char));
 					}
-					*(str+p++)=c;
+					str[p++] = c;
 				} else fputc(c, stdout);
 			}
-			*(str+p)=0;
+			str[p]=0;
 			pclose(pipe);
 		}
 
@@ -312,7 +258,7 @@ int mod_find_p(char *mod, char *script, char *args, char **ret){
 
 		if(!ret)
 			free(str);
-		else *ret=str;
+		else *ret = str;
 	} else return error_code(1, "No script found. (%s:%s)", mod, script);
 
 	return 0;
@@ -324,19 +270,19 @@ int mod_find_ps(char *mod_script, char *args, char **ret){
 	char *mod, *script;
 	char *s, *str;
 
-	str=mod_script;
-	if(!(s=strstr(str, ":")))
+	str = mod_script;
+	if(!(s = strstr(str, ":")))
 		return error_code(-1, "Bad request format for %s.", str);
-	*s=0;
+	*s = 0;
 
-	mod=calloc(1+strlen(str), sizeof(char));
+	mod = calloc(1 + strlen(str), sizeof(char));
 	strcpy(mod, str);
 
-	script=calloc(1+strlen(++s), sizeof(char));
+	script = calloc(1 + strlen(++s), sizeof(char));
 	strcpy(script, s);
 
 	// Fix original data.
-	*(s-1)=':';
+	*(s - 1) = ':';
 
 	return mod_find_p(mod, script, args, ret);
 }
