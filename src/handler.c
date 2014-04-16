@@ -125,12 +125,6 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 			if(*(uri + strlen(uri) - 1) != '/')
 				setenv("kws_pot_err", "dirnotdir", 1);
 
-			// TODO: Improve security of this filter.
-			// FIXME: Causes some files to be unreachable.
-			for(a = uri; *a; a++)
-				if((*a == ';') || (*a == '`') || (*a == '&') || (*a == '|'))
-					*a = ' ';
-
 			/*	Web directory protection stops the client from accessing
 			 *	files with a realpath outside of $web_root. This
 			 *	includes symlinks. */
