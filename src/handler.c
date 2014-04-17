@@ -61,26 +61,21 @@ static void sethttpenv(char *str){
 	if(!*a)
 		return;
 
-	// Assymetrical mappings:
-	if(!strcmp(str, "HOST"))
-		setenv("REQUEST_HOST", a, 1);
-	else {
-		// Exceptions to HTTP_ prepend.
-		if(
-			(strcmp(str, "CONTENT_LENGTH")) &&
-			(strcmp(str, "CONTENT_TYPE")) &&
-			(strcmp(str, "CONNECTION_MODE")) &&
-			(strcmp(str, "IF_MODIFIED_SINCE"))
-		){
-			b = calloc(6 + strlen(str), sizeof(char));
-			sprintf(b, "HTTP_%s", str);
-			str = b;
-		}
-
-		setenv(str, a, 1);
-		if(b == str)
-			free(b);
+	// Exceptions to HTTP_ prepend.
+	if(
+		(strcmp(str, "CONTENT_LENGTH")) &&
+		(strcmp(str, "CONTENT_TYPE")) &&
+		(strcmp(str, "CONNECTION_MODE")) &&
+		(strcmp(str, "IF_MODIFIED_SINCE"))
+	){
+		b = calloc(6 + strlen(str), sizeof(char));
+		sprintf(b, "HTTP_%s", str);
+		str = b;
 	}
+
+	setenv(str, a, 1);
+	if(b == str)
+		free(b);
 }
 
 
@@ -148,6 +143,7 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 		}
 
 		// Break the QUERY_STRING off of the URI.
+		setenv("REQUEST_URI", uri, 1);
 		query = NULL;
 		for(a = uri; *a; a++){
 			if(*a == '?'){

@@ -165,14 +165,16 @@ void calibrate_path(){
 	struct stat s;
 
 	server = getenv("server_home");
-	host = getenv("REQUEST_HOST");
+	host = getenv("HTTP_HOST");
 
 	if(host && server && *host){
 		path = calloc(strlen(server) + strlen(host) + 32, sizeof(char));
 		sprintf(path, "%s/domains/%s", server, host);
 
-		if(!stat(path, &s))
+		if(!stat(path, &s)){
 			setenv("web_root", path, 1);
+			setenv("DOCUMENT_ROOT", path, 1);
+		}
 
 		free(path);
 	}
