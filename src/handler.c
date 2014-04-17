@@ -23,6 +23,67 @@ static void log_response(char *remote_addr, char *user_identifier, char *user_na
 	);
 }
 
+
+// Valid strings are [a-zA-Z-]. Others are set null at *str.
+static char * envstring(char *str){
+	char *s;
+	for(s = str; *s; s++){
+		if(*s == '-')
+			*s = '_';
+		else if((*s >= 'a') && (*s <= 'z'))
+			*s -= 'a' - 'A';
+		else if((*s < 'A') || (*s > 'Z')){
+			*str = 0;
+			break;
+		}
+	}
+
+	return str;
+}
+
+// Destroys the original string.
+static void sethttpenv(char *str){
+	char *a, *b;
+
+	a = str;
+	b = strchr(str, ':');
+
+	if(!a || !b)
+		return;
+
+	*b = 0;
+	if(!*envstring(a))
+		return;
+
+	a = b+1;
+	while(isspace(*a))
+		a++;
+	if(!*a)
+		return;
+
+	// Assymetrical mappings:
+	if(!strcmp(str, "HOST"))
+		setenv("REQUEST_HOST", a, 1);
+	else {
+		// Exceptions to HTTP_ prepend.
+		if(
+			(strcmp(str, "CONTENT_LENGTH")) &&
+			(strcmp(str, "CONTENT_TYPE")) &&
+			(strcmp(str, "CONNECTION_MODE")) &&
+			(strcmp(str, "IF_MODIFIED_SINCE"))
+		){
+			b = calloc(6 + strlen(str), sizeof(char));
+			sprintf(b, "HTTP_%s", str);
+			str = b;
+		}
+
+		setenv(str, a, 1);
+		if(b == str)
+			free(b);
+	}
+}
+
+
 int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_client, int port){
 	char *s, *str = NULL;
 	size_t n;
@@ -34,15 +95,7 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 	char *post_raw_data, *request_original;
 	char *a, *web_root, *cmp_web_root, buf[64];
 
-	pid_t pid;
-
-	unsetenv("HTTP_COOKIE");
-	unsetenv("HTTP_REFERER");
-	unsetenv("CONTENT_LENGTH");
-	unsetenv("CONTENT_TYPE");
-	unsetenv("CONNECTION_MODE");
-	unsetenv("REQUEST_HOST");
-	unsetenv("IF_MODIFIED_SINCE");
+	pid_t pid = 0;
 
 	// Hold the door open.
 	alarm(60);
@@ -70,27 +123,14 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 
 	if(!method || !uri || !http_standard)
 		http_default_error(request_stream, 400, "Bad Request");
-	else {
+	else if(!(pid = fork())){
+		// Set HTTP headers to appropriate environment variables.
 		while(getline(&str, &n, request_stream) > 0){
 			sanitize_str(str);
 
-			// These need to be unset for each request.
 			if(!*str)
 				break;
-			else if(str == strcasestr(str, "Cookie: "))
-				setenv("HTTP_COOKIE", str + 8, 1);
-			else if(str == strcasestr(str, "Referer: "))
-				setenv("HTTP_REFERER", str + 9, 1);
-			else if(str == strcasestr(str, "Content-length: "))
-				setenv("CONTENT_LENGTH", str + 16, 1);
-			else if(str == strcasestr(str, "Content-type: "))
-				setenv("CONTENT_TYPE", str + 14, 1);
-			else if(str == strcasestr(str, "Connection: "))
-				setenv("CONNECTION_MODE", str + 12, 1);
-			else if(str == strcasestr(str, "Host: "))
-				setenv("REQUEST_HOST", str + 6, 1);
-			else if(str == strcasestr(str, "If-Modified-Since: "))
-				setenv("IF_MODIFIED_SINCE", str + 19, 1);
+			else sethttpenv(str);
 		}
 
 		// Calibrate path to account for domain-based sites.
@@ -107,76 +147,73 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 			}
 		}
 
-		// Request handler child starts here.
-		if(!(pid = fork())){
-			// Break the QUERY_STRING off of the URI.
-			query = NULL;
-			for(a = uri; *a; a++){
-				if(*a == '?'){
-					query = calloc(strlen(a), sizeof(char));
-					strcpy(query, a + 1);
-					break;
-				}
+		// Break the QUERY_STRING off of the URI.
+		query = NULL;
+		for(a = uri; *a; a++){
+			if(*a == '?'){
+				query = calloc(strlen(a), sizeof(char));
+				strcpy(query, a + 1);
+				break;
 			}
-			*a = 0;
-			unescape_url(uri);
-
-			// Warning for a 301 redirect later.
-			if(*(uri + strlen(uri) - 1) != '/')
-				setenv("kws_pot_err", "dirnotdir", 1);
-
-			/*	Web directory protection stops the client from accessing
-			 *	files with a realpath outside of $web_root. This
-			 *	includes symlinks. */
-			web_root = getenv("web_root");
-			sprintf(str, "%s%s", web_root, uri);
-			if((a = getenv("web_dir_protection")) && strcasecmp(a, "no"))
-				cmp_web_root = realpath(str, NULL);
-			else cmp_web_root = web_root;
-
-			if(!cmp_web_root) // Can't happen.
-				http_default_error(request_stream, 404, "File not found.");
-			else if(cmp_web_root == strstr(cmp_web_root, web_root)){
-				setenv("SERVER_PROTOCOL", http_standard, 1);
-				sprintf(buf, "%d", port);
-				setenv("SERVER_PORT", buf, 1);
-				setenv("REQUEST_METHOD", method, 1);
-				// Skipping PATH_INFO and PATH_TRANSLATED
-				setenv("SCRIPT_NAME", uri, 1);
-				setenv("QUERY_STRING", (query)?query:"", 1);
-				setenv("REMOTE_ADDR", (char*)inet_ntoa(socket_addr_client.sin_addr), 1);
-				// Skipping CONTENT_TYPE and CONTENT_LENGTH
-
-				if(!strcasecmp(method, "HEAD"))
-					http_request(request_stream, str, HEAD, NULL);
-				else if(!strcasecmp(method, "GET"))
-					http_request(request_stream, str, GET, NULL);
-				else if(!strcasecmp(method, "POST"))
-					http_request(request_stream, str, POST, post_raw_data);
-				else http_default_error(request_stream, 501, "Method Not Implemented.");
-
-			} else http_default_error(request_stream, 401, "Permission denied.");
-			
-			// End of handler process.
-			kws_fclose(&request_stream);
-
-			exit(0);
 		}
-		waitpid(pid, NULL, 0);
+		*a = 0;
+		unescape_url(uri);
+
+		// Warning for a 301 redirect later.
+		if(*(uri + strlen(uri) - 1) != '/')
+			setenv("kws_pot_err", "dirnotdir", 1);
+
+		/*	Web directory protection stops the client from accessing
+		 *	files with a realpath outside of $web_root. This
+		 *	includes symlinks. */
+		web_root = getenv("web_root");
+		sprintf(str, "%s%s", web_root, uri);
+		if((a = getenv("web_dir_protection")) && strcasecmp(a, "no"))
+			cmp_web_root = realpath(str, NULL);
+		else cmp_web_root = web_root;
+
+		if(!cmp_web_root) // Can't happen.
+			http_default_error(request_stream, 404, "File not found.");
+		else if(cmp_web_root == strstr(cmp_web_root, web_root)){
+			setenv("SERVER_PROTOCOL", http_standard, 1);
+			sprintf(buf, "%d", port);
+			setenv("SERVER_PORT", buf, 1);
+			setenv("REQUEST_METHOD", method, 1);
+			// Skipping PATH_INFO and PATH_TRANSLATED
+			setenv("SCRIPT_NAME", uri, 1);
+			setenv("QUERY_STRING", (query)?query:"", 1);
+			setenv("REMOTE_ADDR", (char*)inet_ntoa(socket_addr_client.sin_addr), 1);
+			// Skipping CONTENT_TYPE and CONTENT_LENGTH
+
+			if(!strcasecmp(method, "HEAD"))
+				http_request(request_stream, str, HEAD, NULL);
+			else if(!strcasecmp(method, "GET"))
+				http_request(request_stream, str, GET, NULL);
+			else if(!strcasecmp(method, "POST"))
+				http_request(request_stream, str, POST, post_raw_data);
+			else http_default_error(request_stream, 501, "Method Not Implemented.");
+
+		} else http_default_error(request_stream, 401, "Permission denied.");
+		
+		// Log this request.
+		log_response(
+			(char*)inet_ntoa(socket_addr_client.sin_addr), // Remote address
+			"-", // User identifier
+			"-", // User name
+			"-", // Formated date (e.g. [10/Oct/2000:13:55:35 -0700])
+			request_original, // Request (e.g. "GET / HTTP/1.1")
+			-1, // Reponse code (e.g. 200)
+			-1 // Response bytes
+		);
+
+		// End of handler process.
+		kws_fclose(&request_stream);
+
+		exit(0);
 	}
+	if(pid > 0)
+		waitpid(pid, NULL, 0);
 	free(*v);
-
-	// Log this request.
-	log_response(
-		(char*)inet_ntoa(socket_addr_client.sin_addr), // Remote address
-		"-", // User identifier
-		"-", // User name
-		"-", // Formated date (e.g. [10/Oct/2000:13:55:35 -0700])
-		request_original, // Request (e.g. "GET / HTTP/1.1")
-		-1, // Reponse code (e.g. 200)
-		-1 // Response bytes
-	);
-
 	free(request_original);
 
 	// Handle another request if connection was keep-alive.
