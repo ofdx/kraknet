@@ -123,10 +123,10 @@ if($sort eq "name"){
 		}
 	} elsif($sort eq "date"){
 		if($sort_dir eq "asc"){
-			@entries_sorted = sort { $a->{modified} <=> $b->{modified} } @entries;
+			@entries_sorted = sort { $a->{modified} cmp $b->{modified} } @entries;
 		} else {
 			$headers{date} = "<a href=\"?sort=date&dir=asc&desc=$showdesc\">$headerlabels{date}</a>";
-			@entries_sorted = sort { $b->{modified} <=> $a->{modified} } @entries;
+			@entries_sorted = sort { $b->{modified} cmp $a->{modified} } @entries;
 		}
 	} elsif($sort eq "mime"){
 		if($sort_dir eq "asc"){
