@@ -5,6 +5,7 @@
 # Mike Perron (2013)
 
 use File::stat;
+use Fcntl ':mode';
 
 $working = $ENV{'web_root'};
 
@@ -71,7 +72,7 @@ foreach my $name (@file){
 	$modified = sprintf("%04d/%02d/%02d&nbsp;%02d:%02d:%02d", $year, $mon, $mday, $hour, $min, $sec);
 
 
-	if($mime eq "directory"){
+	if(S_ISDIR($sb->mode)){
 		$filef = "$name/";
 		$size = "";
 		if($name eq ".."){
