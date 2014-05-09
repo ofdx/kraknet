@@ -10,6 +10,12 @@
 */
 #include "conf.h"
 
+void change_root(const char *path){
+	setenv("web_root", path, 1);
+	setenv("DOCUMENT_ROOT", path, 1);
+	chdir(path);
+}
+
 /*	Adjust paths to be relative to the root of the server's data. */
 void set_path(char *dest, char *src){
 	static char *root = NULL;
@@ -18,6 +24,7 @@ void set_path(char *dest, char *src){
 		return;
 	}
 
+	// FIXME: this has pretty obvious potential to cause a buffer overrun.
 	if(*src != '/')
 		sprintf(dest, "%s/%s", root, src);
 	else strcpy(dest, src);
@@ -63,8 +70,7 @@ int set_env_from_conf(){
 	// Remove symlinks
 	if(!(str = realpath(str, NULL)))
 		return error_code(-1, "web_root path inaccessible.");
-	setenv("web_root", str, 1);
-	setenv("DOCUMENT_ROOT", str, 1);
+	change_root(str);
 
 	// mod_root
 	if(!(a = get_conf_line_s(conf, "mod_root", SEEK_RESET_OK)))
@@ -171,10 +177,8 @@ void calibrate_path(){
 		path = calloc(strlen(server) + strlen(host) + 32, sizeof(char));
 		sprintf(path, "%s/domains/%s", server, host);
 
-		if(!stat(path, &s)){
-			setenv("web_root", path, 1);
-			setenv("DOCUMENT_ROOT", path, 1);
-		}
+		if(!stat(path, &s))
+			change_root(path);
 
 		free(path);
 	}

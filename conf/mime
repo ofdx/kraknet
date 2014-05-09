@@ -20,6 +20,7 @@ cpp  text/plain; charset=UTF-8
 hpp  text/plain; charset=UTF-8
 rs   text/plain; charset=UTF-8
 s    text/plain; charset=UTF-8
+pl   text/plain; charset=UTF-8
 
 # audio
 mp3  audio/mpeg

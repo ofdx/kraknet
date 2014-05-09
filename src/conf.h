@@ -25,6 +25,8 @@
 
 #include "generic.h"
 
+extern void change_root(const char *path);
+
 extern void set_path(char *dest, char *src);
 extern int set_env_from_conf();
 
