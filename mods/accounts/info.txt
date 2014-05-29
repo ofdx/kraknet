@@ -1,2 +1,4 @@
-auth=auth.pl
-id=id.pl
+# Kraknet Accounts Module
+# Mike Perron (2014)
+auth=sh/auth.pl
+id=sh/id.pl

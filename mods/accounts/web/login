@@ -6,11 +6,11 @@
 
 use strict;
 
-my $homepath=`mod_home accounts`;
-my $database="accounts.db";
-my $postdata=<STDIN>;
+my $homepath = `mod_home accounts`;
+my $database = "accounts.db";
+my $postdata = <STDIN>;
 my %postvalues;
-my $okay=0;
+my $okay = 0;
 my $sql;
 my $buffer;
 my $pwhash;
@@ -20,8 +20,8 @@ my $redir;
 chomp($homepath);
 chdir($homepath) or die "Can't get home.";
 
-if(length($postdata)>0){
-	my @pairs=split(/[;&]/, $postdata);
+if(length($postdata) > 0){
+	my @pairs = split(/[;&]/, $postdata);
 	foreach my $pair (@pairs){
 		my ($name, $value) = split(/=/, $pair);
 		$value =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
@@ -30,40 +30,40 @@ if(length($postdata)>0){
 	}
 }
 
-if($postvalues{"name"}=~/^[a-z\d]{4,}+$/){
+if($postvalues{"name"} =~ /^[a-z\d]{4,}+$/){
 #printf "Name fits rules.\n";
-	$sql=qq{SELECT hash FROM users WHERE name='$postvalues{"name"}';};
-	chomp($pwhash=`openssl passwd -1 -salt '$postvalues{"name"}' '$postvalues{"pass"}'`);
-	chomp($buffer=qx{sqlite3 "$database" "$sql"});
-	$pwhash=~s/^\$[^\$]*\$[^\$]*\$(.*)$/\1/;
+	$sql = qq/SELECT hash FROM users WHERE name='$postvalues{"name"}';/;
+	chomp($pwhash = qx/openssl passwd -1 -salt '$postvalues{"name"}' '$postvalues{"pass"}'/);
+	chomp($buffer = qx/sqlite3 '$database' '$sql'/);
+	$pwhash =~ s/^\$[^\$]*\$[^\$]*\$(.*)$/\1/;
 
-	if((length($buffer)>0) and ($pwhash eq $buffer)){
-		$okay=1;
-		$error="Auth Accepted";
+	if((length($buffer) > 0) and ($pwhash eq $buffer)){
+		$okay = 1;
+		$error = "Auth Accepted";
 	} else {
 		# Passwords no good.
-		$okay=0;
-		$error="Bad Auth";
+		$okay = 0;
+		$error = "Bad Auth";
 	}
 	#printf "Hash ($?): $okay, $buffer vs $pwhash\n";
 } else {
 	# Impossible user name.
-	$okay=0;
-	$error="Bad User";
+	$okay = 0;
+	$error = "Bad User";
 	#printf "Username is no good.\n";
 }
 
-if($okay==1){
-	$redir=$postvalues{"onsuccess"};
+if($okay == 1){
+	$redir = $postvalues{"onsuccess"};
 	if($redir eq ""){
-		$redir="/";
+		$redir = "/";
 	}
 } else {
-	$redir=$postvalues{"onfailure"};
+	$redir = $postvalues{"onfailure"};
 	if($redir eq ""){
-		$redir=$ENV{"HTTP_REFERER"};
+		$redir = $ENV{"HTTP_REFERER"};
 		if ($redir eq ""){
-			$redir="/";
+			$redir = "/";
 		}
 	}
 }
@@ -71,14 +71,13 @@ if($okay==1){
 
 printf "Status: 302 $error\n";
 printf "Location: $redir\n";
-if($okay==1){
-	chomp(my $sid=qx{create_session "$postvalues{"name"}"});
-	if($?==0 and length($sid)>0){
+if($okay == 1){
+	chomp(my $sid = qx/create_session '$postvalues{"name"}'/);
+	if(($? == 0) and (length($sid) > 0)){
 		printf "Set-Cookie: knetsid=$sid; Path=/; Max-Age=5184000\n";
 	}
 }
 
 # Probably superfluous
 printf "\n";
-
 exit 0

@@ -6,34 +6,34 @@
 
 use strict;
 
-my $database="accounts.db";
-my $cookie=$ENV{'HTTP_COOKIE'};
+my $database = "accounts.db";
+my $cookie = $ENV{'HTTP_COOKIE'};
 
-chomp(my $homepath=`mod_home accounts`);
+chomp(my $homepath = qx/mod_home accounts/);
 chdir($homepath) or die "Can't get home.";
 
 my %cookies;
-if(length($cookie)>0){
-	my @pairs=split(/[;&]/, $cookie);
+if(length($cookie) > 0){
+	my @pairs = split(/[;&]/, $cookie);
 	foreach my $pair (@pairs){
 		my ($name, $value) = split(/=/, $pair);
 		$name =~ s/^\s+//;
 		$value =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
-		chomp($cookies{$name}=$value);
+		chomp($cookies{$name} = $value);
 	}
 }
 
-my $sid=$cookies{"knetsid"};
-my $sql=qq/DELETE FROM sids WHERE id_session='$sid';/;
+my $sid = $cookies{"knetsid"};
+my $sql = qq/DELETE FROM sids WHERE id_session='$sid';/;
 
-my $logstat="Failed";
-if(length($sid)>0){
+my $logstat = "Failed";
+if(length($sid) > 0){
 	qx/sqlite3 "$database" "$sql"/;
-	if(!$?){ $logstat="Successful" }	
+	if(!$?){ $logstat = "Successful" }	
 }
 
-my $ref=$ENV{'HTTP_REFERER'};
-if(length($ref)<=0){ $ref='/' }
+my $ref = $ENV{'HTTP_REFERER'};
+if(length($ref) <= 0){ $ref = '/' }
 
 printf "Status: 302 Logout $logstat\nLocation: $ref\n\n";
 exit 0
