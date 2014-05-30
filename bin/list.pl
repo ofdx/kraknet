@@ -7,10 +7,10 @@
 use File::stat;
 use Fcntl ':mode';
 
-$working = $ENV{'web_root'};
+$working = $ENV{web_root};
 
 # Find the present working directory.
-$dir = `dirname "$ENV{'SCRIPT_NAME'}"`;
+$dir = `dirname '$ENV{SCRIPT_NAME}'`;
 chomp $dir;
 $dirf = ($dir eq "/") ? "$dir" : "$dir/";
 
@@ -33,10 +33,10 @@ my $sort_dir = 'asc';
 my $showdesc = 0;
 
 # Get QUERY_STRING
-my $buffer=$ENV{"QUERY_STRING"};
+my $buffer = $ENV{QUERY_STRING};
 my %queryvals;
-if(length($buffer)>0){
-	my @pairs=split(/[;&]/, $buffer);
+if(length($buffer) > 0){
+	my @pairs = split(/[;&]/, $buffer);
 	foreach my $pair (@pairs){
 		my ($name, $value) = split(/=/, $pair);
 		$name =~ s/^\s+//;
@@ -45,9 +45,9 @@ if(length($buffer)>0){
 	}
 }
 
-if($queryvals{'sort'}){ $sort = $queryvals{'sort'} }
-if($queryvals{'dir'}){ $sort_dir = $queryvals{'dir'} }
-if($queryvals{'desc'}){ $showdesc = $queryvals{'desc'} }
+if($queryvals{sort}){ $sort = $queryvals{sort} }
+if($queryvals{dir}){ $sort_dir = $queryvals{dir} }
+if($queryvals{desc}){ $showdesc = $queryvals{desc} }
 
 
 my $index = 0;
@@ -62,7 +62,7 @@ my %colclass = (
 
 foreach my $name (@file){
 	my $mime = '';
-	if($showdesc != 0){ $mime = `file -b "$working/$dir/$name"` }
+	if($showdesc != 0){ $mime = `file -b '$working/$dir/$name'` }
 	my $sb = stat("$working/$dir/$name") or next;
 	my $size = $sb->size;
 	chomp $mime;
@@ -185,13 +185,13 @@ EOF
 foreach my $ref (@entries_sorted){
 	print <<EOF;
 		<tr>
-			<td class=\"$colclass{name}\"><a href="$dir/$ref->{'path'}">$ref->{'name'}</a></td>
-			<td class=\"$colclass{size}\">$ref->{'size'}</td>
-			<td class=\"$colclass{date}\">$ref->{'modified'}</td>
+			<td class=\"$colclass{name}\"><a href="$dir/$ref->{path}">$ref->{name}</a></td>
+			<td class=\"$colclass{size}\">$ref->{size}</td>
+			<td class=\"$colclass{date}\">$ref->{modified}</td>
 EOF
 	if($showdesc != 0){
 		print<<EOF;
-			<td class=\"$colclass{mime}\">$ref->{'mime'}</td>
+			<td class=\"$colclass{mime}\">$ref->{mime}</td>
 EOF
 	}
 	print <<EOF;
