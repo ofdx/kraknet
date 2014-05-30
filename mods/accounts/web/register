@@ -30,30 +30,30 @@ if(length($postdata) > 0){
 	}
 }
 
-if($postvalues{"name"} =~ /^[a-z\d]{4,}+$/){
-	$okay{"name"} = 1;
+if($postvalues{name} =~ /^[a-z\d]{4,}+$/){
+	$okay{name} = 1;
 } else {
 	#printf "<li>Username is no good.</li>";
 }
 
-if(($postvalues{"pass"} eq $postvalues{"repass"}) and (length($postvalues{"pass"}) >= 6)){
-	$okay{"pass"} = 1;
-	chomp($pwhash = `openssl passwd -1 -salt '$postvalues{"name"}' '$postvalues{"pass"}'`);
+if(($postvalues{pass} eq $postvalues{repass}) and (length($postvalues{pass}) >= 6)){
+	$okay{pass} = 1;
+	chomp($pwhash = qx/openssl passwd -1 -salt '$postvalues{name}' '$postvalues{pass}'/);
 	$pwhash =~ s/^\$[^\$]*\$[^\$]*\$(.*)$/\1/;
 	#printf "<li>Password hashed: ($?) $pwhash </li>";
 } else {
 	#printf "<li>Password issue (mismatch or too short).</li>";
 }
 
-if(($okay{"name"} == 1) and ($okay{"pass"} == 1)){
+if(($okay{name} == 1) and ($okay{pass} == 1)){
 	$reg_okay = 1;
 
-	$sql = qq/SELECT name FROM users WHERE name='$postvalues{"name"}';/;
-	chomp($output = `sqlite3 "$database" "$sql"`);
+	$sql = qq/SELECT name FROM users WHERE name="$postvalues{name}";/;
+	chomp($output = qx/sqlite3 '$database' '$sql'/);
 	#printf "<li>Select returned: ($?) $output</li>";
 
 	if($output eq ""){
-		$sql = qq/INSERT INTO users(name, hash, pretty) values('$postvalues{"name"}', '$pwhash', '$postvalues{"name"}');/;
+		$sql = qq/INSERT INTO users(name, hash, pretty) values("$postvalues{name}", "$pwhash", "$postvalues{name}");/;
 		chomp($output = qx/sqlite3 '$database' '$sql'/);
 		#printf "<li>Insert returned: ($?) $output</li>";
 	} else {
@@ -65,18 +65,18 @@ if(($okay{"name"} == 1) and ($okay{"pass"} == 1)){
 my $redir;
 if($reg_okay == 1){
 	printf "Status: 302 Registration OK\n";
-	$redir = $postvalues{"onsuccess"};
+	$redir = $postvalues{onsuccess};
 	if($redir eq ""){
 		$redir = "/";
 	}
 	# Registration worked, so there's no reason create_session should fail...right?
-	printf "Set-Cookie: knetsid=" . qx/create_session '$postvalues{"name"}'/ . "; Path=/; Max-Age=5184000\n";
+	printf "Set-Cookie: knetsid=" . qx/create_session '$postvalues{name}'/ . "; Path=/; Max-Age=5184000\n";
 	printf "Location: $redir\n\n";
 } else {
 	printf "Status: 302 Registration Failed\n";
-	$redir = $postvalues{"onfailure"};
+	$redir = $postvalues{onfailure};
 	if($redir eq ""){
-		$redir = $ENV{"HTTP_REFERER"};
+		$redir = $ENV{HTTP_REFERER};
 		if ($redir eq ""){
 			$redir = "/";
 		}
