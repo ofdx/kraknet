@@ -7,7 +7,7 @@
 use strict;
 
 my $database = "accounts.db";
-my $cookie = $ENV{'HTTP_COOKIE'};
+my $cookie = $ENV{HTTP_COOKIE};
 
 chomp(my $homepath = qx/mod_home accounts/);
 chdir($homepath) or die "Can't get home.";
@@ -23,16 +23,16 @@ if(length($cookie) > 0){
 	}
 }
 
-my $sid = $cookies{"knetsid"};
-my $sql = qq/DELETE FROM sids WHERE id_session='$sid';/;
+my $sid = $cookies{knetsid};
+my $sql = qq/DELETE FROM sids WHERE id_session="$sid";/;
 
 my $logstat = "Failed";
 if(length($sid) > 0){
-	qx/sqlite3 "$database" "$sql"/;
+	qx/sqlite3 '$database' '$sql'/;
 	if(!$?){ $logstat = "Successful" }	
 }
 
-my $ref = $ENV{'HTTP_REFERER'};
+my $ref = $ENV{HTTP_REFERER};
 if(length($ref) <= 0){ $ref = '/' }
 
 printf "Status: 302 Logout $logstat\nLocation: $ref\n\n";

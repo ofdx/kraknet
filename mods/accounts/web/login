@@ -32,9 +32,10 @@ if(length($postdata) > 0){
 
 if($postvalues{"name"} =~ /^[a-z\d]{4,}+$/){
 #printf "Name fits rules.\n";
-	$sql = qq/SELECT hash FROM users WHERE name='$postvalues{"name"}';/;
-	chomp($pwhash = qx/openssl passwd -1 -salt '$postvalues{"name"}' '$postvalues{"pass"}'/);
+	$sql = qq/SELECT hash FROM users WHERE name="$postvalues{name}";/;
+	chomp($pwhash = qx/openssl passwd -1 -salt '$postvalues{name}' '$postvalues{pass}'/);
 	chomp($buffer = qx/sqlite3 '$database' '$sql'/);
+	warn $buffer;
 	$pwhash =~ s/^\$[^\$]*\$[^\$]*\$(.*)$/\1/;
 
 	if((length($buffer) > 0) and ($pwhash eq $buffer)){
@@ -54,14 +55,14 @@ if($postvalues{"name"} =~ /^[a-z\d]{4,}+$/){
 }
 
 if($okay == 1){
-	$redir = $postvalues{"onsuccess"};
+	$redir = $postvalues{onsuccess};
 	if($redir eq ""){
 		$redir = "/";
 	}
 } else {
-	$redir = $postvalues{"onfailure"};
+	$redir = $postvalues{onfailure};
 	if($redir eq ""){
-		$redir = $ENV{"HTTP_REFERER"};
+		$redir = $ENV{HTTP_REFERER};
 		if ($redir eq ""){
 			$redir = "/";
 		}
@@ -72,7 +73,7 @@ if($okay == 1){
 printf "Status: 302 $error\n";
 printf "Location: $redir\n";
 if($okay == 1){
-	chomp(my $sid = qx/create_session '$postvalues{"name"}'/);
+	chomp(my $sid = qx/create_session '$postvalues{name}'/);
 	if(($? == 0) and (length($sid) > 0)){
 		printf "Set-Cookie: knetsid=$sid; Path=/; Max-Age=5184000\n";
 	}
