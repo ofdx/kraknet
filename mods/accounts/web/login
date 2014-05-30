@@ -33,7 +33,7 @@ if(length($postdata) > 0){
 if($postvalues{"name"} =~ /^[a-z\d]{4,}+$/){
 #printf "Name fits rules.\n";
 	$sql = qq/SELECT hash FROM users WHERE name="$postvalues{name}";/;
-	chomp($pwhash = qx/openssl passwd -1 -salt '$postvalues{name}' '$postvalues{pass}'/);
+	chomp($pwhash = qx/echo '$postvalues{name}$postvalues{pass}' | openssl sha512/);
 	chomp($buffer = qx/sqlite3 '$database' '$sql'/);
 	warn $buffer;
 	$pwhash =~ s/^\$[^\$]*\$[^\$]*\$(.*)$/\1/;
