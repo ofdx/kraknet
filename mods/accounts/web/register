@@ -38,9 +38,11 @@ if($postvalues{name} =~ /^[a-z\d]{4,}+$/){
 
 if(($postvalues{pass} eq $postvalues{repass}) and (length($postvalues{pass}) >= 6)){
 	$okay{pass} = 1;
+
+	my $pass = $postvalues{pass};
 	$pass =~ s/\\/\\\\/g;
 	$pass =~ s/'/\\'/g;
-	chomp($pwhash = qx/echo '$postvalues{name}$postvalues{pass}' | openssl sha512/);
+	chomp($pwhash = qx/echo '$postvalues{name}$pass' | openssl sha512/);
 	$pwhash =~ s/^\$[^\$]*\$[^\$]*\$(.*)$/\1/;
 	#printf "<li>Password hashed: ($?) $pwhash </li>";
 } else {
