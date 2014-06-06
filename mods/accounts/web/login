@@ -30,14 +30,18 @@ if(length($postdata) > 0){
 	}
 }
 
-if($postvalues{"name"} =~ /^[a-z\d]{4,}+$/){
+my $username = $postvalues{name};
+$username =~ s/\\/\\\\/g;
+$username =~ s/(["'])/\\\1/g;
+
+if(length($username) > 0){
 #printf "Name fits rules.\n";
 	my $pass = $postvalues{pass};
 	$pass =~ s/\\/\\\\/g;
 	$pass =~ s/'/\\'/g;
 
-	$sql = qq/SELECT hash FROM users WHERE name="$postvalues{name}";/;
-	chomp($pwhash = qx/echo '$postvalues{name}$pass' | openssl sha512/);
+	$sql = qq/SELECT hash FROM users WHERE name="$username";/;
+	chomp($pwhash = qx/echo '$username$pass' | openssl sha512/);
 	chomp($buffer = qx/sqlite3 '$database' '$sql'/);
 
 	if((length($buffer) > 0) and ($pwhash eq $buffer)){
@@ -72,7 +76,7 @@ if($okay == 1){
 printf "Status: 302 $error\n";
 printf "Location: $redir\n";
 if($okay == 1){
-	chomp(my $sid = qx/create_session '$postvalues{name}'/);
+	chomp(my $sid = qx/create_session '$username'/);
 	if(($? == 0) and (length($sid) > 0)){
 		printf "Set-Cookie: knetsid=$sid; Path=/; Max-Age=5184000\n";
 	}

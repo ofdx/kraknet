@@ -29,7 +29,7 @@ if(length($postdata) > 0){
 	}
 }
 
-$okay{name} = 1 if($postvalues{name} =~ /^[a-z\d]{4,}+$/);
+$okay{name} = 1 if($postvalues{name} =~ /^[a-z\d_\-]{4,128}+$/);
 
 if(($postvalues{pass} eq $postvalues{repass}) and (length($postvalues{pass}) >= 6)){
 	$okay{pass} = 1;
