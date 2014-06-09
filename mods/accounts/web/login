@@ -38,10 +38,12 @@ if(length($username) > 0){
 #printf "Name fits rules.\n";
 	my $pass = $postvalues{pass};
 	$pass =~ s/\\/\\\\/g;
-	$pass =~ s/'/\\'/g;
+	$pass =~ s/'/%27/g;
 
 	$sql = qq/SELECT hash FROM users WHERE name="$username";/;
 	chomp($pwhash = qx/echo '$username$pass' | openssl sha512/);
+	$pwhash =~ s/^.*\s([a-fA-F0-9]*)$/\1/g;
+
 	chomp($buffer = qx/sqlite3 '$database' '$sql'/);
 
 	if((length($buffer) > 0) and ($pwhash eq $buffer)){
