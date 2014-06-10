@@ -17,41 +17,29 @@ void change_root(const char *path){
 }
 
 /*	Adjust paths to be relative to the root of the server's data. */
-void set_path(char *dest, char *src){
-	static char *root = NULL;
-	if(!root)
-		root = calloc(2048, sizeof(char));
+void set_path(char **dest, char *src){
+	char *root = getenv("server_home");
 
-	if(!dest){
-		strcpy(root, src);
-		return;
-	}
+	*dest = calloc(2048 + strlen(root) + strlen(src), sizeof(char));
 
-	// FIXME: this has pretty obvious potential to cause a buffer overrun.
 	if(*src != '/')
-		sprintf(dest, "%s/%s", root, src);
-	else strcpy(dest, src);
+		sprintf(*dest, "%s/%s", root, src);
+	else strcpy(*dest, src);
 }
 
 /*	Read conf the main server configuration file and handle all the details. */
 int set_env_from_conf(){
-	static char *str = NULL;
+	char *str = NULL;
 	FILE *conf, *stream;
 	char *a;
-
-	// Static buffer to translate relative paths on.
-	if(!str)
-		str = calloc(1024, sizeof(char));
 
 	/*	All other directories are assumed to be derived from here if they don't
 		begin with a / */
 	if(!(a = getenv("server_home")))
 		return error_code(-1, "server_home not set");
+
 	if(!(a = realpath(a, NULL)))
 		return error_code(-1, "Server path is inaccessible. (%s)", getenv("server_home"));
-
-	// Sets the root path for the server.
-	set_path(NULL, a);
 	free(a);
 
 	if(!(conf = get_conf_stream("serv", "r")))
@@ -69,23 +57,27 @@ int set_env_from_conf(){
 	// web_root and DOCUMENT_ROOT
 	if(!(a = get_conf_line_s(conf, "web_root", SEEK_RESET_OK)))
 		return error_code(-1, "web_root not set.");
-	set_path(str, a);
+	set_path(&str, a);
+	a = str;
 
 	// Remove symlinks
 	if(!(str = realpath(str, NULL)))
 		return error_code(-1, "web_root path inaccessible.");
 	change_root(str);
+	free(str);
+	free(a);
 
 	// mod_root
 	if(!(a = get_conf_line_s(conf, "mod_root", SEEK_RESET_OK)))
 		return error_code(-1, "mod_root not set.");
-	set_path(str, a);
+	set_path(&str, a);
 	setenv("mod_root", str, 1);
+	free(str);
 
 	// tmp_ws
 	if(!(a = get_conf_line_s(conf, "tmp_ws", SEEK_RESET_OK)))
 		return error_code(-1, "tmp_ws not set.");
-	set_path(str, a);
+	set_path(&str, a);
 	setenv("tmp_ws", str, 1);
 
 	// Create temp directory.
@@ -98,11 +90,13 @@ int set_env_from_conf(){
 			return error_code(-1, "Could not create temp directory.");
 	}
 
+	free(str);
+
 	// log_root
 	if(!(a = get_conf_line_s(conf, "log_root", SEEK_RESET_OK)))
 		error_code(0, "log_root not set in conf/serv, logging to stderr...");
 	else {
-		set_path(str, a);
+		set_path(&str, a);
 		setenv("log_root", str, 1);
 
 		mkdir(str, 0777);
@@ -120,6 +114,7 @@ int set_env_from_conf(){
 			default:
 				error_code(0, "Could not create log directory, logging to stderr...");
 		}
+		free(str);
 	}
 
 	// use_web_dir_protection
@@ -127,8 +122,8 @@ int set_env_from_conf(){
 		setenv("web_dir_protection", "yes", 1);
 	else setenv("web_dir_protection", a, 1);
 
+	// Frees the buffer.
 	fclose(conf);
-	free(str);
 	return 0;
 }
 
@@ -178,13 +173,15 @@ void calibrate_path(){
 	server = getenv("server_home");
 	host = getenv("HTTP_HOST");
 
-	if(host && server && *host){
-		path = calloc(strlen(server) + strlen(host) + 32, sizeof(char));
-		sprintf(path, "%s/domains/%s", server, host);
+	if(server && *server){
+		if(host && *host){
+			path = calloc(strlen(server) + strlen(host) + 32, sizeof(char));
+			sprintf(path, "%s/domains/%s", server, host);
 
-		if(!stat(path, &s))
-			change_root(path);
+			if(!stat(path, &s))
+				change_root(path);
 
-		free(path);
+			free(path);
+		} else change_root(server);
 	}
 }

@@ -136,7 +136,7 @@ int http_request(FILE *stream, char *uri, int method, char *post_raw_data){
 
 			// Redirect if the trailing slash is missing.
 			if(*(uri + strlen(uri) - 1) != '/'){
-				sprintf(str, "%s/", uri+strlen(getenv("web_root")));
+				sprintf(str, "%s/", uri + strlen(getenv("web_root")));
 				return (http_redirect(stream, 301, str), skiplog);
 			}
 
