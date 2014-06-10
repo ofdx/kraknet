@@ -184,7 +184,7 @@ FILE *mod_debug_stream(enum debug_stream_op op, FILE *stream){
 /*	Prints the message with a timestamp to stderr. Returns the code value
 	specified. */
 int error_code(int code, const char *msg, ...){
-	FILE *stream = mod_debug_stream(GET,NULL);
+	FILE *stream = mod_debug_stream(GET, NULL);
 	va_list va;
 
 	va_start(va, msg);

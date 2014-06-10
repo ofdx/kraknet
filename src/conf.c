@@ -163,7 +163,7 @@ int change_log_owner(uid_t uid, gid_t gid){
 	free(b);
 	closedir(dir);	
 
-	return e?error_code(0, "Warning: %d files could not be chowned.", e):0;
+	return e ? error_code(0, "Warning: %d files could not be chowned.", e) : 0;
 }
 
 void calibrate_path(){
