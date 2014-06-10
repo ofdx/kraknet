@@ -35,8 +35,7 @@ if(($postvalues{pass} eq $postvalues{repass}) and (length($postvalues{pass}) >= 
 	$okay{pass} = 1;
 
 	my $pass = $postvalues{pass};
-	$pass =~ s/\\/\\\\/g;
-	$pass =~ s/'/%27/g;
+	$pass =~ s/'/'"'"'/g;
 
 	chomp($pwhash = qx/echo '$postvalues{name}$pass' | openssl sha512/);
 	$pwhash =~ s/^.*\s([a-fA-F0-9]*)$/\1/g;

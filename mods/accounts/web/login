@@ -37,8 +37,7 @@ $username =~ s/(["'])/\\\1/g;
 if(length($username) > 0){
 #printf "Name fits rules.\n";
 	my $pass = $postvalues{pass};
-	$pass =~ s/\\/\\\\/g;
-	$pass =~ s/'/%27/g;
+	$pass =~ s/'/'"'"'/g;
 
 	$sql = qq/SELECT hash FROM users WHERE name="$username";/;
 	chomp($pwhash = qx/echo '$username$pass' | openssl sha512/);
