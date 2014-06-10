@@ -154,7 +154,7 @@ char *get_conf_line_s(FILE *stream, char *value, enum SEEK_MODE mode){
 			for(s = a; *s; s++)
 				if(*s == '=')
 					break;
-			a = (*s)?s+1:s;
+			a = (*s) ? s + 1 : s;
 
 			return_string = str;
 			strcpy(str, a);

@@ -214,6 +214,7 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 	}
 	if(pid > 0)
 		waitpid(pid, NULL, 0);
+	free(str);
 	free(*v);
 	free(v);
 	free(request_original);

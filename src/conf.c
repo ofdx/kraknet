@@ -19,8 +19,11 @@ void change_root(const char *path){
 /*	Adjust paths to be relative to the root of the server's data. */
 void set_path(char *dest, char *src){
 	static char *root = NULL;
+	if(!root)
+		root = calloc(2048, sizeof(char));
+
 	if(!dest){
-		root = src;
+		strcpy(root, src);
 		return;
 	}
 
@@ -49,6 +52,7 @@ int set_env_from_conf(){
 
 	// Sets the root path for the server.
 	set_path(NULL, a);
+	free(a);
 
 	if(!(conf = get_conf_stream("serv", "r")))
 		return error_code(-1, "Can't read serv config.");
@@ -124,6 +128,7 @@ int set_env_from_conf(){
 	else setenv("web_dir_protection", a, 1);
 
 	fclose(conf);
+	free(str);
 	return 0;
 }
 

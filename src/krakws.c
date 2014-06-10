@@ -149,6 +149,8 @@ int main(int argc, char**argv){
 
 				// End of child process
 				kws_fclose(request_stream);
+				free(request_stream);
+				close(sockfd_client);
 				exit(0);
 			}
 
@@ -164,6 +166,7 @@ int main(int argc, char**argv){
 	if(pid > 0)
 		printf("Server started on port %d. [%d]\n", port, pid);
 	else printf("Failed\n");
+
 	return 0;
 }
 

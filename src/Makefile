@@ -12,7 +12,7 @@ C=.
 O=o
 BIN=../bin
 LIB=../lib
-CC=gcc -L$(LIB) -I$(I)
+CC=gcc -L$(LIB) -I$(I) -s
 
 all: $(O) $(BIN) $(LIB) $(LIB)/libkraknet.so $(BIN)/ws $(BIN)/mod_find $(BIN)/mod_home $(BIN)/kraknet $(BIN)/decode
 
@@ -31,7 +31,7 @@ $(LIB)/libkraknet.so: $(C)/generic.c $(C)/utc_date.c $(C)/http11.c
 
 # krakws (web server)
 $(BIN)/ws: $(C)/krakws.c $(O)/conf.o $(O)/handler.o $(LIB)/libkraknet.so
-	$(CC) -Wall -o $(BIN)/ws -s $(C)/krakws.c $(O)/conf.o $(O)/handler.o -lkraknet
+	$(CC) -Wall -o $(BIN)/ws $(C)/krakws.c $(O)/conf.o $(O)/handler.o -lkraknet
 
 $(O)/conf.o: $(C)/conf.c $(I)/conf.h $(I)/generic.h
 	$(CC) -c $(C)/conf.c -o $(O)/conf.o
@@ -41,20 +41,20 @@ $(O)/handler.o: $(C)/handler.c $(I)/handler.h $(I)/generic.h $(I)/conf.h $(I)/ht
 
 # mod_find (module:script locator)
 $(BIN)/mod_find: $(C)/mod_find.c $(I)/generic.h $(LIB)/libkraknet.so
-	$(CC) -o $(BIN)/mod_find -s $(C)/mod_find.c -lkraknet
+	$(CC) -o $(BIN)/mod_find $(C)/mod_find.c -lkraknet
 
 # mod_home
 $(BIN)/mod_home: $(C)/mod_home.c $(I)/generic.h $(LIB)/libkraknet.so
-	$(CC) -o $(BIN)/mod_home -s $(C)/mod_home.c -lkraknet
+	$(CC) -o $(BIN)/mod_home $(C)/mod_home.c -lkraknet
 
 
 # kraknet (text parsing)
 $(BIN)/kraknet: $(C)/kraknet.c $(LIB)/libkraknet.so
-	$(CC) -o $(BIN)/kraknet -s $(C)/kraknet.c -lkraknet
+	$(CC) -o $(BIN)/kraknet $(C)/kraknet.c -lkraknet
 
 # decode (URI Unescape)
 $(BIN)/decode: $(C)/decode.c
-	$(CC) -o $(BIN)/decode -s $(C)/decode.c
+	$(CC) -o $(BIN)/decode $(C)/decode.c
 
 
 # directories
