@@ -25,12 +25,12 @@ char **chop_words(const char *src){
 		return NULL;
 
 	str = calloc(1 + strlen(src), sizeof(char));
-	*(v = malloc(count * sizeof(char**)))=str;
+	*(v = malloc(count * sizeof(char**))) = str;
 	strcpy(str, src);
 
 	*(v + count - 1) = strtok_r(str, WORDS_DELIMINATOR, &r);
 	do v = realloc(v, ++count * sizeof(char**));
-	while(*(v + count - 1)=strtok_r(NULL, WORDS_DELIMINATOR, &r));
+	while(*(v + count - 1) = strtok_r(NULL, WORDS_DELIMINATOR, &r));
 
 	return v;
 }
@@ -269,6 +269,7 @@ int mod_find(char *mod, char *script, char *args){
 int mod_find_ps(char *mod_script, char *args, char **ret){
 	char *mod, *script;
 	char *s, *str;
+	int code;
 
 	str = mod_script;
 	if(!(s = strstr(str, ":")))
@@ -284,12 +285,16 @@ int mod_find_ps(char *mod_script, char *args, char **ret){
 	// Fix original data.
 	*(s - 1) = ':';
 
-	return mod_find_p(mod, script, args, ret);
+	code = mod_find_p(mod, script, args, ret);
+	free(mod);
+	free(script);
+
+	return code;
 }
 
 int kws_fclose(FILE **stream){
 	FILE *f = *stream;
 
 	*stream = NULL;
-	return (f)?fclose(f):0;
+	return f ? fclose(f) : 0;
 }

@@ -58,6 +58,10 @@ void serve(FILE *r){
 		}
 		fputs(b, stdout);
 	}	while(getline(&b_r, &b_size, r) != -1);
+
+	free(b_r);
+	free(buf);
+	free(str);
 }
 
 int main(int argc, char **argv){

@@ -141,7 +141,7 @@ int http_request(FILE *stream, char *uri, int method, char *post_raw_data){
 			}
 
 			// Check conf/serv for a list of default documents.
-			sprintf(str, "%s/serv", (s=getenv("conf_dir"))?s:".");
+			sprintf(str, "%s/serv", (s = getenv("conf_dir")) ? s : ".");
 			if((s = get_conf_line(str, "default_documents"))){
 				unquote_str(s);
 
@@ -155,7 +155,7 @@ int http_request(FILE *stream, char *uri, int method, char *post_raw_data){
 
 					sprintf(str, "%s/%s", uri, s);
 					if(stat(str, &sbuf) < 0)
-						s = (c)?b+1:b;
+						s = (c ? b + 1 : b);
 					else break;
 				}
 
@@ -207,8 +207,8 @@ int http_request(FILE *stream, char *uri, int method, char *post_raw_data){
 			}
 
 			if(post_data_fname)
-				sprintf(str, "%s\"%s\" < %s %s", s?"kraknet ":"", listing_mode?"list":uri, post_data_fname, (getenv("log_root"))?"2>>$log_root/cgi.log":"");
-			else sprintf(str, "%s\"%s\" %s", s?"kraknet ":"", listing_mode?"list":uri, (getenv("log_root"))?"2>>$log_root/cgi.log":"");
+				sprintf(str, "%s\"%s\" < %s %s", (s ? "kraknet " : ""), (listing_mode ? "list" : uri), post_data_fname, (getenv("log_root") ? "2>>$log_root/cgi.log" : ""));
+			else sprintf(str, "%s\"%s\" %s", (s ? "kraknet " : ""), (listing_mode ? "list" : uri), (getenv("log_root") ? "2>>$log_root/cgi.log" : ""));
 
 			if((cgi_pipe = popen(str, "r"))){
 				// Read CGI headers from script.
@@ -232,8 +232,10 @@ int http_request(FILE *stream, char *uri, int method, char *post_raw_data){
 				pclose(cgi_pipe);
 
 				//Clean up temp data.
-				if(post_data_fname)
+				if(post_data_fname){
 					unlink(post_data_fname);
+					free(post_data_fname);
+				}
 
 				// TODO: Parse CGI header and correct it.
 				status = calloc(256, sizeof(char));
@@ -257,9 +259,13 @@ int http_request(FILE *stream, char *uri, int method, char *post_raw_data){
 					fprintf(stream, "Connection: %s\r\n", (conn_mode == KEEP_ALIVE)?"keep-alive":"close");
 
 				// Print \r\n terminated header lines.
-				for(a = cgi_headers; *a; a++)
+				for(a = cgi_headers; *a; a++){
 					if(**a)
 						fprintf(stream, "%s\r\n", *a);
+					free(*a);
+				}
+				free(cgi_headers);
+
 				fprintf(stream, "Content-length: %ld\r\n", count);
 				fputs("\r\n", stream);
 

@@ -178,17 +178,20 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 			setenv("REQUEST_METHOD", method, 1);
 			// Skipping PATH_INFO and PATH_TRANSLATED
 			setenv("SCRIPT_NAME", uri, 1);
-			setenv("QUERY_STRING", (query)?query:"", 1);
+			setenv("QUERY_STRING", (query ? query : ""), 1);
 			setenv("REMOTE_ADDR", (char*)inet_ntoa(socket_addr_client.sin_addr), 1);
 			// Skipping CONTENT_TYPE and CONTENT_LENGTH
+
+			free(query);
 
 			if(!strcasecmp(method, "HEAD"))
 				skiplog = http_request(request_stream, str, HEAD, NULL);
 			else if(!strcasecmp(method, "GET"))
 				skiplog = http_request(request_stream, str, GET, NULL);
-			else if(!strcasecmp(method, "POST"))
+			else if(!strcasecmp(method, "POST")){
 				skiplog = http_request(request_stream, str, POST, post_raw_data);
-			else http_default_error(request_stream, 501, "Method Not Implemented.");
+				free(post_raw_data);
+			} else http_default_error(request_stream, 501, "Method Not Implemented.");
 
 		} else http_default_error(request_stream, 401, "Permission denied.");
 		
@@ -212,6 +215,7 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 	if(pid > 0)
 		waitpid(pid, NULL, 0);
 	free(*v);
+	free(v);
 	free(request_original);
 
 	// Handle another request if connection was keep-alive.

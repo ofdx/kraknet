@@ -131,7 +131,7 @@ int main(int argc, char**argv){
 				return error_code(1, "General Configuration issue. ** Server stopping. **");
 
 			// Fork if a client connection accepts successfully.
-			if(sockfd_client<0)
+			if(sockfd_client < 0)
 				printf("No connection.\n");
 			else if(!(pid = fork())){
 				close(sockfd);
