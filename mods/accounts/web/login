@@ -30,6 +30,12 @@ if(length($postdata) > 0){
 	}
 }
 
+# Rough estimate of acceptable domain names. Probably fine.
+my $domain = $postvalues{domain};
+if(!($domain =~ /^[a-zA-Z0-9.-]{3,}$/)){
+	$domain = "";
+}
+
 my $username = $postvalues{name};
 $username =~ s/\\/\\\\/g;
 $username =~ s/(["'])/\\\1/g;
@@ -79,7 +85,7 @@ printf "Location: $redir\n";
 if($okay == 1){
 	chomp(my $sid = qx/create_session '$username'/);
 	if(($? == 0) and (length($sid) > 0)){
-		printf "Set-Cookie: knetsid=$sid; Path=/; Max-Age=5184000\n";
+		printf "Set-Cookie: knetsid=$sid; Path=/;" . ((length($domain) > 0) ? " Domain=$domain;" : "") . " Max-Age=5184000\n";
 	}
 }
 
