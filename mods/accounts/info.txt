@@ -2,3 +2,4 @@
 # Mike Perron (2014)
 auth=sh/auth.pl
 id=sh/id.pl
+domain=sh/domain.sh
