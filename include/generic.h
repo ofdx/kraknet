@@ -8,18 +8,8 @@
 
 	General functions to patch things together for krakws.
 */
-
 #ifndef KWS_GENERIC_F
 #define KWS_GENERIC_F
-
-#define _GNU_SOURCE
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
-#include "utc_date.h"
 
 #define WORDS_DELIMINATOR " \t\r\n"
 

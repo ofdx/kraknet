@@ -17,10 +17,6 @@
 #ifndef KRAKNET_UTC_DATE_H
 #define KRAKNET_UTC_DATE_H
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-
 #define KRAKNET_POST "%Y%m%d%H%M%S"
 #define KRAKNET_TIMESTAMP "%l:%M:%S %P"
 

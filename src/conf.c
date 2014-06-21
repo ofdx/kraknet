@@ -8,6 +8,17 @@
 
 	Functions for handling configuration for Kraknet.
 */
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <unistd.h>
+#include <pwd.h>
+#include <dirent.h>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include "conf.h"
 
 void change_root(const char *path){

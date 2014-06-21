@@ -14,6 +14,10 @@
 	Note that post_time allocates 32 bytes of memory for the formatted string
 	and returns a pointer to a statically allocated buffer.
 */
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+
 #include "utc_date.h"
 
 char *post_time(const char *fmt, int nano){

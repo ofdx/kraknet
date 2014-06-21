@@ -14,6 +14,18 @@
 	both GET and POST depending on the flag (since the two requests are
 	fundamentally similar).
 */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <strings.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <time.h>
+
+#include "utc_date.h"
+
 #include "http11.h"
 enum conn_mode { CLOSE, KEEP_ALIVE, UNSET };
 

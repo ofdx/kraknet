@@ -11,18 +11,7 @@
 #ifndef KWS_HTTP_11
 #define KWS_HTTP_11
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <strings.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <time.h>
-
 #include "generic.h"
-#include "utc_date.h"
 
 #define GET 	0
 #define POST	1

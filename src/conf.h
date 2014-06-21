@@ -8,21 +8,8 @@
 
 	Functions for handling configuration for Kraknet.
 */
-
 #ifndef KRAKNET_CONF_H
 #define KRAKNET_CONF_H
-
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <unistd.h>
-#include <pwd.h>
-#include <dirent.h>
-
-#include <sys/types.h>
-#include <sys/stat.h>
-
 #include "generic.h"
 
 extern void change_root(const char *path);

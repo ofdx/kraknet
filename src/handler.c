@@ -1,3 +1,26 @@
+#define _GNU_SOURCE
+
+#include <ctype.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <pwd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <signal.h>
+#include <unistd.h>
+
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+
+#include "http11.h"
+#include "generic.h"
+#include "conf.h"
+
 #include "handler.h"
 
 static void log_response(char *remote_addr, char *user_identifier, char *user_name, char *date, char *request, int http_response, int bytes){

@@ -11,6 +11,16 @@
 	unescape_url and x2c are borrowed from the NCSA HTTPD server example
 	CGI application.
 */
+#define _GNU_SOURCE
+
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include "utc_date.h"
+
 #include "generic.h"
 
 /*	Splits words at spaces and tabs. This function creates a copy of the
