@@ -105,7 +105,7 @@ char *get_mime_type(char *filename){
 }
 
 // GET and POST is handled here.
-int http_request(FILE *stream, char *uri, int method, char *post_raw_data){
+http_loggable http_request(FILE *stream, char *uri, int method, char *post_raw_data){
 	char **a, *mime_type, *cgi_content = NULL;
 	char *s, *str, *b, **cgi_headers = NULL;
 	char *status;
@@ -121,9 +121,9 @@ int http_request(FILE *stream, char *uri, int method, char *post_raw_data){
 	FILE *content, *cgi_pipe;
 	struct stat sbuf;
 
-	enum conn_mode conn_mode=CLOSE;
+	enum conn_mode conn_mode = CLOSE;
 
-	int skiplog = 0;
+	http_loggable event = (http_loggable){ 0, -1 };
 
 	// Whether we will persist the TCP connection.
 	if((s = getenv("CONNECTION_MODE")) && !strcasecmp(s, "keep-alive"))
@@ -137,11 +137,11 @@ int http_request(FILE *stream, char *uri, int method, char *post_raw_data){
 		post_length = atoi(s);
 
 	if(strstr(uri, "/../"))
-		return (http_default_error(stream, 401, "Permission Denied."), skiplog);
+		return (http_default_error(stream, event.code = 401, "Permission Denied."), event);
 
 	// Stat the file.
 	if(stat(uri, &sbuf) == -1)
-		return (http_default_error(stream, 404, "File Not Found."), skiplog);
+		return (http_default_error(stream, event.code = 404, "File Not Found."), event);
 	else {
 		if(S_ISDIR(sbuf.st_mode)){
 			str = calloc(strlen(uri) + 256, sizeof(char));
@@ -149,7 +149,7 @@ int http_request(FILE *stream, char *uri, int method, char *post_raw_data){
 			// Redirect if the trailing slash is missing.
 			if(*(uri + strlen(uri) - 1) != '/'){
 				sprintf(str, "%s/", uri + strlen(getenv("web_root")));
-				return (http_redirect(stream, 301, str), skiplog);
+				return (http_redirect(stream, event.code = 301, str), event);
 			}
 
 			// Check conf/serv for a list of default documents.
@@ -179,7 +179,7 @@ int http_request(FILE *stream, char *uri, int method, char *post_raw_data){
 				if(s = strstr(str, getenv("web_root")))
 					s += strlen(getenv("web_root"));
 				else s = str;
-				return (http_redirect(stream, 301, s), skiplog);
+				return (http_redirect(stream, event.code = 301, s), event);
 			}
 			unsetenv("kws_pot_err");
 
@@ -256,14 +256,15 @@ int http_request(FILE *stream, char *uri, int method, char *post_raw_data){
 					if(!strncasecmp(*a, "Status: ", 8)){
 						strcpy(status, *a + 8);
 						if(!*status)
-							return (http_default_error(stream, 500, "Status was ill-defined."), skiplog);
+							return (http_default_error(stream, event.code = 500, "Status was ill-defined."), event);
 						**a = 0;
 					}
 					else if(!strncasecmp(*a, "Connection: ", 12))
 						conn_mode = UNSET;
 					else if(!strncasecmp(*a, "krakws-skiplog: ", 16))
-						skiplog = 1;
+						event.skiplog = 1;
 				}
+				event.code = atoi(status);
 				fprintf(stream, "%s %s\r\n", getenv("SERVER_PROTOCOL"), status);
 				fprintf(stream, "Date: %s\r\n", http_date(0));
 				fprintf(stream, "Server: %s\r\n", KWS_SERVER_NAME);
@@ -287,7 +288,7 @@ int http_request(FILE *stream, char *uri, int method, char *post_raw_data){
 
 				free(cgi_content);
 				free(status);
-			} else return (http_default_error(stream, 501, "CGI Error."), skiplog);
+			} else return (http_default_error(stream, event.code = 501, "CGI Error."), event);
 			free(str);
 		} else {
 			/**********************************************
@@ -295,9 +296,10 @@ int http_request(FILE *stream, char *uri, int method, char *post_raw_data){
 			**********************************************/
 			// Header output
 			if(!mime_type)
-				return (http_default_error(stream, 500, "MIME Type Not Found."), skiplog);
+				return (http_default_error(stream, event.code = 500, "MIME Type Not Found."), event);
 			else {
 				if(mod_time_check(sbuf.st_mtime)){
+					event.code = 304;
 					fprintf(stream, "HTTP/1.1 304 Not Modified\r\n");
 					fprintf(stream, "Last-Modified: %s\r\n", http_date(sbuf.st_mtime - time(0)));
 					fprintf(stream,
@@ -311,6 +313,7 @@ int http_request(FILE *stream, char *uri, int method, char *post_raw_data){
 						mime_type, sbuf.st_size
 					);
 				} else {
+					event.code = 200;
 					fprintf(stream, "HTTP/1.1 200 OK\r\n");
 					fprintf(stream, "Last-Modified: %s\r\n", http_date(sbuf.st_mtime - time(0)));
 					fprintf(stream,
@@ -340,7 +343,7 @@ int http_request(FILE *stream, char *uri, int method, char *post_raw_data){
 		}
 	}
 	free(uri);
-	return skiplog;
+	return event;
 }
 
 void http_default_error(FILE *stream, int code, const char *optional_msg){

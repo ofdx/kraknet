@@ -18,8 +18,13 @@
 #define HEAD	2
 #define KWS_SERVER_NAME "krakws (dev)"
 
+typedef struct http_loggable {
+	int skiplog;
+	int code;
+} http_loggable;
+
 extern char *get_mime_type(char *filename);
-extern int http_request(FILE *stream, char *uri, int method, char *post_raw_data);
+extern http_loggable http_request(FILE *stream, char *uri, int method, char *post_raw_data);
 extern void http_default_error(FILE *stream, int code, const char *optional_msg);
 extern char *http_date(time_t offset_sec);
 extern void http_redirect(FILE *stream, int code, const char *uri_moved);

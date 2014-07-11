@@ -113,7 +113,7 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 	char *post_raw_data, *request_original;
 	char *a, *web_root, *cmp_web_root, buf[64];
 
-	int skiplog = 0;
+	http_loggable event;
 	pid_t pid = 0;
 
 	// Hold the door open.
@@ -208,25 +208,25 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 			free(query);
 
 			if(!strcasecmp(method, "HEAD"))
-				skiplog = http_request(request_stream, str, HEAD, NULL);
+				event = http_request(request_stream, str, HEAD, NULL);
 			else if(!strcasecmp(method, "GET"))
-				skiplog = http_request(request_stream, str, GET, NULL);
+				event = http_request(request_stream, str, GET, NULL);
 			else if(!strcasecmp(method, "POST")){
-				skiplog = http_request(request_stream, str, POST, post_raw_data);
+				event = http_request(request_stream, str, POST, post_raw_data);
 				free(post_raw_data);
 			} else http_default_error(request_stream, 501, "Method Not Implemented.");
 
 		} else http_default_error(request_stream, 401, "Permission denied.");
 		
 		// Log this request.
-		if(!skiplog)
+		if(!event.skiplog)
 			log_response(
 				(char*)inet_ntoa(socket_addr_client.sin_addr), // Remote address
 				"-", // User identifier
 				"-", // User name
 				"-", // Formated date (e.g. [10/Oct/2000:13:55:35 -0700])
 				request_original, // Request (e.g. "GET / HTTP/1.1")
-				-1, // Reponse code (e.g. 200)
+				event.code, // Reponse code (e.g. 200)
 				-1 // Response bytes
 			);
 
