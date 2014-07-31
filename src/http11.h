@@ -16,7 +16,7 @@
 #define GET 	0
 #define POST	1
 #define HEAD	2
-#define KWS_SERVER_NAME "krakws (dev)"
+#define KWS_SERVER_NAME "krakws/1.0 (Linux)"
 
 typedef struct http_loggable {
 	int skiplog;
