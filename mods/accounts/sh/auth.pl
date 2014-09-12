@@ -3,16 +3,15 @@
 #
 # Verify that a given session is valid.
 
-my $homepath = `mod_home accounts`;
-my $database = "accounts.db";
+use strict;
+use DBI;
 
 sub fail {
 	printf "NO $_[0]";
 	exit 0
 }
 
-chomp($homepath);
-chdir($homepath) or &fail("Error");
+my $dbh = DBI->connect('dbi:mysql:kws', 'kraknet', '') or &fail("could not access DB");
 
 my $buffer = $ENV{HTTP_COOKIE};
 my %cookies;
@@ -28,8 +27,13 @@ if(length($buffer) > 0){
 
 my $sid = $cookies{knetsid};
 if(length($sid) > 0){
-	my $sql = qq{SELECT users.name FROM users LEFT JOIN sids ON users.id_user = sids.id_user WHERE sids.id_session="$sid";};
-	my $name = qx{sqlite3 '$database' '$sql'};
+	my $sql = qq{SELECT users.name FROM users LEFT JOIN sids ON users.id_user = sids.id_user WHERE sids.id_session = ?;};
+	my $sth = $dbh->prepare($sql);
+	$sth->execute($sid);
+
+	my @row = $sth->fetchrow_array();
+	my $name = $row[0];
+
 	if(length($name) > 0){
 		printf "OK $name";
 	} else {

@@ -2,32 +2,43 @@
 # Create a clean accounts database.
 
 cat << EOF
-WARNING! This will destroy the database file.
+WARNING! Before proceeding, please make sure that a user "kraknet" has
+all permissions to kws.* in MySQL, and that your MySQL server is
+running.
+
+To configure as such, log into your MySQL with this command:
+	mysql -u root -p
+
+Create the database:
+	create database kws;
+
+And grant permissions:
+	grant all on kws.* to 'kraknet'@'localhost';
+
 
 Press [Ctrl-C] to cancel or [ENTER] to continue.
 EOF
 read meow
 
-database="accounts.db"
-schema="CREATE TABLE users (
-	id_user INTEGER PRIMARY KEY AUTOINCREMENT,
-	name VARCHAR,
-	hash VARCHAR,
-	pretty VARCHAR,
+database="kws"
+schema="
+DROP TABLE IF EXISTS users;
+CREATE TABLE users (
+	id_user INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	name VARCHAR(512),
+	hash VARCHAR(512),
+	pretty VARCHAR(512),
 	created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+DROP TABLE IF EXISTS sids;
 CREATE TABLE sids (
-	id_session VARCHAR,
-	id_user INTEGER,
-	created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-"
+	id_session VARCHAR(128) NOT NULL PRIMARY KEY,
+	id_user INTEGER NOT NULL,
+	created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);"
 
-if [ -e "$database" ]; then
-	rm -vf "$database"
-fi
-
-if sqlite3 "$database" <<< "$schema"; then
+if mysql -u kraknet "$database" <<< "$schema"; then
 	echo "Database created."
 else
 	echo "WARNING: Error encountered."

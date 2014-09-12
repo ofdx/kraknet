@@ -5,13 +5,11 @@
 # A script to destroy the current session.
 
 use strict;
+use DBI;
 
-my $database = "accounts.db";
+my $dbh = DBI->connect('dbi:mysql:kws', 'kraknet', '') or &fail("could not access DB");
+
 my $cookie = $ENV{HTTP_COOKIE};
-
-chomp(my $homepath = qx/mod_home accounts/);
-chdir($homepath) or die "Can't get home.";
-
 my %cookies;
 if(length($cookie) > 0){
 	my @pairs = split(/[;&]/, $cookie);
@@ -29,10 +27,12 @@ if(!($sid =~ /^[a-zA-Z]*$/)){
 	exit 0
 }
 
-my $sql = qq/DELETE FROM sids WHERE id_session="$sid";/;
+my $sql = qq/DELETE FROM sids WHERE id_session = ?;/;
+my $sth = $dbh->prepare($sql);
+
 my $logstat = "Failed";
 if(length($sid) > 0){
-	qx/sqlite3 '$database' '$sql'/;
+	$sth->execute($sid);
 	if(!$?){ $logstat = "Successful" }	
 }
 

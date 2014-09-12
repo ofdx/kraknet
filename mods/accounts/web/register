@@ -5,19 +5,15 @@
 # Create a new entry in the accounts database.
 
 use strict;
+use DBI;
 
-my $homepath = `mod_home accounts`;
-my $database = "accounts.db";
+my $dbh = DBI->connect('dbi:mysql:kws', 'kraknet', '') or &fail("could not access DB");
+
 my $postdata = <STDIN>;
 my %postvalues;
 my $reg_okay = 0;
 my %okay;
 my $pwhash;
-my $output;
-my $sql;
-
-chomp($homepath);
-chdir($homepath) or die "Can't get home.";
 
 if(length($postdata) > 0){
 	my @pairs = split(/[;&]/, $postdata);
@@ -50,12 +46,14 @@ if(($postvalues{pass} eq $postvalues{repass}) and (length($postvalues{pass}) >= 
 if(($okay{name} == 1) and ($okay{pass} == 1)){
 	$reg_okay = 1;
 
-	$sql = qq/SELECT name FROM users WHERE name="$postvalues{name}";/;
-	chomp($output = qx/sqlite3 '$database' '$sql'/);
+	my $sql = qq/SELECT name FROM users WHERE name = ?;/;
+	my $sth = $dbh->prepare($sql);
+	$sth->execute($postvalues{name});
 
-	if($output eq ""){
-		$sql = qq/INSERT INTO users(name, hash, pretty) values("$postvalues{name}", "$pwhash", "$postvalues{name}");/;
-		chomp($output = qx/sqlite3 '$database' '$sql'/);
+	if(!$sth->fetchrow_array()){
+		$sql = qq/INSERT INTO users(name, hash, pretty) values(?, ?, ?);/;
+		$sth = $dbh->prepare($sql);
+		$sth->execute($postvalues{name}, $pwhash, $postvalues{name});
 	} else {
 		$reg_okay = 0;
 	}

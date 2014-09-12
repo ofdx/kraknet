@@ -1,17 +1,23 @@
 #!/usr/bin/perl
 use strict;
+use DBI;
 
-my $database = "accounts.db";
-chomp(my $homepath = `mod_home accounts`);
-chdir($homepath) or die "Can't get home";
+my $dbh = DBI->connect('dbi:mysql:kws', 'kraknet', '') or &fail("could not access DB");
 
 chomp(my $auth = qx/mod_find accounts:auth/);
 if($? != 0){ die "Bad Auth" }
 $auth =~ s/^OK (.*)$/\1/ or die "Can't grep username";
 
-my $sql = qq/SELECT id_user FROM users WHERE name="$auth";/;
-my $id_user = qx/sqlite3 '$database' '$sql'/;
-if($? != 0){ die "Can't select id_user" }
+my $sql = qq/SELECT id_user FROM users WHERE name = ?;/;
+my $sth = $dbh->prepare($sql);
+$sth->execute($auth);
 
-printf "$id_user";
-exit 0
+my @row = $sth->fetchrow_array();
+if($row[0]){
+	my $id_user = $row[0];
+
+	printf "$id_user";
+	exit 0
+} else {
+	die "Can't select id_user"
+}
