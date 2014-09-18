@@ -25,7 +25,7 @@ $sql = qq{SELECT users.name FROM users LEFT JOIN sids ON users.id_user = sids.id
 $sth = $dbh->prepare($sql);
 
 while(1){
-	my $sid = qx{tr -dc "[:alpha:]" < /dev/urandom | head -c 64};
+	my $sid = qx{tr -dc "[:alpha:]" < /dev/urandom 2>/dev/null | head -c 64};
 	$sth->execute($sid);
 
 	if(!$sth->fetchrow_array()){
