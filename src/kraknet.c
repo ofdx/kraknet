@@ -19,6 +19,9 @@
 #include "generic.h"
 #include "http11.h"
 
+// If this value is true, print out HTTP headers.
+char print_headers = 1;
+
 void serve(FILE *r){
 	char *str, *s, *seek;
 	char *buf, *b, *b_r;
@@ -31,9 +34,12 @@ void serve(FILE *r){
 			break;
 		if(b_r[1] == '#')
 			continue;
-		fputs(b_r + 1, stdout);
+
+		if(print_headers)
+			fputs(b_r + 1, stdout);
 	}	
-	fputs("\r\n", stdout);
+	if(print_headers)
+		fputs("\r\n", stdout);
 
 	str = calloc(n = 256, sizeof(char));
 	do{	b = b_r;
@@ -71,11 +77,16 @@ int main(int argc, char **argv){
 	size_t b_size = 256, n;
 	FILE *r;
 
+	// If this is an "inline" rendering, HTTP headers are probably not wanted.
+	if(argv[0] && !strcmp(argv[0], "kraknet_inline"))
+		print_headers = 0;
 
 	// Find server's HTML MIME type. (conf/mime)
-	str = get_mime_type("index.html");
-	printf("Content-Type: %s\r\n", str);
-	free(str);
+	if(print_headers){
+		str = get_mime_type("index.html");
+		printf("Content-Type: %s\r\n", str);
+		free(str);
+	}
 
 	if(!(home_dir = getenv("mod_root"))){
 		printf("\nBad configuration\n");
@@ -94,7 +105,7 @@ int main(int argc, char **argv){
 			setenv("kraknet_user", buf + 3, 1);
 			setenv("kraknet_user_ip", (s = getenv("HTTP_X_FORWARDED_FOR"))?s:getenv("REMOTE_ADDR"), 1);
 			setenv("kraknet_user_auth", "OK", 1);
-		} //else printf("Set-Cookie: sid=deleted; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Path=/\r\n");
+		}
 	}
 	free(buf);
 	//End accounts magic
