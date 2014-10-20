@@ -12,7 +12,7 @@ C=.
 O=o
 BIN=../bin
 LIB=../lib
-CC=gcc -L$(LIB) -I$(I) -s
+CC=gcc -L$(LIB) -I$(I) -s -O3
 
 all: $(O) $(BIN) $(LIB) $(LIB)/libkraknet.so $(BIN)/ws $(BIN)/mod_find $(BIN)/mod_home $(BIN)/kraknet $(BIN)/decode
 

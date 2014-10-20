@@ -109,8 +109,8 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 	char **v;
 	char *method, *uri, *http_standard, *query;
 
-	int post_length;
-	char *post_raw_data, *request_original;
+	int post_length = 0;
+	char *post_raw_data = NULL, *request_original;
 	char *a, *web_root, *cmp_web_root, buf[64];
 
 	http_loggable event;
