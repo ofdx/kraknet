@@ -3,3 +3,5 @@
 auth=sh/auth.pl
 id=sh/id.pl
 domain=sh/domain.sh
+authdomain=sh/authdomain.sh
+loginref=sh/loginref.sh

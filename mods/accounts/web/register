@@ -61,7 +61,7 @@ if(($okay{name} == 1) and ($okay{pass} == 1)){
 
 my $redir;
 if($reg_okay == 1){
-	printf "Status: 302 Registration OK\n";
+	printf "Status: 200 Registration OK\n";
 	$redir = $postvalues{onsuccess};
 	if($redir eq ""){
 		$redir = "/";
@@ -69,9 +69,19 @@ if($reg_okay == 1){
 
 	# Registration worked, so there's no reason create_session should fail...right?
 	printf "Set-Cookie: knetsid=" . qx/create_session '$postvalues{name}'/ . "; Path=/;" . ((length($domain) > 0) ? " Domain=$domain;" : "") . " Max-Age=5184000\n";
-	printf "Location: $redir\n\n";
+
+	print qq{Content-Type: text/html; charset=utf-8
+
+<!DOCTYPE html>
+<html><head>
+	<title>Redirecting...</title>
+	<meta http-equiv="refresh" content="0;$redir">
+</head><body>
+	<p>Redirecting you to <a href="$redir">$redir</a>...</p>
+</body></html>
+	};
 } else {
-	printf "Status: 302 Registration Failed\n";
+	printf "Status: 200 Registration Failed\n";
 	$redir = $postvalues{onfailure};
 	if($redir eq ""){
 		$redir = $ENV{HTTP_REFERER};
@@ -79,7 +89,17 @@ if($reg_okay == 1){
 			$redir = "/";
 		}
 	}
-	printf "Location: $redir\n\n";
+
+	print qq{Content-Type: text/html; charset=utf-8
+
+<!DOCTYPE html>
+<html><head>
+	<title>Redirecting...</title>
+	<meta http-equiv="refresh" content="0;$redir">
+</head><body>
+	<p>Redirecting you to <a href="$redir">$redir</a>...</p>
+</body></html>
+	};
 }
 
 exit 0

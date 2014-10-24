@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html><head>
+	<title>Kraknet - Login</title>
+	<meta charset=utf-8>
+	<link rel=stylesheet type=text/css href=css/login.css>
+</head><body>
+	<div id=contentpane>
+		<h2>kraknet</h2>
+		<div class=inlineblock>
+			<h3>login</h3>
+			<form name=loginform method=post action=login>
+				<input type=hidden name=onsuccess value="<????accounts:loginref>">
+				<input type=hidden name=domain value="<????accounts:domain>">
+
+				<div>
+					<label for=name>username</label>
+					<input name=name id=name>
+				</div>
+
+				<div>
+					<label for=pass>password</label>
+					<input type=password name=pass id=pass>
+				</div>
+
+				<input type=submit value=Login>
+			</form>
+		</div>
+
+		<div id=help class=inlineblock>
+			<p>Welcome to the new kraknet! Old krakchat accounts will <b>not</b> work; you will need to make a new one.</p>
+			<p>Usernames should be at least four characters, with any combination of lowercase letters, numbers, hyphens, and underscores.</p>
+			<p>Passwords can be anything you want, but must be at least six characters.</p>
+		</div>
+
+		<div class=inlineblock>
+			<h3>register</h3>
+			<form method=post action=register>
+				<input type=hidden name=onsuccess value="<????chat:loginref>">
+				<input type=hidden name=domain value="<????accounts:domain>">
+
+				<div>
+					<label for=reg_name>username</label>
+					<input name=name id=reg_name>
+				</div>
+
+				<div>
+					<label for=reg_pass>password</label>
+					<input type=password name=pass id=reg_pass>
+				</div>
+
+				<div id=password_retype>
+					<label for=reg_repass>repassword</label>
+					<input type=password name=repass id=reg_repass>
+				</div>
+
+				<input type=submit value=Register>
+			</form>
+		</div>
+	</div>
+</body></html>

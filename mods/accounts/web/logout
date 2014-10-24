@@ -37,7 +37,16 @@ if(length($sid) > 0){
 }
 
 my $ref = $ENV{HTTP_REFERER};
-if(length($ref) <= 0){ $ref = '/' }
+$ref = "/" if(!$ref);
+print qq{Content-Type: text/html; charset=utf-8
 
-printf "Status: 302 Logout $logstat\nLocation: $ref\n\n";
+<!DOCTYPE html>
+<html><head>
+	<title>Logout successful</title>
+	<meta http-equiv="refresh" content="0;$ref">
+</head><body>
+	<p>Redirecting you to <a href="$ref">$ref</a>...</p>
+</body></html>
+};
+
 exit 0

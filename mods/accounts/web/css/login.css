@@ -1,0 +1,32 @@
+body {
+	font-family: Ubuntu, sans-serif;
+}
+label {
+	font-size: 10px;
+	text-transform: uppercase;
+	cursor: pointer;
+	display: block;
+}
+input {
+	margin-bottom: 1em;
+}
+
+#contentpane {
+	width: 750px;
+	margin: 20px auto;
+}
+
+.inlineblock {
+	margin: 0 10px;
+	display: inline-block;
+	vertical-align: top;
+	width: 200px;
+}
+.inlineblock p {
+	text-align: justify;
+	text-indent: 2em;
+}
+
+#help {
+	width: 250px;
+}
