@@ -22,6 +22,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+
+#define __USE_XOPEN
 #include <time.h>
 
 #include "utc_date.h"
