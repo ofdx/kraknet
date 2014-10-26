@@ -25,7 +25,6 @@
 #include <time.h>
 
 #include "utc_date.h"
-
 #include "http11.h"
 enum conn_mode { CLOSE, KEEP_ALIVE, UNSET };
 
@@ -176,7 +175,7 @@ http_loggable http_request(FILE *stream, char *uri, int method, char *post_raw_d
 
 			// If the path isn't canonical redirect the user.
 			if((s = getenv("kws_pot_err")) && strstr(s, "dirnotdir")){
-				if(s = strstr(str, getenv("web_root")))
+				if((s = strstr(str, getenv("web_root"))))
 					s += strlen(getenv("web_root"));
 				else s = str;
 				return (http_redirect(stream, event.code = 301, s), event);
@@ -209,7 +208,7 @@ http_loggable http_request(FILE *stream, char *uri, int method, char *post_raw_d
 				post_data_fname = calloc(strlen(getenv("tmp_ws")) + 32, sizeof(char));
 				sprintf(post_data_fname, "%s/%s", getenv("tmp_ws"), post_time(KRAKNET_POST, 1));
 
-				if(post_data_file = fopen(post_data_fname, "w")){
+				if((post_data_file = fopen(post_data_fname, "w"))){
 					fwrite(post_raw_data, sizeof(char), post_length, post_data_file);
 					fclose(post_data_file);
 				} else {

@@ -40,7 +40,7 @@ char **chop_words(const char *src){
 
 	*(v + count - 1) = strtok_r(str, WORDS_DELIMINATOR, &r);
 	do v = realloc(v, ++count * sizeof(char**));
-	while(*(v + count - 1) = strtok_r(NULL, WORDS_DELIMINATOR, &r));
+	while((*(v + count - 1) = strtok_r(NULL, WORDS_DELIMINATOR, &r)));
 
 	return v;
 }

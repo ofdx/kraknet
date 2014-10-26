@@ -71,10 +71,7 @@ void serve(FILE *r){
 }
 
 int main(int argc, char **argv){
-	char *buf, *b, *b_r, *s;
-	char *seek, *str;
-	char *home_dir;
-	size_t b_size = 256, n;
+	char *home_dir, *buf, *s, *str;
 	FILE *r;
 
 	// If this is an "inline" rendering, HTTP headers are probably not wanted.
