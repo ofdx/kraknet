@@ -14,11 +14,13 @@ BIN=../bin
 LIB=../lib
 CC=gcc -L$(LIB) -I$(I) -s -O3 -Wall
 
-all: $(O) $(BIN) $(LIB) $(LIB)/libkraknet.so $(BIN)/ws $(BIN)/mod_find $(BIN)/mod_home $(BIN)/kraknet $(BIN)/decode
+all: $(O) $(BIN) $(LIB) $(LIB)/libkraknet.so $(BIN)/ws $(BIN)/mod_find $(BIN)/mod_home $(BIN)/kraknet $(BIN)/decode tags
 
 clean:
 	rm -f $(LIB)/kraknet.so $(O)/*.o $(BIN)/ws $(BIN)/kraknet $(BIN)/mod_find $(LIB)/libkraknet.so
 
+tags: *.c *.h
+	ctags -R .
 
 # libkraknet (shared library of common functions)
 $(LIB)/libkraknet.so: $(C)/generic.c $(C)/utc_date.c $(C)/http11.c
