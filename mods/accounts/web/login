@@ -79,24 +79,28 @@ if($okay == 1){
 	}
 }
 
+# Begin output headers
 printf "Status: 200 $error\n";
+
+# Only add the session and send the cookie if auth was OK.
 if($okay == 1){
 	chomp(my $sid = qx/create_session '$username'/);
 	if(($? == 0) and (length($sid) > 0)){
 		printf "Set-Cookie: knetsid=$sid; Path=/;" . ((length($domain) > 0) ? " Domain=$domain;" : "") . " Max-Age=315360000\n";
 	}
+}
 
-	print qq{Content-Type: text/html; charset=utf-8
+# Output body; redirect to wherever makes sense.
+print qq{Content-Type: text/html; charset=utf-8
 
 <!DOCTYPE html>
 <html><head>
-	<title>Redirecting...</title>
-	<meta http-equiv="refresh" content="0;$redir">
+<title>Redirecting...</title>
+<meta http-equiv="refresh" content="0;$redir">
 </head><body>
-	<p>Redirecting you to <a href="$redir">$redir</a>...</p>
+<p>Redirecting you to <a href="$redir">$redir</a>...</p>
 </body></html>
-	};
-}
+};
 
 # Probably superfluous
 printf "\n";

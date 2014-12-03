@@ -2,6 +2,7 @@
 # Mike Perron (2014)
 auth=sh/auth.pl
 id=sh/id.pl
+pretty=sh/pretty.pl
 domain=sh/domain.sh
 authdomain=sh/authdomain.sh
 loginref=sh/loginref.sh
