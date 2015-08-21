@@ -6,3 +6,6 @@ pretty=sh/pretty.pl
 domain=sh/domain.sh
 authdomain=sh/authdomain.sh
 loginref=sh/loginref.sh
+
+# API scripts
+api=sh/api.pl

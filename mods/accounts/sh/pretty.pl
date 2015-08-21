@@ -15,6 +15,4 @@ if($row[0]){
 
 	printf "$pretty";
 	exit 0
-} else {
-	die "User not found";
 }
