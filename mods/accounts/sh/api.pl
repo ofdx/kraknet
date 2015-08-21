@@ -86,6 +86,7 @@ sub register {
 	my $reg_error = "";
 
 	$okay{name} = 1 if($postvalues->{name} =~ /^[a-z\d_\-]{4,128}+$/);
+	$reg_error = "Invalid username.";
 
 	my $pw_len = length $postvalues->{pass};
 	if(($postvalues->{pass} eq $postvalues->{repass}) and ($pw_len >= 6)){
