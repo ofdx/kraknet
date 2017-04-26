@@ -219,9 +219,17 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 		} else http_default_error(request_stream, 401, "Permission denied.");
 		
 		// Log this request.
-		if(!event.skiplog)
+		if(!event.skiplog){
+			char *inet_remote_addr = (char*)inet_ntoa(socket_addr_client.sin_addr);
+			char *inet_logged_addr = inet_remote_addr;
+			char *inet_forwarded_addr = getenv("HTTP_X_FORWARDED_FOR");
+
+			// X_FORWARDED_FOR was in the request and REMOTE_ADDR is in the local class A subnet.
+			if(inet_remote_addr && !strncmp(inet_remote_addr, "127", 3) && inet_forwarded_addr)
+				inet_logged_addr = inet_forwarded_addr;
+
 			log_response(
-				(char*)inet_ntoa(socket_addr_client.sin_addr), // Remote address
+				inet_logged_addr, // Remote address
 				"-", // User identifier
 				"-", // User name
 				"-", // Formated date (e.g. [10/Oct/2000:13:55:35 -0700])
@@ -229,6 +237,7 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 				event.code, // Reponse code (e.g. 200)
 				-1 // Response bytes
 			);
+		}
 
 		// End of handler process.
 		kws_fclose(&request_stream);
