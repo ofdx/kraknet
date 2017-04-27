@@ -46,6 +46,14 @@ static void log_response(char *remote_addr, char *user_identifier, char *user_na
 		strftime(date, 256, "[%d/%b/%Y:%H:%M:%S %z]", tm);
 	}
 
+	// If this isn't explicitly set, check REMOTE_USER before setting it to a literal dash.
+	if(!user_name){
+		user_name = getenv("REMOTE_USER");
+
+		if(!user_name)
+			user_name = "-";
+	}
+
 	error_code(0, "--%s %s %s %s \"%s\" %s %s",
 		remote_addr,
 		user_identifier,
@@ -222,6 +230,15 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 
 			free(query);
 
+			// Get username
+			if(!mod_find_p("accounts", "auth", NULL, &query)){
+				sanitize_str(query);
+
+				if(!strncmp(query, "OK", 2))
+					setenv("REMOTE_USER", query + 3, 1);
+			}
+			free(query);
+
 			if(!strcasecmp(method, "HEAD"))
 				event = http_request(request_stream, str, HEAD, NULL);
 			else if(!strcasecmp(method, "GET"))
@@ -246,7 +263,7 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 			log_response(
 				inet_logged_addr, // Remote address
 				"-", // User identifier
-				"-", // User name
+				NULL, // User name
 				NULL, // Formated date (e.g. [10/Oct/2000:13:55:35 -0700])
 				request_original, // Request (e.g. "GET / HTTP/1.1")
 				event.code, // Reponse code (e.g. 200)
