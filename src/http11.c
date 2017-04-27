@@ -280,7 +280,8 @@ http_loggable http_request(FILE *stream, char *uri, int method, char *post_raw_d
 				}
 				free(cgi_headers);
 
-				fprintf(stream, "Content-length: %ld\r\n", count);
+				event.bytes = count;
+				fprintf(stream, "Content-Length: %ld\r\n", count);
 				fputs("\r\n", stream);
 
 				// CGI output
@@ -301,6 +302,7 @@ http_loggable http_request(FILE *stream, char *uri, int method, char *post_raw_d
 			else {
 				if(mod_time_check(sbuf.st_mtime)){
 					event.code = 304;
+					event.bytes = sbuf.st_size;
 					fprintf(stream, "HTTP/1.1 304 Not Modified\r\n");
 					fprintf(stream, "Last-Modified: %s\r\n", http_date(sbuf.st_mtime - time(0)));
 					fprintf(stream,
@@ -315,6 +317,7 @@ http_loggable http_request(FILE *stream, char *uri, int method, char *post_raw_d
 					);
 				} else {
 					event.code = 200;
+					event.bytes = sbuf.st_size;
 					fprintf(stream, "HTTP/1.1 200 OK\r\n");
 					fprintf(stream, "Last-Modified: %s\r\n", http_date(sbuf.st_mtime - time(0)));
 					fprintf(stream,

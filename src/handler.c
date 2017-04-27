@@ -267,7 +267,7 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 				NULL, // Formated date (e.g. [10/Oct/2000:13:55:35 -0700])
 				request_original, // Request (e.g. "GET / HTTP/1.1")
 				event.code, // Reponse code (e.g. 200)
-				-1 // Response bytes
+				event.bytes // Response bytes
 			);
 		}
 

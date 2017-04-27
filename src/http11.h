@@ -19,8 +19,9 @@
 #define KWS_SERVER_NAME "krakws/1.0 (Linux)"
 
 typedef struct http_loggable {
-	int skiplog;
-	int code;
+	int skiplog; // If this is set, the request will not be logged.
+	int code; // HTTP Status Code
+	long bytes; // Count of bytes written by the request.
 } http_loggable;
 
 extern char *get_mime_type(char *filename);
