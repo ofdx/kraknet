@@ -9,6 +9,7 @@
 #include <string.h>
 #include <signal.h>
 #include <unistd.h>
+#include <time.h>
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -26,6 +27,8 @@
 static void log_response(char *remote_addr, char *user_identifier, char *user_name, char *date, char *request, int http_response, int bytes){
 	char str_http_response[16];
 	char str_bytes[256];
+	struct tm *tm = NULL;
+	time_t now;
 
 	if(http_response != -1)
 		sprintf(str_http_response, "%d", http_response);
@@ -34,6 +37,14 @@ static void log_response(char *remote_addr, char *user_identifier, char *user_na
 	if(bytes != -1)
 		sprintf(str_bytes, "%d", bytes);
 	else strcpy(str_bytes, "-");
+
+	// Provided date was NULL, so use the current date.
+	if(!date){
+		date = calloc(256, sizeof(char));
+		now = time(NULL);
+		tm = localtime(&now);
+		strftime(date, 256, "[%d/%b/%Y:%H:%M:%S %z]", tm);
+	}
 
 	error_code(0, "--%s %s %s %s \"%s\" %s %s",
 		remote_addr,
@@ -44,6 +55,10 @@ static void log_response(char *remote_addr, char *user_identifier, char *user_na
 		str_http_response,
 		str_bytes
 	);
+
+	// If we created the formatted date, then we allocated memory for the output string.
+	if(tm)
+		free(date);
 }
 
 
@@ -232,7 +247,7 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 				inet_logged_addr, // Remote address
 				"-", // User identifier
 				"-", // User name
-				"-", // Formated date (e.g. [10/Oct/2000:13:55:35 -0700])
+				NULL, // Formated date (e.g. [10/Oct/2000:13:55:35 -0700])
 				request_original, // Request (e.g. "GET / HTTP/1.1")
 				event.code, // Reponse code (e.g. 200)
 				-1 // Response bytes
