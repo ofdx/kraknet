@@ -20,7 +20,7 @@ clean:
 	rm -f $(LIB)/kraknet.so $(O)/*.o $(BIN)/ws $(BIN)/kraknet $(BIN)/mod_find $(LIB)/libkraknet.so
 
 tags: *.c *.h
-	ctags -R .
+	@if which tags; then echo "generating ctags..."; ctags -R .; else echo "ctags not found; skipping"; fi
 
 # libkraknet (shared library of common functions)
 $(LIB)/libkraknet.so: $(C)/generic.c $(C)/utc_date.c $(C)/http11.c
