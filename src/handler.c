@@ -231,7 +231,7 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 			free(query);
 
 			// Get username
-			if(!mod_find_p("accounts", "auth", NULL, &query)){
+			if(getenv("enable_accounts") && !strcmp(getenv("enable_accounts"), "true") && !mod_find_p("accounts", "auth", NULL, &query)){
 				sanitize_str(query);
 
 				if(!strncmp(query, "OK", 2))

@@ -96,7 +96,7 @@ int main(int argc, char **argv){
 
 	//Begin accounts magic
 	setenv("kraknet_user_auth", "NO", 1);
-	if(!mod_find_p("accounts", "auth", NULL, &buf)){
+	if(getenv("enable_accounts") && !strcmp(getenv("enable_accounts"), "true") && !mod_find_p("accounts", "auth", NULL, &buf)){
 		sanitize_str(buf);
 		if(!strncmp(buf, "OK", 2)){
 			setenv("kraknet_user", buf + 3, 1);

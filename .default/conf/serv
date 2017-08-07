@@ -39,3 +39,7 @@ web_dir_protection="no"
 # SQLite Database Locations
 knet_sids_location="db/sids.db"
 knet_db_location="db/kraknet.db"
+
+# Uncomment this to enable the built-in accounts feature. Requires a mysql
+# database and perl with CGI.pm.
+#enable_accounts="true"

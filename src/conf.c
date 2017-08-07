@@ -65,6 +65,11 @@ int set_env_from_conf(){
 	if((a = get_conf_line_s(conf, "web_user_name", SEEK_RESET_OK)))
 		setenv("web_user_name", a, 1);
 
+	// Optional param enable_accounts, enables built in kraknet accounts mechanism.
+	if(!(a = get_conf_line_s(conf, "enable_accounts", SEEK_RESET_OK)))
+		unsetenv("enable_accounts");
+	else setenv("enable_accounts", a, 1);
+
 	// web_root and DOCUMENT_ROOT
 	if(!(a = get_conf_line_s(conf, "web_root", SEEK_RESET_OK)))
 		return error_code(-1, "web_root not set.");
