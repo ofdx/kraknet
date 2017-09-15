@@ -12,7 +12,7 @@ input {
 }
 
 #contentpane {
-	width: 750px;
+	width: 800px;
 	margin: 20px auto;
 }
 
@@ -28,5 +28,5 @@ input {
 }
 
 #help {
-	width: 250px;
+	width: 300px;
 }

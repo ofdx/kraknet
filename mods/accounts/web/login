@@ -36,7 +36,7 @@ $username =~ s/\\/\\\\/g;
 $username =~ s/(["'])/\\\1/g;
 
 if(length($username) > 0){
-#printf "Name fits rules.\n";
+#print "Name fits rules.\n";
 	my $pass = $postvalues{pass};
 	$pass =~ s/'/'"'"'/g;
 
@@ -56,7 +56,7 @@ if(length($username) > 0){
 	} else {
 		# Passwords no good.
 		$okay = 0;
-		$error = "Bad Auth";
+		$error = "Invalid user name or password.";
 	}
 } else {
 	# Impossible user name.
@@ -80,28 +80,22 @@ if($okay == 1){
 }
 
 # Begin output headers
-printf "Status: 200 $error\n";
+print "Status: 200 $error\n";
 
 # Only add the session and send the cookie if auth was OK.
 if($okay == 1){
 	chomp(my $sid = qx/create_session '$username'/);
 	if(($? == 0) and (length($sid) > 0)){
-		printf "Set-Cookie: knetsid=$sid; Path=/;" . ((length($domain) > 0) ? " Domain=$domain;" : "") . " Max-Age=315360000\n";
+		print "Set-Cookie: knetsid=$sid; Path=/;" . ((length($domain) > 0) ? " Domain=$domain;" : "") . " Max-Age=315360000\n";
 	}
 }
 
 # Output body; redirect to wherever makes sense.
-print qq{Content-Type: text/html; charset=utf-8
+print qq{Content-Type: application/json; charset=utf-8
 
-<!DOCTYPE html>
-<html><head>
-<title>Redirecting...</title>
-<meta http-equiv="refresh" content="0;$redir">
-</head><body>
-<p>Redirecting you to <a href="$redir">$redir</a>...</p>
-</body></html>
+{"redir":"$redir","error":"$error","okay":$okay}
 };
 
 # Probably superfluous
-printf "\n";
+print "\n";
 exit 0

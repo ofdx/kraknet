@@ -15,6 +15,8 @@ my $reg_okay = 0;
 my %okay;
 my $pwhash;
 
+my $error = "";
+
 if(length($postdata) > 0){
 	my @pairs = split(/[;&]/, $postdata);
 	foreach my $pair (@pairs){
@@ -31,9 +33,17 @@ if(!($domain =~ /^[a-zA-Z0-9.-]{3,}$/)){
 	$domain = "";
 }
 
-$okay{name} = 1 if($postvalues{name} =~ /^[a-z\d_\-]{4,128}+$/);
+if($postvalues{name} =~ /^[a-z\d_\-]{4,128}+$/){
+	$okay{name} = 1
+} else {
+	$error = "Invalid username.";
+}
 
-if(($postvalues{pass} eq $postvalues{repass}) and (length($postvalues{pass}) >= 6)){
+if(length($postvalues{pass}) < 6){
+	$error = "Password must be at least six characters.";
+} elsif($postvalues{pass} ne $postvalues{repass}){
+	$error = "The two passwords must match.";
+} else {
 	$okay{pass} = 1;
 
 	my $pass = $postvalues{pass};
@@ -56,32 +66,25 @@ if(($okay{name} == 1) and ($okay{pass} == 1)){
 		$sth->execute($postvalues{name}, $pwhash, $postvalues{name});
 	} else {
 		$reg_okay = 0;
+		$error = "That username is already taken.";
 	}
 }
 
 my $redir;
+
 if($reg_okay == 1){
-	printf "Status: 200 Registration OK\n";
+	print "Status: 200 Registration Success\n";
+
 	$redir = $postvalues{onsuccess};
 	if($redir eq ""){
 		$redir = "/";
 	}
 
 	# Registration worked, so there's no reason create_session should fail...right?
-	printf "Set-Cookie: knetsid=" . qx/create_session '$postvalues{name}'/ . "; Path=/;" . ((length($domain) > 0) ? " Domain=$domain;" : "") . " Max-Age=5184000\n";
-
-	print qq{Content-Type: text/html; charset=utf-8
-
-<!DOCTYPE html>
-<html><head>
-	<title>Redirecting...</title>
-	<meta http-equiv="refresh" content="0;$redir">
-</head><body>
-	<p>Redirecting you to <a href="$redir">$redir</a>...</p>
-</body></html>
-	};
+	print "Set-Cookie: knetsid=" . qx/create_session '$postvalues{name}'/ . "; Path=/;" . ((length($domain) > 0) ? " Domain=$domain;" : "") . " Max-Age=5184000\n";
 } else {
-	printf "Status: 200 Registration Failed\n";
+	print "Status: 200 Registration Failed\n";
+
 	$redir = $postvalues{onfailure};
 	if($redir eq ""){
 		$redir = $ENV{HTTP_REFERER};
@@ -89,17 +92,10 @@ if($reg_okay == 1){
 			$redir = "/";
 		}
 	}
-
-	print qq{Content-Type: text/html; charset=utf-8
-
-<!DOCTYPE html>
-<html><head>
-	<title>Redirecting...</title>
-	<meta http-equiv="refresh" content="0;$redir">
-</head><body>
-	<p>Redirecting you to <a href="$redir">$redir</a>...</p>
-</body></html>
-	};
 }
 
+print qq{Content-Type: application/json; charset=utf-8
+
+{"okay":$reg_okay,"redir":"$redir","error":"$error"}
+};
 exit 0

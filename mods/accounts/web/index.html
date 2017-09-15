@@ -3,7 +3,82 @@
 	<title>Kraknet - Login</title>
 	<meta charset=utf-8>
 	<link rel=stylesheet type=text/css href=css/login.css>
-</head><body>
+	<script>
+		function postdata(form){
+			var str = '';
+
+			for(let i = 0, len = form.elements.length; i < len; i++){
+				let el = form.elements[i];
+
+				str += ((i ? '&' : '') + (encodeURIComponent(el.name) + '=' + encodeURIComponent(el.value)));
+			}
+
+			return str;
+		}
+
+		function post(form, btn){
+			btn.disabled = true;
+
+			var req = new XMLHttpRequest();
+			req.addEventListener('readystatechange', function(){
+				if(req.readyState === 4)
+					if(req.status === 200){
+						var response = JSON.parse(req.response);
+
+						if(response.okay === 1)
+							window.location = ((response.redir && (response.redir !== window.location)) ? response.redir : "//krakissi.net/");
+						else {
+							alert(response.error);
+							btn.disabled = false;
+						}
+					} else alert('Something has gone wrong.');
+			});
+			req.open("POST", form.action, true);
+			req.send(postdata(form));
+		}
+
+		function login(){
+			var form = document.forms['loginform'];
+			var btn = document.getElementById('btn_login');
+
+			post(form, btn);
+		}
+
+		function register(){
+			var form = document.forms['registerform'];
+			var btn = document.getElementById('btn_register');
+
+			post(form, btn);
+		}
+
+		function isreturn(event){
+			var key = event.keyCode || event.which;
+			return (key === 13);
+		}
+
+		function handlekey_login(event){
+			if(isreturn(event))
+				return login();
+		}
+		function handlekey_register(event){
+			if(isreturn(event))
+				return register();
+		}
+
+		function mapkeys(form, fn){
+			for(let i = 0, len = form.elements.length; i < len; i++){
+				let el = form.elements[i];
+
+				if((el.type === "text") || (el.type === "password"))
+					el.addEventListener('keyup', fn);
+			}
+		}
+		function setup(){
+			mapkeys(document.forms['loginform'], handlekey_login);
+			mapkeys(document.forms['registerform'], handlekey_register);
+		}
+	</script>
+</head><body onload="setup();">
 	<div id=contentpane>
 		<h2>kraknet</h2>
 		<div class=inlineblock>
@@ -22,19 +97,19 @@
 					<input type=password name=pass id=pass>
 				</div>
 
-				<input type=submit value=Login>
+				<input id=btn_login type=button value=Login onclick="login();">
 			</form>
 		</div>
 
 		<div id=help class=inlineblock>
-			<p>Welcome to the new kraknet! Old krakchat accounts will <b>not</b> work; you will need to make a new one.</p>
-			<p>Usernames should be at least four characters, with any combination of lowercase letters, numbers, hyphens, and underscores.</p>
-			<p>Passwords can be anything you want, but must be at least six characters.</p>
+			<p>Welcome to Kraknet! This is your account for all services on *.krakissi.net.</p>
+			<p>Usernames should be <b>at least four</b> characters, with any combination of lowercase letters, numbers, hyphens, and underscores.</p>
+			<p>Passwords can be anything you want, but must be <b>at least six</b> characters.</p>
 		</div>
 
 		<div class=inlineblock>
 			<h3>register</h3>
-			<form method=post action=register>
+			<form name=registerform method=post action=register>
 				<input type=hidden name=onsuccess value="<????chat:loginref>">
 				<input type=hidden name=domain value="<????accounts:domain>">
 
@@ -53,7 +128,7 @@
 					<input type=password name=repass id=reg_repass>
 				</div>
 
-				<input type=submit value=Register>
+				<input id=btn_register type=button value=Register onclick="register();">
 			</form>
 		</div>
 	</div>
