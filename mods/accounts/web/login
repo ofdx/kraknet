@@ -61,7 +61,7 @@ if(length($username) > 0){
 } else {
 	# Impossible user name.
 	$okay = 0;
-	$error = "Bad User";
+	$error = "Invalid user name or password.";
 }
 
 if($okay == 1){
