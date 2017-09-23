@@ -34,6 +34,7 @@ if(!($domain =~ /^[a-zA-Z0-9.-]{3,}$/)){
 my $username = $postvalues{name};
 $username =~ s/\\/\\\\/g;
 $username =~ s/(["'])/\\\1/g;
+$username = lc($username);
 
 if(length($username) > 0){
 #print "Name fits rules.\n";

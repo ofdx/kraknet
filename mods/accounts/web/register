@@ -33,7 +33,8 @@ if(!($domain =~ /^[a-zA-Z0-9.-]{3,}$/)){
 	$domain = "";
 }
 
-if($postvalues{name} =~ /^[a-z\d_\-]{4,128}+$/){
+if($postvalues{name} =~ /^[A-Za-z\d_\-]{4,128}+$/){
+	$postvalues{name} = lc($postvalues{name});
 	$okay{name} = 1
 } else {
 	$error = "Invalid username.";
