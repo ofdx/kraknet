@@ -54,14 +54,15 @@ static void log_response(char *remote_addr, char *user_identifier, char *user_na
 			user_name = "-";
 	}
 
-	error_code(0, "--%s %s %s %s \"%s\" %s %s",
+	error_code(0, "--%s %s %s %s \"%s\" %s %s %s",
 		remote_addr,
 		user_identifier,
 		user_name,
 		date,
 		request,
 		str_http_response,
-		str_bytes
+		str_bytes,
+		(getenv("HTTP_HOST") ? getenv("HTTP_HOST") : "")
 	);
 
 	// If we created the formatted date, then we allocated memory for the output string.
