@@ -50,7 +50,14 @@ pstart(){
 }
 pstop(){
 	echo "Stopping server..."
-	killall "$exec_name"
+	pid=$(< /tmp/krakws_${port}.pid)
+
+	if [ -n "$pid" ]; then
+		kill "$pid"
+		rm -f "/tmp/krakws_${port}.pid"
+	else
+		echo "No PID file found."
+	fi
 }
 
 case "$1" in
