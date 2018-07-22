@@ -38,6 +38,21 @@
 void request_timeout(int);
 FILE **request_stream = NULL;
 
+/*
+ * Write the process ID to a file, which the init_ws script is expecting to
+ * find it in later.
+ */
+void pid_write(int port, int pid){
+	char path[256];
+	FILE *out = NULL;
+
+	sprintf(path, "/tmp/krakws_%d.pid", port);
+	if((out = fopen(path, "w"))){
+		fprintf(out, "%d", pid);
+		fclose(out);
+	}
+}
+
 int main(int argc, char**argv){
 	int sockfd, sockfd_client, client_length;
 	struct sockaddr_in socket_addr_client;
@@ -163,9 +178,12 @@ int main(int argc, char**argv){
 	}
 
 	// PID info returned when starting server.
-	if(pid > 0)
+	if(pid > 0){
 		printf("Server started on port %d. [%d]\n", port, pid);
-	else printf("Failed\n");
+
+		// Write the PID out to a file, so the init_ws script can kill it later on stop.
+		pid_write(port, pid);
+	} else printf("Failed\n");
 
 	return 0;
 }
