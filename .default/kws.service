@@ -1,0 +1,11 @@
+[Unit]
+Description=Kraknet Web Server
+
+[Service]
+Type=oneshot
+ExecStart=/path/to/init_ws start
+ExecStop=/path/to/init_ws stop
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
