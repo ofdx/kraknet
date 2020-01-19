@@ -1,0 +1,12 @@
+bin/decode
+bin/kraknet
+bin/mod_find
+bin/mod_home
+bin/ws
+conf/
+init_ws
+lib/
+logs/
+src/o/
+src/tags
+web/
