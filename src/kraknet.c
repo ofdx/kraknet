@@ -71,7 +71,7 @@ void serve(FILE *r){
 }
 
 int main(int argc, char **argv){
-	char *home_dir, *buf, *s, *str;
+	char *home_dir, *buf = calloc(256, sizeof(char)), *s, *str;
 	FILE *r;
 
 	// If this is an "inline" rendering, HTTP headers are probably not wanted.
