@@ -74,7 +74,7 @@ foreach my $name (@file){
 
 	if(S_ISDIR($sb->mode)){
 		$filef = "$name/";
-		$size = "";
+		$size = 0;
 		if($name eq ".."){
 			$mime = "<b>Move Up</b>";
 		} elsif($name eq "."){
@@ -183,6 +183,10 @@ print<<EOF;
 EOF
 
 foreach my $ref (@entries_sorted){
+	if($ref->{size} == 0){
+		$ref->{size} = "";
+	}
+
 	print <<EOF;
 		<tr>
 			<td class=\"$colclass{name}\"><a href="$dir/$ref->{path}">$ref->{name}</a></td>
