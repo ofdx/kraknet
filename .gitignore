@@ -1,12 +1,9 @@
-bin/decode
-bin/kraknet
-bin/mod_find
-bin/mod_home
-bin/ws
+bin/
 conf/
-init_ws
 lib/
 logs/
 src/o/
 src/tags
 web/
+init_ws
+kws.service
