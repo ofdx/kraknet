@@ -258,8 +258,8 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 			char *inet_logged_addr = inet_remote_addr;
 			char *inet_forwarded_addr = getenv("HTTP_X_FORWARDED_FOR");
 
-			// X_FORWARDED_FOR was in the request and REMOTE_ADDR is in the local class A subnet.
-			if(inet_remote_addr && !strncmp(inet_remote_addr, "127", 3) && inet_forwarded_addr)
+			// If X-Forwarded-For was provided, use that as the remote client's IP address.
+			if(inet_forwarded_addr)
 				inet_logged_addr = inet_forwarded_addr;
 
 			log_response(
