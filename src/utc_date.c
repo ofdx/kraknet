@@ -33,6 +33,7 @@ char *post_time(const char *fmt, int nano){
 	t = ts.tv_sec;
 	tmp = localtime(&t);
 	strftime(str, 32, fmt, tmp);
+
 	if(nano)
 		sprintf(str, "%s%09ld", str, ts.tv_nsec);
 	/* The infamous "double post" bug stemmed from this line of code.

@@ -67,7 +67,7 @@ static void log_response(char *remote_addr, char *user_identifier, char *user_na
 
 	// If we created the formatted date, then we allocated memory for the output string.
 	if(tm)
-		free(date);
+		KWS_FREE(date);
 }
 
 
@@ -122,7 +122,7 @@ static void sethttpenv(char *str){
 
 	setenv(str, a, 1);
 	if(b == str)
-		free(b);
+		KWS_FREE(b);
 }
 
 
@@ -229,8 +229,7 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 			setenv("REMOTE_ADDR", (char*)inet_ntoa(socket_addr_client.sin_addr), 1);
 			// Skipping CONTENT_TYPE and CONTENT_LENGTH
 
-			free(query);
-			query = NULL;
+			KWS_FREE(query);
 
 			// Get username
 			if(getenv("enable_accounts") && !strcmp(getenv("enable_accounts"), "true") && !mod_find_p("accounts", "auth", NULL, &query)){
@@ -239,7 +238,7 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 				if(!strncmp(query, "OK", 2))
 					setenv("REMOTE_USER", query + 3, 1);
 			}
-			free(query);
+			KWS_FREE(query);
 
 			if(!strcasecmp(method, "HEAD"))
 				event = http_request(request_stream, str, HEAD, NULL);
@@ -247,7 +246,7 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 				event = http_request(request_stream, str, GET, NULL);
 			else if(!strcasecmp(method, "POST")){
 				event = http_request(request_stream, str, POST, post_raw_data);
-				free(post_raw_data);
+				KWS_FREE(post_raw_data);
 			} else http_default_error(request_stream, 501, "Method Not Implemented.");
 
 		} else http_default_error(request_stream, 401, "Permission denied.");
@@ -280,10 +279,10 @@ int handle_connection(FILE *request_stream, struct sockaddr_in socket_addr_clien
 	}
 	if(pid > 0)
 		waitpid(pid, NULL, 0);
-	free(str);
-	free(*v);
-	free(v);
-	free(request_original);
+	KWS_FREE(str);
+	KWS_FREE(*v);
+	KWS_FREE(v);
+	KWS_FREE(request_original);
 
 	// Handle another request if connection was keep-alive.
 	return ((s = getenv("CONNECTION_MODE")) && !strcasecmp(s, "keep-alive"))?0:-1;

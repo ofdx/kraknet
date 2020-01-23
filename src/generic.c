@@ -89,14 +89,14 @@ FILE *get_conf_stream(char *cname, const char *mode){
 	FILE *stream;
 	char *str, *a;
 
-	if(!(a=getenv("conf_dir")))
+	if(!(a = getenv("conf_dir")))
 		return NULL;
 
 	str = calloc(strlen(cname) + strlen(a) + 2, sizeof(char));
 	sprintf(str, "%s/%s", a, cname);
 
 	stream = fopen(str, mode);
-	free(str);
+	KWS_FREE(str);
 
 	return stream;
 }
@@ -125,7 +125,7 @@ char *get_conf_line(char *fname, char *value){
  *	times. Do not use on non-file streams. */
 char *get_conf_line_s(FILE *stream, char *value, enum SEEK_MODE mode){
 	static char *str = NULL;
-	static size_t n;
+	static size_t n = 0;
 
 	char *return_string = NULL;
 	char *a, *s;
@@ -156,7 +156,7 @@ char *get_conf_line_s(FILE *stream, char *value, enum SEEK_MODE mode){
 		sanitize_str(str);
 
 		// Skip indentation
-		for(s = str;(*s == ' ') || (*s == '\t'); s++);
+		for(s = str; ((*s == ' ') || (*s == '\t')); s++);
 		a = s;
 
 		// Match needle to the beginning of the line.
@@ -164,12 +164,13 @@ char *get_conf_line_s(FILE *stream, char *value, enum SEEK_MODE mode){
 			for(s = a; *s; s++)
 				if(*s == '=')
 					break;
-			a = (*s) ? s + 1 : s;
 
-			return_string = str;
+			a = ((*s) ? (s + 1) : s);
+
 			strcpy(str, a);
+			return_string = str;
 		}
-	}	while(!return_string);
+	} while(!return_string);
 
 	unquote_str(return_string);
 
@@ -215,11 +216,15 @@ int error_code(int code, const char *msg, ...){
 // Return path to module's home.
 char *mod_home(char *mod){
 	static char p[1024];
-	char *home_dir;
+	char *home_dir = getenv("mod_root");
 
-	if(!(home_dir = getenv("mod_root")))
-		return error_code(0, "Missing environment variable $mod_root."), NULL;
-	sprintf(p, "%s/%s", home_dir, mod);
+	if(!home_dir){
+		error_code(0, "Missing environment variable $mod_root.");
+
+		return NULL;
+	}
+
+	snprintf(p, sizeof(p), "%s/%s", home_dir, mod);
 	return p;
 }
 
@@ -231,13 +236,13 @@ int mod_find_p(char *mod, char *script, char *args, char **ret){
 	char pwd[2048];
 	size_t n = 256;
 	FILE *pipe;
-	int c,p=0;
+	int c, p = 0;
 
 	if(!(home_dir = getenv("mod_root")))
 		return error_code(-1, "Missing environment variable $mod_root.");
 
 	str = calloc(256 + n, sizeof(char));
-	sprintf(str, "%s/%s/info.txt", home_dir, mod);
+	snprintf(str, (256 + n), "%s/%s/info.txt", home_dir, mod);
 	if((s = get_conf_line(str, script))){
 		unquote_str(script = s);
 
@@ -267,7 +272,7 @@ int mod_find_p(char *mod, char *script, char *args, char **ret){
 		chdir(pwd);
 
 		if(!ret)
-			free(str);
+			KWS_FREE(str);
 		else *ret = str;
 	} else return error_code(1, "No script found. (%s:%s)", mod, script);
 
@@ -296,8 +301,8 @@ int mod_find_ps(char *mod_script, char *args, char **ret){
 	*(s - 1) = ':';
 
 	code = mod_find_p(mod, script, args, ret);
-	free(mod);
-	free(script);
+	KWS_FREE(mod);
+	KWS_FREE(script);
 
 	return code;
 }

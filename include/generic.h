@@ -11,6 +11,8 @@
 #ifndef KWS_GENERIC_F
 #define KWS_GENERIC_F
 
+#define KWS_FREE(x) (free(x), (x) = NULL)
+
 #define WORDS_DELIMINATOR " \t\r\n"
 
 // String functions

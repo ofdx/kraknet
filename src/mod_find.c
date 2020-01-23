@@ -31,8 +31,10 @@ int main(int argc, char **argv){
 	// Flatten arguments to a single string.
 	if(argc > 2){
 		p = argv + 2;
-		do{	n += 256;
+		do {
+			n += 256;
 			args = realloc(args, n * sizeof(char));
+
 			if(n == 256)
 				strcpy(args, *p); 
 			else {

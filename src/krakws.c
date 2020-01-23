@@ -88,6 +88,7 @@ int main(int argc, char**argv){
 			error_code(0, "Warning: No user named %s!", str);
 			gpasswd = NULL;
 		}
+
 		unsetenv("web_user_name");
 	} else {
 		gpasswd = getpwuid(getuid());
@@ -110,13 +111,11 @@ int main(int argc, char**argv){
 		 *	existing connections to close when restarting the server. */
 		setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 
-
 		if(bind(sockfd, (struct sockaddr*)&socket_addr, sizeof(socket_addr)) == -1)
 			return error_code(1, "Couldn't bind.");
 
 		if(listen(sockfd, 64) == -1)
 			return error_code(1, "Deaf.");
-
 
 		/*	root privileges should be dropped after this point. The server has
 		 *	been initialized and bound its socket, and will now run as whatever
@@ -131,7 +130,6 @@ int main(int argc, char**argv){
 				error_code(0, "Warning: You don't have permission to setuid to %s.", gpasswd->pw_name);
 		}
 
-
 		// Let init handle the children.
 		signal(SIGCHLD, SIG_IGN);
 
@@ -140,7 +138,7 @@ int main(int argc, char**argv){
 		while(1){
 			client_length = sizeof(socket_addr_client);
 			memset(&socket_addr_client, 0, client_length);
-			sockfd_client = accept(sockfd, (struct sockaddr*)&socket_addr_client, (socklen_t*)&client_length);
+			sockfd_client = accept(sockfd, (struct sockaddr*) &socket_addr_client, (socklen_t*) &client_length);
 
 			if(set_env_from_conf())
 				return error_code(1, "General Configuration issue. ** Server stopping. **");
@@ -164,7 +162,7 @@ int main(int argc, char**argv){
 
 				// End of child process
 				kws_fclose(request_stream);
-				free(request_stream);
+				KWS_FREE(request_stream);
 				close(sockfd_client);
 				exit(0);
 			}

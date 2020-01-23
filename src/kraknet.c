@@ -23,16 +23,16 @@
 char print_headers = 1;
 
 void serve(FILE *r){
-	char *str, *s, *seek;
-	char *buf, *b, *b_r;
-	size_t b_size, n;
+	char *s, *seek;
+	char *b, *b_r;
+	size_t b_size = 256;
 
-	buf = calloc(256, sizeof(char));
-	b = b_r = calloc(b_size = 256, sizeof(char));
+	b = b_r = calloc(b_size, sizeof(char));
+
 	while(getline(&b_r, &b_size, r) != -1){
 		if(*b_r != '!')
 			break;
-		if(b_r[1] == '#')
+		if(*(b_r + 1) == '#')
 			continue;
 
 		if(print_headers)
@@ -41,8 +41,9 @@ void serve(FILE *r){
 	if(print_headers)
 		fputs("\r\n", stdout);
 
-	str = calloc(n = 256, sizeof(char));
-	do{	b = b_r;
+	do {
+		b = b_r;
+
 		while(*b){
 			if(!(seek = strstr(b, "<????")))
 				break;
@@ -65,9 +66,7 @@ void serve(FILE *r){
 		fputs(b, stdout);
 	}	while(getline(&b_r, &b_size, r) != -1);
 
-	free(b_r);
-	free(buf);
-	free(str);
+	KWS_FREE(b_r);
 }
 
 int main(int argc, char **argv){
@@ -82,7 +81,7 @@ int main(int argc, char **argv){
 	if(print_headers){
 		str = get_mime_type("index.html");
 		printf("Content-Type: %s\r\n", str);
-		free(str);
+		KWS_FREE(str);
 	}
 
 	if(!(home_dir = getenv("mod_root"))){
@@ -100,11 +99,15 @@ int main(int argc, char **argv){
 		sanitize_str(buf);
 		if(!strncmp(buf, "OK", 2)){
 			setenv("kraknet_user", buf + 3, 1);
-			setenv("kraknet_user_ip", (s = getenv("HTTP_X_FORWARDED_FOR"))?s:getenv("REMOTE_ADDR"), 1);
+			setenv("kraknet_user_ip", (
+				(s = getenv("HTTP_X_FORWARDED_FOR")) ?
+					s :
+					getenv("REMOTE_ADDR")
+			), 1);
 			setenv("kraknet_user_auth", "OK", 1);
 		}
 	}
-	free(buf);
+	KWS_FREE(buf);
 	//End accounts magic
 
 	// Serve the first file listed.
@@ -118,6 +121,7 @@ int main(int argc, char **argv){
 
 		if(!(r = fopen(argv[1], "r")))
 			return error_code(-1, "Could not open file \"%s\"", argv[1]);
+
 		serve(r);
 		fclose(r);
 	}

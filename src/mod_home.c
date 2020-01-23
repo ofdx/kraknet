@@ -13,6 +13,10 @@
 #include "generic.h"
 
 int main(int argc, char **argv){
-	printf("%s\n", (argc < 2)?mod_home(""):mod_home(argv[1]));
+	printf("%s\n", ((argc < 2) ?
+		mod_home("") :
+		mod_home(argv[1])
+	));
+
 	return 0;
 }

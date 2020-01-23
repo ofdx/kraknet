@@ -51,7 +51,7 @@ int set_env_from_conf(){
 
 	if(!(a = realpath(a, NULL)))
 		return error_code(-1, "Server path is inaccessible. (%s)", getenv("server_home"));
-	free(a);
+	KWS_FREE(a);
 
 	if(!(conf = get_conf_stream("serv", "r")))
 		return error_code(-1, "Can't read serv config.");
@@ -80,15 +80,15 @@ int set_env_from_conf(){
 	if(!(str = realpath(str, NULL)))
 		return error_code(-1, "web_root path inaccessible.");
 	change_root(str);
-	free(str);
-	free(a);
+	KWS_FREE(str);
+	KWS_FREE(a);
 
 	// mod_root
 	if(!(a = get_conf_line_s(conf, "mod_root", SEEK_RESET_OK)))
 		return error_code(-1, "mod_root not set.");
 	set_path(&str, a);
 	setenv("mod_root", str, 1);
-	free(str);
+	KWS_FREE(str);
 
 	// tmp_ws
 	if(!(a = get_conf_line_s(conf, "tmp_ws", SEEK_RESET_OK)))
@@ -99,14 +99,16 @@ int set_env_from_conf(){
 	// Create temp directory.
 	mkdir(str, 0777);
 	switch(errno){
-		case 0: case EEXIST:
+		case 0:
+		case EEXIST:
 			chmod(str, 0777);
 			break;
+
 		default:
 			return error_code(-1, "Could not create temp directory.");
 	}
 
-	free(str);
+	KWS_FREE(str);
 
 	// log_root
 	if(!(a = get_conf_line_s(conf, "log_root", SEEK_RESET_OK)))
@@ -117,7 +119,8 @@ int set_env_from_conf(){
 
 		mkdir(str, 0777);
 		switch(errno){
-			case 0: case EEXIST:
+			case 0:
+			case EEXIST:
 				strcat(str, "/server.log");
 
 				// mod_debug_stream has a static pointer to hold this fopen.
@@ -127,10 +130,11 @@ int set_env_from_conf(){
 				if(mod_debug_stream(GET, NULL) == stderr)
 					error_code(0, "Could not create log file, logging to stderr...");
 				break;
+
 			default:
 				error_code(0, "Could not create log directory, logging to stderr...");
 		}
-		free(str);
+		KWS_FREE(str);
 	}
 
 	// use_web_dir_protection
@@ -176,10 +180,10 @@ int change_log_owner(uid_t uid, gid_t gid){
 		sprintf(b, "%s/%s", a, d->d_name);
 		e += chown(b, uid, gid);
 	}
-	free(b);
+	KWS_FREE(b);
 	closedir(dir);	
 
-	return e ? error_code(0, "Warning: %d files could not be chowned.", e) : 0;
+	return (e ? error_code(0, "Warning: %d files could not be chowned.", e) : 0);
 }
 
 void calibrate_path(){
@@ -197,7 +201,7 @@ void calibrate_path(){
 			if(!stat(path, &s))
 				change_root(path);
 
-			free(path);
+			KWS_FREE(path);
 		} else change_root(server);
 	}
 }

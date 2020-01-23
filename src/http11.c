@@ -100,8 +100,9 @@ char *get_mime_type(char *filename){
 		strcpy(fname, "application/octet-stream");
 	}
 
-	free(str);
+	KWS_FREE(str);
 	fclose(mime);
+
 	return fname;
 }
 
@@ -190,7 +191,7 @@ http_loggable http_request(FILE *stream, char *uri, int method, char *post_raw_d
 
 			uri = realloc(uri, (strlen(str) + 1) * sizeof(char));
 			strcpy(uri, str);
-			free(str);
+			KWS_FREE(str);
 		}
 		
 		// Check for exec permissions or Kraknet.
@@ -214,8 +215,7 @@ http_loggable http_request(FILE *stream, char *uri, int method, char *post_raw_d
 					fwrite(post_raw_data, sizeof(char), post_length, post_data_file);
 					fclose(post_data_file);
 				} else {
-					free(post_data_fname);
-					post_data_fname = NULL;
+					KWS_FREE(post_data_fname);
 				}
 			}
 
@@ -247,7 +247,7 @@ http_loggable http_request(FILE *stream, char *uri, int method, char *post_raw_d
 				//Clean up temp data.
 				if(post_data_fname){
 					unlink(post_data_fname);
-					free(post_data_fname);
+					KWS_FREE(post_data_fname);
 				}
 
 				// TODO: Parse CGI header and correct it.
@@ -276,9 +276,9 @@ http_loggable http_request(FILE *stream, char *uri, int method, char *post_raw_d
 				for(a = cgi_headers; *a; a++){
 					if(**a)
 						fprintf(stream, "%s\r\n", *a);
-					free(*a);
+					KWS_FREE(*a);
 				}
-				free(cgi_headers);
+				KWS_FREE(cgi_headers);
 
 				event.bytes = count;
 				fprintf(stream, "Content-Length: %ld\r\n", count);
@@ -288,10 +288,11 @@ http_loggable http_request(FILE *stream, char *uri, int method, char *post_raw_d
 				if(method != HEAD)
 					fwrite(cgi_content, sizeof(char), count, stream);
 
-				free(cgi_content);
-				free(status);
+				KWS_FREE(cgi_content);
+				KWS_FREE(status);
 			} else return (http_default_error(stream, event.code = 501, "CGI Error."), event);
-			free(str);
+
+			KWS_FREE(str);
 		} else {
 			/**********************************************
 			    Output mode is NOT CGI. Dumping a file.
@@ -341,12 +342,14 @@ http_loggable http_request(FILE *stream, char *uri, int method, char *post_raw_d
 							fputc(c, stream);
 						}	fclose(content);
 					}
-					free(mime_type);
+
+					KWS_FREE(mime_type);
 				}
 			}
 		}
 	}
-	free(uri);
+	KWS_FREE(uri);
+
 	return event;
 }
 
