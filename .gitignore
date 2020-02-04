@@ -7,3 +7,6 @@ src/tags
 web/
 init_ws
 kws.service
+.*
+domains/
+mods/
