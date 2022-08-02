@@ -202,6 +202,6 @@ void calibrate_path(){
 				change_root(path);
 
 			KWS_FREE(path);
-		} else change_root(server);
+		}
 	}
 }
