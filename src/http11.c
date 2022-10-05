@@ -146,11 +146,21 @@ http_loggable http_request(FILE *stream, char *uri, int method, char *post_raw_d
 		return (http_default_error(stream, event.code = 404, "File Not Found."), event);
 	else {
 		if(S_ISDIR(sbuf.st_mode)){
-			str = calloc(strlen(uri) + 256, sizeof(char));
+			size_t alloc_size = strlen(uri) + 256;
+			char *query = getenv("QUERY_STRING");
+			if(query)
+				alloc_size += strlen(query);
+			else query = NULL;
+
+			str = calloc(alloc_size, sizeof(char));
 
 			// Redirect if the trailing slash is missing.
 			if(*(uri + strlen(uri) - 1) != '/'){
-				sprintf(str, "%s/", uri + strlen(getenv("web_root")));
+				sprintf(str, "%s/%s%s",
+					uri + strlen(getenv("web_root")),
+					(query ? "?" : ""),
+					(query ? query : "")
+				);
 				return (http_redirect(stream, event.code = 301, str), event);
 			}
 
