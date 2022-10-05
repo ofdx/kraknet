@@ -148,7 +148,7 @@ http_loggable http_request(FILE *stream, char *uri, int method, char *post_raw_d
 		if(S_ISDIR(sbuf.st_mode)){
 			size_t alloc_size = strlen(uri) + 256;
 			char *query = getenv("QUERY_STRING");
-			if(query)
+			if(query && strlen(query))
 				alloc_size += strlen(query);
 			else query = NULL;
 
